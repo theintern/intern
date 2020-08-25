@@ -18,8 +18,6 @@ declare const intern: Browser;
  * suites being run in a remote browser.
  */
 export default class RemoteSuite extends Suite {
-  executor!: Node;
-
   constructor(options?: Partial<SuiteOptions>) {
     options = options || {};
     if (options.name == null) {
@@ -55,7 +53,7 @@ export default class RemoteSuite extends Suite {
   run(): Promise<void> {
     const remote = this.remote;
     const sessionId = remote.session.sessionId;
-    const server = this.executor.server!;
+    const server = (this.executor as Node).server!;
     let listenerHandle: Handle;
     let connectTimer: NodeJS.Timer;
 
@@ -158,7 +156,7 @@ export default class RemoteSuite extends Suite {
               // post-processing
               try {
                 await remote.setHeartbeatInterval(0);
-                if (this.executor.hasCoveredFiles) {
+                if ((this.executor as Node).hasCoveredFiles) {
                   // get about:blank to always collect code
                   // coverage data from the page in case it is
                   // navigated away later by some other
@@ -180,7 +178,7 @@ export default class RemoteSuite extends Suite {
               break;
 
             default:
-              return this.executor.emit(name, data);
+              return (this.executor as Node).emit(name, data);
           }
         }
       );

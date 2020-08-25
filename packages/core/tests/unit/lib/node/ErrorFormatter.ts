@@ -16,13 +16,13 @@ registerSuite('lib/node/ErrorFormatter', function () {
     }
 
     originalPositionFor(position: {
-      line: number;
+      line?: number;
       column: number;
       source?: string;
     }) {
       position = { ...position };
       position.source = this.map.file;
-      if (position.line > 20) {
+      if (position.line && position.line > 20) {
         delete position.line;
       }
       return position;

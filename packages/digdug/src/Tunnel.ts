@@ -20,7 +20,8 @@ import decompress from 'decompress';
  * securely exposes local services for testing within the service provider’s
  * network.
  */
-export default class Tunnel extends Evented<TunnelEvents, string>
+export default class Tunnel
+  extends Evented<TunnelEvents, string>
   implements TunnelProperties {
   /**
    * The URL of a service that provides a list of environments supported by
@@ -50,7 +51,9 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * An HTTP authorization string to use when initiating connections to the
    * tunnel. This value of this property is defined by Tunnel subclasses.
    */
-  auth: string | undefined;
+  get auth(): string | undefined {
+    return undefined;
+  }
 
   /**
    * The directory where the tunnel software will be extracted. If the
@@ -63,7 +66,13 @@ export default class Tunnel extends Evented<TunnelEvents, string>
    * The executable to spawn in order to create a tunnel. This value is set
    * by the tunnel subclasses.
    */
-  executable!: string;
+  get executable(): string {
+    return this._executable;
+  }
+
+  set executable(exe: string) {
+    this._executable = exe;
+  }
 
   /**
    * The host on which a WebDriver client can access the service provided by
@@ -116,7 +125,13 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   tunnelId: string | undefined;
 
   /** The URL where the tunnel software can be downloaded. */
-  url!: string;
+  get url(): string {
+    return this._url;
+  }
+
+  set url(url: string) {
+    this._url = url;
+  }
 
   /** Whether or not to tell the tunnel to provide verbose logging output. */
   verbose!: boolean;
@@ -127,6 +142,8 @@ export default class Tunnel extends Evented<TunnelEvents, string>
   protected _process: ChildProcess | undefined;
   protected _state!: 'stopped' | 'starting' | 'running' | 'stopping';
   protected _cancelToken: CancelToken | undefined;
+  protected _executable = '';
+  protected _url = '';
 
   constructor(options?: Partial<TunnelProperties>) {
     super();
@@ -755,5 +772,3 @@ function proxyIOEvent(target: Tunnel, type: 'stdout' | 'stderr') {
     });
   };
 }
-
-delete Tunnel.prototype.on;

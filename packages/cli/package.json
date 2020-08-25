@@ -50,11 +50,11 @@
   "devDependencies": {
     "@theintern-dev/eslint-config": "workspace:*",
     "@theintern-dev/tsconfig": "workspace:*",
-    "@types/chokidar": "~1.7.2",
-    "@types/glob": "~5.0.32",
+    "@types/chokidar": "~1.7.5",
+    "@types/glob": "~5.0.36",
     "@types/opn": "~3.0.28",
     "@types/resolve": "0.0.4",
-    "@types/semver": "~5.3.30",
-    "@types/shell-quote": "~1.6.1"
+    "@types/semver": "~5.3.34",
+    "@types/shell-quote": "~1.6.2"
   }
 }

@@ -386,11 +386,11 @@ registerSuite('lib/executors/Node', function () {
           replace(() => import('@theintern/leadfoot/dist/Server')).withDefault(
             MockLeadfootServer as any
           );
-          replace(() =>
-            import('@theintern/digdug/dist/NullTunnel')
+          replace(
+            () => import('@theintern/digdug/dist/NullTunnel')
           ).withDefault(MockTunnel as any);
-          replace(() =>
-            import('@theintern/digdug/dist/BrowserStackTunnel')
+          replace(
+            () => import('@theintern/digdug/dist/BrowserStackTunnel')
           ).withDefault(MockTunnel as any);
           replace(() => import('@theintern/digdug/dist/SeleniumTunnel')).with({
             default: (MockTunnel as unknown) as typeof SeleniumTunnel,
@@ -398,14 +398,14 @@ registerSuite('lib/executors/Node', function () {
               return environments.map(env => env.browserName as BrowserName);
             }
           });
-          replace(() =>
-            import('@theintern/digdug/dist/TestingBotTunnel')
+          replace(
+            () => import('@theintern/digdug/dist/TestingBotTunnel')
           ).withDefault(MockTunnel as any);
-          replace(() =>
-            import('@theintern/digdug/dist/CrossBrowserTestingTunnel')
+          replace(
+            () => import('@theintern/digdug/dist/CrossBrowserTestingTunnel')
           ).withDefault(MockTunnel as any);
-          replace(() =>
-            import('@theintern/digdug/dist/SauceLabsTunnel')
+          replace(
+            () => import('@theintern/digdug/dist/SauceLabsTunnel')
           ).withDefault(MockTunnel as any);
           replace(() => import('src/lib/ProxiedSession')).withDefault(
             MockSession as any
@@ -766,13 +766,13 @@ registerSuite('lib/executors/Node', function () {
               // executor's basePath
               executor.configure({ basePath: intern.config.basePath });
 
-              // Try loading a module that shouldn't already be loaded
               const module = require.resolve('ajv');
-              assert.isUndefined(
-                require.cache[module],
-                'expected test module not to be loaded already'
-              );
+
+              // Ensure the module isn't in the cache
+              delete require.cache[module];
+
               executor.loadScript('ajv');
+
               assert.isDefined(
                 require.cache[module],
                 'expected module to have been loaded'

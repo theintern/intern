@@ -17,14 +17,13 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@theintern/common": "workspace:*",
-    "jszip": "~3.2.1",
+    "jszip": "~3.5.0",
     "tslib": "~1.9.3"
   },
   "devDependencies": {
-    "@theintern/core": "workspace:*",
     "@theintern-dev/tsconfig": "workspace:*",
-    "@types/jszip": "~3.1.6",
-    "@types/node": "~12.0.5"
+    "@theintern/core": "workspace:*",
+    "@types/node": "^12.12.54"
   },
   "scripts": {
     "apidoc": "dev-apidoc",

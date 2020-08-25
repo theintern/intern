@@ -39,6 +39,7 @@ export function getInterface(executor: Executor) {
       return _registerSuite(executor, name, descriptorOrFactory);
     },
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     async: BenchmarkTest.async
   };
 }

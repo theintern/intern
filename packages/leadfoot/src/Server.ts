@@ -62,7 +62,7 @@ export default class Server {
   // TODO: NodeRequestOptions doesn't take a type in dojo-core alpha 20
   constructor(url: string | LeadfootURL, options?: RequestOptions) {
     if (typeof url === 'object') {
-      url = <URL>{ ...url };
+      url = <LeadfootURL>{ ...url };
       if (url.username || url.password || url.accessKey) {
         url.auth =
           encodeURIComponent(url.username || '') +

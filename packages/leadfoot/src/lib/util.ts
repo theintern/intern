@@ -6,7 +6,7 @@ import { CancelToken } from '@theintern/common';
  * @param ms Time until resolution in milliseconds.
  */
 export function sleep(ms: number, token?: CancelToken): Promise<void> {
-  let timer: NodeJS.Timer;
+  let timer: ReturnType<typeof global.setTimeout>;
   let promise = new Promise<void>(resolve => {
     timer = global.setTimeout(resolve, ms);
   });

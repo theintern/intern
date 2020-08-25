@@ -10493,7 +10493,7 @@
 					},
 					"indexSignature": [
 						{
-							"id": 1867,
+							"id": 1876,
 							"name": "__index",
 							"kind": 8192,
 							"kindString": "Index signature",
@@ -10505,7 +10505,7 @@
 							},
 							"parameters": [
 								{
-									"id": 1868,
+									"id": 1877,
 									"name": "n",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -10526,7 +10526,7 @@
 					],
 					"children": [
 						{
-							"id": 1869,
+							"id": 1878,
 							"name": "Array",
 							"kind": 1024,
 							"kindString": "Property",
@@ -10535,8 +10535,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1385,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1403,
 									"character": 17
 								}
 							],
@@ -10629,8 +10629,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1215,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1224,
 									"character": 10
 								}
 							],
@@ -10645,7 +10645,7 @@
 							}
 						},
 						{
-							"id": 1908,
+							"id": 1917,
 							"name": "[Symbol.iterator]",
 							"kind": 2048,
 							"kindString": "Method",
@@ -10654,7 +10654,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1909,
+									"id": 1918,
 									"name": "[Symbol.iterator]",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -10676,26 +10676,26 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1908,
+										"id": 1917,
 										"name": "Array.[Symbol.iterator]"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 60,
 									"character": 21
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1908,
+								"id": 1917,
 								"name": "Array.[Symbol.iterator]"
 							}
 						},
 						{
-							"id": 1916,
+							"id": 1925,
 							"name": "[Symbol.unscopables]",
 							"kind": 2048,
 							"kindString": "Method",
@@ -10704,7 +10704,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1917,
+									"id": 1926,
 									"name": "[Symbol.unscopables]",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -10717,7 +10717,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1918,
+											"id": 1927,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -10726,7 +10726,7 @@
 											},
 											"children": [
 												{
-													"id": 1919,
+													"id": 1928,
 													"name": "copyWithin",
 													"kind": 32,
 													"kindString": "Variable",
@@ -10735,7 +10735,7 @@
 													},
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 95,
 															"character": 18
 														}
@@ -10746,7 +10746,7 @@
 													}
 												},
 												{
-													"id": 1920,
+													"id": 1929,
 													"name": "entries",
 													"kind": 32,
 													"kindString": "Variable",
@@ -10755,7 +10755,7 @@
 													},
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 96,
 															"character": 15
 														}
@@ -10766,7 +10766,7 @@
 													}
 												},
 												{
-													"id": 1921,
+													"id": 1930,
 													"name": "fill",
 													"kind": 32,
 													"kindString": "Variable",
@@ -10775,7 +10775,7 @@
 													},
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 97,
 															"character": 12
 														}
@@ -10786,7 +10786,7 @@
 													}
 												},
 												{
-													"id": 1922,
+													"id": 1931,
 													"name": "find",
 													"kind": 32,
 													"kindString": "Variable",
@@ -10795,7 +10795,7 @@
 													},
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 98,
 															"character": 12
 														}
@@ -10806,7 +10806,7 @@
 													}
 												},
 												{
-													"id": 1923,
+													"id": 1932,
 													"name": "findIndex",
 													"kind": 32,
 													"kindString": "Variable",
@@ -10815,7 +10815,7 @@
 													},
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 99,
 															"character": 17
 														}
@@ -10826,7 +10826,7 @@
 													}
 												},
 												{
-													"id": 1924,
+													"id": 1933,
 													"name": "keys",
 													"kind": 32,
 													"kindString": "Variable",
@@ -10835,7 +10835,7 @@
 													},
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 100,
 															"character": 12
 														}
@@ -10846,7 +10846,7 @@
 													}
 												},
 												{
-													"id": 1925,
+													"id": 1934,
 													"name": "values",
 													"kind": 32,
 													"kindString": "Variable",
@@ -10855,7 +10855,7 @@
 													},
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 															"line": 101,
 															"character": 14
 														}
@@ -10871,19 +10871,19 @@
 													"title": "Variables",
 													"kind": 32,
 													"children": [
-														1919,
-														1920,
-														1921,
-														1922,
-														1923,
-														1924,
-														1925
+														1928,
+														1929,
+														1930,
+														1931,
+														1932,
+														1933,
+														1934
 													]
 												}
 											],
 											"sources": [
 												{
-													"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+													"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 													"line": 94,
 													"character": 27
 												}
@@ -10892,21 +10892,21 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1916,
+										"id": 1925,
 										"name": "Array.[Symbol.unscopables]"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
 									"line": 94,
 									"character": 24
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1916,
+								"id": 1925,
 								"name": "Array.[Symbol.unscopables]"
 							}
 						},
@@ -11035,13 +11035,13 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1237,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1246,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1242,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1251,
 									"character": 10
 								}
 							],
@@ -11052,7 +11052,7 @@
 							}
 						},
 						{
-							"id": 1903,
+							"id": 1912,
 							"name": "copyWithin",
 							"kind": 2048,
 							"kindString": "Method",
@@ -11061,7 +11061,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1904,
+									"id": 1913,
 									"name": "copyWithin",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -11073,7 +11073,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1905,
+											"id": 1914,
 											"name": "target",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -11089,7 +11089,7 @@
 											}
 										},
 										{
-											"id": 1906,
+											"id": 1915,
 											"name": "start",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -11105,7 +11105,7 @@
 											}
 										},
 										{
-											"id": 1907,
+											"id": 1916,
 											"name": "end",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -11137,26 +11137,26 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1903,
+										"id": 1912,
 										"name": "Array.copyWithin"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
 									"line": 64,
 									"character": 14
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1903,
+								"id": 1912,
 								"name": "Array.copyWithin"
 							}
 						},
 						{
-							"id": 1910,
+							"id": 1919,
 							"name": "entries",
 							"kind": 2048,
 							"kindString": "Method",
@@ -11165,7 +11165,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1911,
+									"id": 1920,
 									"name": "entries",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -11179,38 +11179,28 @@
 										"type": "reference",
 										"typeArguments": [
 											{
-												"type": "tuple",
-												"elements": [
-													{
-														"type": "intrinsic",
-														"name": "number"
-													},
-													{
-														"type": "intrinsic",
-														"name": "any"
-													}
-												]
+												"type": "tuple"
 											}
 										],
 										"name": "IterableIterator"
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1910,
+										"id": 1919,
 										"name": "Array.entries"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 65,
 									"character": 11
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1910,
+								"id": 1919,
 								"name": "Array.entries"
 							}
 						},
@@ -11234,276 +11224,9 @@
 									"comment": {
 										"shortText": "Determines whether all the members of an array satisfy the specified test."
 									},
-									"parameters": [
-										{
-											"id": 1758,
-											"name": "callbackfn",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true
-											},
-											"comment": {
-												"text": "A function that accepts up to three arguments. The every method calls\nthe callbackfn function for each element in the array until the callbackfn returns a value\nwhich is coercible to the Boolean value false, or until the end of the array."
-											},
-											"type": {
-												"type": "reflection",
-												"declaration": {
-													"id": 1759,
-													"name": "__type",
-													"kind": 65536,
-													"kindString": "Type literal",
-													"flags": {
-														"isExported": true
-													},
-													"signatures": [
-														{
-															"id": 1760,
-															"name": "__call",
-															"kind": 4096,
-															"kindString": "Call signature",
-															"flags": {
-																"isExported": true
-															},
-															"parameters": [
-																{
-																	"id": 1761,
-																	"name": "value",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "any"
-																	}
-																},
-																{
-																	"id": 1762,
-																	"name": "index",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "number"
-																	}
-																},
-																{
-																	"id": 1763,
-																	"name": "array",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "array",
-																		"elementType": {
-																			"type": "intrinsic",
-																			"name": "any"
-																		}
-																	}
-																}
-															],
-															"type": {
-																"type": "intrinsic",
-																"name": "unknown"
-															}
-														}
-													],
-													"sources": [
-														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1310,
-															"character": 21
-														}
-													]
-												}
-											}
-										},
-										{
-											"id": 1764,
-											"name": "thisArg",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true,
-												"isOptional": true
-											},
-											"comment": {
-												"text": "An object to which the this keyword can refer in the callbackfn function.\nIf thisArg is omitted, undefined is used as the this value.\n"
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "boolean"
-									},
-									"inheritedFrom": {
-										"type": "reference",
-										"id": 1756,
-										"name": "Array.every"
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1310,
-									"character": 9
-								}
-							],
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 1756,
-								"name": "Array.every"
-							}
-						},
-						{
-							"id": 1898,
-							"name": "fill",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true
-							},
-							"signatures": [
-								{
-									"id": 1899,
-									"name": "fill",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"isExported": true
-									},
-									"comment": {
-										"shortText": "Returns the this object after filling the section identified by start and end with value"
-									},
-									"parameters": [
-										{
-											"id": 1900,
-											"name": "value",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true
-											},
-											"comment": {
-												"text": "value to fill array section with"
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										},
-										{
-											"id": 1901,
-											"name": "start",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true,
-												"isOptional": true
-											},
-											"comment": {
-												"text": "index to start filling the array at. If start is negative, it is treated as\nlength+start where length is the length of the array."
-											},
-											"type": {
-												"type": "union",
-												"types": [
-													{
-														"type": "intrinsic",
-														"name": "undefined"
-													},
-													{
-														"type": "intrinsic",
-														"name": "number"
-													}
-												]
-											}
-										},
-										{
-											"id": 1902,
-											"name": "end",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true,
-												"isOptional": true
-											},
-											"comment": {
-												"text": "index to stop filling the array at. If end is negative, it is treated as\nlength+end.\n"
-											},
-											"type": {
-												"type": "union",
-												"types": [
-													{
-														"type": "intrinsic",
-														"name": "undefined"
-													},
-													{
-														"type": "intrinsic",
-														"name": "number"
-													}
-												]
-											}
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "this"
-									},
-									"inheritedFrom": {
-										"type": "reference",
-										"id": 1898,
-										"name": "Array.fill"
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
-									"line": 53,
-									"character": 8
-								}
-							],
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 1898,
-								"name": "Array.fill"
-							}
-						},
-						{
-							"id": 1793,
-							"name": "filter",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true
-							},
-							"signatures": [
-								{
-									"id": 1794,
-									"name": "filter",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"isExported": true
-									},
-									"comment": {
-										"shortText": "Returns the elements of an array that meet the condition specified in a callback function."
-									},
 									"typeParameter": [
 										{
-											"id": 1795,
+											"id": 1758,
 											"name": "S",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -11518,20 +11241,20 @@
 									],
 									"parameters": [
 										{
-											"id": 1796,
-											"name": "callbackfn",
+											"id": 1759,
+											"name": "predicate",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
 												"isExported": true
 											},
 											"comment": {
-												"text": "A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array."
+												"text": "A function that accepts up to three arguments. The every method calls\nthe predicate function for each element in the array until the predicate returns a value\nwhich is coercible to the Boolean value false, or until the end of the array."
 											},
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1797,
+													"id": 1760,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -11540,7 +11263,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1798,
+															"id": 1761,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -11549,7 +11272,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1799,
+																	"id": 1762,
 																	"name": "value",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11562,7 +11285,7 @@
 																	}
 																},
 																{
-																	"id": 1800,
+																	"id": 1763,
 																	"name": "index",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11575,7 +11298,7 @@
 																	}
 																},
 																{
-																	"id": 1801,
+																	"id": 1764,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11608,16 +11331,16 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1337,
-															"character": 35
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1319,
+															"character": 33
 														}
 													]
 												}
 											}
 										},
 										{
-											"id": 1802,
+											"id": 1765,
 											"name": "thisArg",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -11626,7 +11349,7 @@
 												"isOptional": true
 											},
 											"comment": {
-												"text": "An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.\n"
+												"text": "An object to which the this keyword can refer in the predicate function.\nIf thisArg is omitted, undefined is used as the this value.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -11635,49 +11358,54 @@
 										}
 									],
 									"type": {
-										"type": "array",
-										"elementType": {
-											"type": "typeParameter",
-											"name": "S",
-											"constraint": {
-												"type": "intrinsic",
-												"name": "any"
+										"type": "predicate",
+										"name": "this",
+										"asserts": false,
+										"targetType": {
+											"type": "array",
+											"elementType": {
+												"type": "typeParameter",
+												"name": "S",
+												"constraint": {
+													"type": "intrinsic",
+													"name": "any"
+												}
 											}
 										}
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1793,
-										"name": "Array.filter"
+										"id": 1756,
+										"name": "Array.every"
 									}
 								},
 								{
-									"id": 1803,
-									"name": "filter",
+									"id": 1766,
+									"name": "every",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {
 										"isExported": true
 									},
 									"comment": {
-										"shortText": "Returns the elements of an array that meet the condition specified in a callback function."
+										"shortText": "Determines whether all the members of an array satisfy the specified test."
 									},
 									"parameters": [
 										{
-											"id": 1804,
-											"name": "callbackfn",
+											"id": 1767,
+											"name": "predicate",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
 												"isExported": true
 											},
 											"comment": {
-												"text": "A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array."
+												"text": "A function that accepts up to three arguments. The every method calls\nthe predicate function for each element in the array until the predicate returns a value\nwhich is coercible to the Boolean value false, or until the end of the array."
 											},
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1805,
+													"id": 1768,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -11686,7 +11414,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1806,
+															"id": 1769,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -11695,7 +11423,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1807,
+																	"id": 1770,
 																	"name": "value",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11708,7 +11436,7 @@
 																	}
 																},
 																{
-																	"id": 1808,
+																	"id": 1771,
 																	"name": "index",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11721,7 +11449,7 @@
 																	}
 																},
 																{
-																	"id": 1809,
+																	"id": 1772,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11745,16 +11473,16 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1343,
-															"character": 22
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1328,
+															"character": 20
 														}
 													]
 												}
 											}
 										},
 										{
-											"id": 1810,
+											"id": 1773,
 											"name": "thisArg",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -11763,7 +11491,440 @@
 												"isOptional": true
 											},
 											"comment": {
-												"text": "An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.\n"
+												"text": "An object to which the this keyword can refer in the predicate function.\nIf thisArg is omitted, undefined is used as the this value.\n"
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "boolean"
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"id": 1756,
+										"name": "Array.every"
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1319,
+									"character": 9
+								},
+								{
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1328,
+									"character": 9
+								}
+							],
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 1756,
+								"name": "Array.every"
+							}
+						},
+						{
+							"id": 1907,
+							"name": "fill",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true
+							},
+							"signatures": [
+								{
+									"id": 1908,
+									"name": "fill",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"isExported": true
+									},
+									"comment": {
+										"shortText": "Returns the this object after filling the section identified by start and end with value"
+									},
+									"parameters": [
+										{
+											"id": 1909,
+											"name": "value",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true
+											},
+											"comment": {
+												"text": "value to fill array section with"
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 1910,
+											"name": "start",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true,
+												"isOptional": true
+											},
+											"comment": {
+												"text": "index to start filling the array at. If start is negative, it is treated as\nlength+start where length is the length of the array."
+											},
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													},
+													{
+														"type": "intrinsic",
+														"name": "number"
+													}
+												]
+											}
+										},
+										{
+											"id": 1911,
+											"name": "end",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true,
+												"isOptional": true
+											},
+											"comment": {
+												"text": "index to stop filling the array at. If end is negative, it is treated as\nlength+end.\n"
+											},
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													},
+													{
+														"type": "intrinsic",
+														"name": "number"
+													}
+												]
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "this"
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"id": 1907,
+										"name": "Array.fill"
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"line": 53,
+									"character": 8
+								}
+							],
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 1907,
+								"name": "Array.fill"
+							}
+						},
+						{
+							"id": 1802,
+							"name": "filter",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true
+							},
+							"signatures": [
+								{
+									"id": 1803,
+									"name": "filter",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"isExported": true
+									},
+									"comment": {
+										"shortText": "Returns the elements of an array that meet the condition specified in a callback function."
+									},
+									"typeParameter": [
+										{
+											"id": 1804,
+											"name": "S",
+											"kind": 131072,
+											"kindString": "Type parameter",
+											"flags": {
+												"isExported": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"parameters": [
+										{
+											"id": 1805,
+											"name": "predicate",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true
+											},
+											"comment": {
+												"text": "A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the array."
+											},
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 1806,
+													"name": "__type",
+													"kind": 65536,
+													"kindString": "Type literal",
+													"flags": {
+														"isExported": true
+													},
+													"signatures": [
+														{
+															"id": 1807,
+															"name": "__call",
+															"kind": 4096,
+															"kindString": "Call signature",
+															"flags": {
+																"isExported": true
+															},
+															"parameters": [
+																{
+																	"id": 1808,
+																	"name": "value",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 1809,
+																	"name": "index",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "number"
+																	}
+																},
+																{
+																	"id": 1810,
+																	"name": "array",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "intrinsic",
+																			"name": "any"
+																		}
+																	}
+																}
+															],
+															"type": {
+																"type": "predicate",
+																"name": "value",
+																"asserts": false,
+																"targetType": {
+																	"type": "typeParameter",
+																	"name": "S",
+																	"constraint": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																}
+															}
+														}
+													],
+													"sources": [
+														{
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1355,
+															"character": 34
+														}
+													]
+												}
+											}
+										},
+										{
+											"id": 1811,
+											"name": "thisArg",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true,
+												"isOptional": true
+											},
+											"comment": {
+												"text": "An object to which the this keyword can refer in the predicate function. If thisArg is omitted, undefined is used as the this value.\n"
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "typeParameter",
+											"name": "S",
+											"constraint": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"id": 1802,
+										"name": "Array.filter"
+									}
+								},
+								{
+									"id": 1812,
+									"name": "filter",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"isExported": true
+									},
+									"comment": {
+										"shortText": "Returns the elements of an array that meet the condition specified in a callback function."
+									},
+									"parameters": [
+										{
+											"id": 1813,
+											"name": "predicate",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true
+											},
+											"comment": {
+												"text": "A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the array."
+											},
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 1814,
+													"name": "__type",
+													"kind": 65536,
+													"kindString": "Type literal",
+													"flags": {
+														"isExported": true
+													},
+													"signatures": [
+														{
+															"id": 1815,
+															"name": "__call",
+															"kind": 4096,
+															"kindString": "Call signature",
+															"flags": {
+																"isExported": true
+															},
+															"parameters": [
+																{
+																	"id": 1816,
+																	"name": "value",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 1817,
+																	"name": "index",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "number"
+																	}
+																},
+																{
+																	"id": 1818,
+																	"name": "array",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "intrinsic",
+																			"name": "any"
+																		}
+																	}
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "unknown"
+															}
+														}
+													],
+													"sources": [
+														{
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1361,
+															"character": 21
+														}
+													]
+												}
+											}
+										},
+										{
+											"id": 1819,
+											"name": "thisArg",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true,
+												"isOptional": true
+											},
+											"comment": {
+												"text": "An object to which the this keyword can refer in the predicate function. If thisArg is omitted, undefined is used as the this value.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -11780,31 +11941,31 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1793,
+										"id": 1802,
 										"name": "Array.filter"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1337,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1355,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1343,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1361,
 									"character": 10
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1793,
+								"id": 1802,
 								"name": "Array.filter"
 							}
 						},
 						{
-							"id": 1870,
+							"id": 1879,
 							"name": "find",
 							"kind": 2048,
 							"kindString": "Method",
@@ -11813,7 +11974,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1871,
+									"id": 1880,
 									"name": "find",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -11825,7 +11986,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 1872,
+											"id": 1881,
 											"name": "S",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -11840,7 +12001,7 @@
 									],
 									"parameters": [
 										{
-											"id": 1873,
+											"id": 1882,
 											"name": "predicate",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -11853,7 +12014,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1874,
+													"id": 1883,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -11862,7 +12023,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1875,
+															"id": 1884,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -11871,7 +12032,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1876,
+																	"id": 1885,
 																	"name": "this",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11884,7 +12045,7 @@
 																	}
 																},
 																{
-																	"id": 1877,
+																	"id": 1886,
 																	"name": "value",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11897,7 +12058,7 @@
 																	}
 																},
 																{
-																	"id": 1878,
+																	"id": 1887,
 																	"name": "index",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11910,7 +12071,7 @@
 																	}
 																},
 																{
-																	"id": 1879,
+																	"id": 1888,
 																	"name": "obj",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -11943,7 +12104,7 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
 															"line": 31,
 															"character": 32
 														}
@@ -11952,7 +12113,7 @@
 											}
 										},
 										{
-											"id": 1880,
+											"id": 1889,
 											"name": "thisArg",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -11988,178 +12149,17 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1870,
+										"id": 1879,
 										"name": "Array.find"
 									}
 								},
 								{
-									"id": 1881,
+									"id": 1890,
 									"name": "find",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {
 										"isExported": true
-									},
-									"parameters": [
-										{
-											"id": 1882,
-											"name": "predicate",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true
-											},
-											"type": {
-												"type": "reflection",
-												"declaration": {
-													"id": 1883,
-													"name": "__type",
-													"kind": 65536,
-													"kindString": "Type literal",
-													"flags": {
-														"isExported": true
-													},
-													"signatures": [
-														{
-															"id": 1884,
-															"name": "__call",
-															"kind": 4096,
-															"kindString": "Call signature",
-															"flags": {
-																"isExported": true
-															},
-															"parameters": [
-																{
-																	"id": 1885,
-																	"name": "value",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "any"
-																	}
-																},
-																{
-																	"id": 1886,
-																	"name": "index",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "number"
-																	}
-																},
-																{
-																	"id": 1887,
-																	"name": "obj",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "array",
-																		"elementType": {
-																			"type": "intrinsic",
-																			"name": "any"
-																		}
-																	}
-																}
-															],
-															"type": {
-																"type": "intrinsic",
-																"name": "unknown"
-															}
-														}
-													],
-													"sources": [
-														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
-															"line": 32,
-															"character": 19
-														}
-													]
-												}
-											}
-										},
-										{
-											"id": 1888,
-											"name": "thisArg",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true,
-												"isOptional": true
-											},
-											"type": {
-												"type": "intrinsic",
-												"name": "any"
-											}
-										}
-									],
-									"type": {
-										"type": "union",
-										"types": [
-											{
-												"type": "intrinsic",
-												"name": "any"
-											},
-											{
-												"type": "intrinsic",
-												"name": "undefined"
-											}
-										]
-									},
-									"inheritedFrom": {
-										"type": "reference",
-										"id": 1870,
-										"name": "Array.find"
-									}
-								}
-							],
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
-									"line": 31,
-									"character": 8
-								},
-								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
-									"line": 32,
-									"character": 8
-								}
-							],
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 1870,
-								"name": "Array.find"
-							}
-						},
-						{
-							"id": 1889,
-							"name": "findIndex",
-							"kind": 2048,
-							"kindString": "Method",
-							"flags": {
-								"isExported": true
-							},
-							"signatures": [
-								{
-									"id": 1890,
-									"name": "findIndex",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"isExported": true
-									},
-									"comment": {
-										"shortText": "Returns the index of the first element in the array where predicate is true, and -1\notherwise."
 									},
 									"parameters": [
 										{
@@ -12169,9 +12169,6 @@
 											"kindString": "Parameter",
 											"flags": {
 												"isExported": true
-											},
-											"comment": {
-												"text": "find calls predicate once for each element of the array, in ascending\norder, until it finds one where predicate returns true. If such an element is found,\nfindIndex immediately returns that element index. Otherwise, findIndex returns -1."
 											},
 											"type": {
 												"type": "reflection",
@@ -12244,7 +12241,171 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
+															"line": 32,
+															"character": 19
+														}
+													]
+												}
+											}
+										},
+										{
+											"id": 1897,
+											"name": "thisArg",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true,
+												"isOptional": true
+											},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											}
+										]
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"id": 1879,
+										"name": "Array.find"
+									}
+								}
+							],
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"line": 31,
+									"character": 8
+								},
+								{
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"line": 32,
+									"character": 8
+								}
+							],
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 1879,
+								"name": "Array.find"
+							}
+						},
+						{
+							"id": 1898,
+							"name": "findIndex",
+							"kind": 2048,
+							"kindString": "Method",
+							"flags": {
+								"isExported": true
+							},
+							"signatures": [
+								{
+									"id": 1899,
+									"name": "findIndex",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"isExported": true
+									},
+									"comment": {
+										"shortText": "Returns the index of the first element in the array where predicate is true, and -1\notherwise."
+									},
+									"parameters": [
+										{
+											"id": 1900,
+											"name": "predicate",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true
+											},
+											"comment": {
+												"text": "find calls predicate once for each element of the array, in ascending\norder, until it finds one where predicate returns true. If such an element is found,\nfindIndex immediately returns that element index. Otherwise, findIndex returns -1."
+											},
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 1901,
+													"name": "__type",
+													"kind": 65536,
+													"kindString": "Type literal",
+													"flags": {
+														"isExported": true
+													},
+													"signatures": [
+														{
+															"id": 1902,
+															"name": "__call",
+															"kind": 4096,
+															"kindString": "Call signature",
+															"flags": {
+																"isExported": true
+															},
+															"parameters": [
+																{
+																	"id": 1903,
+																	"name": "value",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 1904,
+																	"name": "index",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "number"
+																	}
+																},
+																{
+																	"id": 1905,
+																	"name": "obj",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "intrinsic",
+																			"name": "any"
+																		}
+																	}
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "unknown"
+															}
+														}
+													],
+													"sources": [
+														{
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
 															"line": 43,
 															"character": 24
 														}
@@ -12253,7 +12414,7 @@
 											}
 										},
 										{
-											"id": 1897,
+											"id": 1906,
 											"name": "thisArg",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12276,26 +12437,26 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1889,
+										"id": 1898,
 										"name": "Array.findIndex"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.core.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.core.d.ts",
 									"line": 43,
 									"character": 13
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1889,
+								"id": 1898,
 								"name": "Array.findIndex"
 							}
 						},
 						{
-							"id": 1774,
+							"id": 1783,
 							"name": "forEach",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12304,7 +12465,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1775,
+									"id": 1784,
 									"name": "forEach",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -12316,7 +12477,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1776,
+											"id": 1785,
 											"name": "callbackfn",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12329,7 +12490,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1777,
+													"id": 1786,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -12338,7 +12499,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1778,
+															"id": 1787,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -12347,7 +12508,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1779,
+																	"id": 1788,
 																	"name": "value",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -12360,7 +12521,7 @@
 																	}
 																},
 																{
-																	"id": 1780,
+																	"id": 1789,
 																	"name": "index",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -12373,7 +12534,7 @@
 																	}
 																},
 																{
-																	"id": 1781,
+																	"id": 1790,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -12397,8 +12558,8 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1325,
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1343,
 															"character": 23
 														}
 													]
@@ -12406,7 +12567,7 @@
 											}
 										},
 										{
-											"id": 1782,
+											"id": 1791,
 											"name": "thisArg",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12429,26 +12590,26 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1774,
+										"id": 1783,
 										"name": "Array.forEach"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1325,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1343,
 									"character": 11
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1774,
+								"id": 1783,
 								"name": "Array.forEach"
 							}
 						},
 						{
-							"id": 1926,
+							"id": 1935,
 							"name": "includes",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12457,7 +12618,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1927,
+									"id": 1936,
 									"name": "includes",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -12469,7 +12630,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1928,
+											"id": 1937,
 											"name": "searchElement",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12485,7 +12646,7 @@
 											}
 										},
 										{
-											"id": 1929,
+											"id": 1938,
 											"name": "fromIndex",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12517,21 +12678,21 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1926,
+										"id": 1935,
 										"name": "Array.includes"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2016.array.include.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2016.array.include.d.ts",
 									"line": 27,
 									"character": 12
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1926,
+								"id": 1935,
 								"name": "Array.includes"
 							}
 						},
@@ -12612,8 +12773,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1295,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1304,
 									"character": 11
 								}
 							],
@@ -12684,8 +12845,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1247,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1256,
 									"character": 8
 								}
 							],
@@ -12696,7 +12857,7 @@
 							}
 						},
 						{
-							"id": 1912,
+							"id": 1921,
 							"name": "keys",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12705,7 +12866,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1913,
+									"id": 1922,
 									"name": "keys",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -12727,21 +12888,21 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1912,
+										"id": 1921,
 										"name": "Array.keys"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 70,
 									"character": 8
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1912,
+								"id": 1921,
 								"name": "Array.keys"
 							}
 						},
@@ -12822,8 +12983,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1301,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1310,
 									"character": 15
 								}
 							],
@@ -12834,7 +12995,7 @@
 							}
 						},
 						{
-							"id": 1783,
+							"id": 1792,
 							"name": "map",
 							"kind": 2048,
 							"kindString": "Method",
@@ -12843,7 +13004,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1784,
+									"id": 1793,
 									"name": "map",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -12855,7 +13016,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 1785,
+											"id": 1794,
 											"name": "U",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -12866,7 +13027,7 @@
 									],
 									"parameters": [
 										{
-											"id": 1786,
+											"id": 1795,
 											"name": "callbackfn",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12879,7 +13040,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1787,
+													"id": 1796,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -12888,7 +13049,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1788,
+															"id": 1797,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -12897,7 +13058,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1789,
+																	"id": 1798,
 																	"name": "value",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -12910,7 +13071,7 @@
 																	}
 																},
 																{
-																	"id": 1790,
+																	"id": 1799,
 																	"name": "index",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -12923,7 +13084,7 @@
 																	}
 																},
 																{
-																	"id": 1791,
+																	"id": 1800,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -12947,8 +13108,8 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1331,
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1349,
 															"character": 22
 														}
 													]
@@ -12956,7 +13117,7 @@
 											}
 										},
 										{
-											"id": 1792,
+											"id": 1801,
 											"name": "thisArg",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -12982,21 +13143,21 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1783,
+										"id": 1792,
 										"name": "Array.map"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1331,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1349,
 									"character": 7
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1783,
+								"id": 1792,
 								"name": "Array.map"
 							}
 						},
@@ -13042,8 +13203,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1227,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1236,
 									"character": 7
 								}
 							],
@@ -13108,8 +13269,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1232,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1241,
 									"character": 8
 								}
 							],
@@ -13120,7 +13281,7 @@
 							}
 						},
 						{
-							"id": 1811,
+							"id": 1820,
 							"name": "reduce",
 							"kind": 2048,
 							"kindString": "Method",
@@ -13129,7 +13290,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1812,
+									"id": 1821,
 									"name": "reduce",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -13141,7 +13302,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1813,
+											"id": 1822,
 											"name": "callbackfn",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13154,7 +13315,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1814,
+													"id": 1823,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -13163,7 +13324,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1815,
+															"id": 1824,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -13171,142 +13332,9 @@
 																"isExported": true
 															},
 															"parameters": [
-																{
-																	"id": 1816,
-																	"name": "previousValue",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "any"
-																	}
-																},
-																{
-																	"id": 1817,
-																	"name": "currentValue",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "any"
-																	}
-																},
-																{
-																	"id": 1818,
-																	"name": "currentIndex",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "number"
-																	}
-																},
-																{
-																	"id": 1819,
-																	"name": "array",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "array",
-																		"elementType": {
-																			"type": "intrinsic",
-																			"name": "any"
-																		}
-																	}
-																}
-															],
-															"type": {
-																"type": "intrinsic",
-																"name": "any"
-															}
-														}
-													],
-													"sources": [
-														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1349,
-															"character": 22
-														}
-													]
-												}
-											}
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									},
-									"inheritedFrom": {
-										"type": "reference",
-										"id": 1811,
-										"name": "Array.reduce"
-									}
-								},
-								{
-									"id": 1820,
-									"name": "reduce",
-									"kind": 4096,
-									"kindString": "Call signature",
-									"flags": {
-										"isExported": true
-									},
-									"parameters": [
-										{
-											"id": 1821,
-											"name": "callbackfn",
-											"kind": 32768,
-											"kindString": "Parameter",
-											"flags": {
-												"isExported": true
-											},
-											"type": {
-												"type": "reflection",
-												"declaration": {
-													"id": 1822,
-													"name": "__type",
-													"kind": 65536,
-													"kindString": "Type literal",
-													"flags": {
-														"isExported": true
-													},
-													"signatures": [
-														{
-															"id": 1823,
-															"name": "__call",
-															"kind": 4096,
-															"kindString": "Call signature",
-															"flags": {
-																"isExported": true
-															},
-															"parameters": [
-																{
-																	"id": 1824,
-																	"name": "previousValue",
-																	"kind": 32768,
-																	"kindString": "Parameter",
-																	"flags": {
-																		"isExported": true
-																	},
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "any"
-																	}
-																},
 																{
 																	"id": 1825,
-																	"name": "currentValue",
+																	"name": "previousValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
 																	"flags": {
@@ -13319,6 +13347,19 @@
 																},
 																{
 																	"id": 1826,
+																	"name": "currentValue",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 1827,
 																	"name": "currentIndex",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13331,7 +13372,7 @@
 																	}
 																},
 																{
-																	"id": 1827,
+																	"id": 1828,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13355,8 +13396,128 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1350,
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1367,
+															"character": 22
+														}
+													]
+												}
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									},
+									"inheritedFrom": {
+										"type": "reference",
+										"id": 1820,
+										"name": "Array.reduce"
+									}
+								},
+								{
+									"id": 1829,
+									"name": "reduce",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {
+										"isExported": true
+									},
+									"parameters": [
+										{
+											"id": 1830,
+											"name": "callbackfn",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isExported": true
+											},
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 1831,
+													"name": "__type",
+													"kind": 65536,
+													"kindString": "Type literal",
+													"flags": {
+														"isExported": true
+													},
+													"signatures": [
+														{
+															"id": 1832,
+															"name": "__call",
+															"kind": 4096,
+															"kindString": "Call signature",
+															"flags": {
+																"isExported": true
+															},
+															"parameters": [
+																{
+																	"id": 1833,
+																	"name": "previousValue",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 1834,
+																	"name": "currentValue",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 1835,
+																	"name": "currentIndex",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "number"
+																	}
+																},
+																{
+																	"id": 1836,
+																	"name": "array",
+																	"kind": 32768,
+																	"kindString": "Parameter",
+																	"flags": {
+																		"isExported": true
+																	},
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "intrinsic",
+																			"name": "any"
+																		}
+																	}
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "any"
+															}
+														}
+													],
+													"sources": [
+														{
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1368,
 															"character": 22
 														}
 													]
@@ -13364,7 +13525,7 @@
 											}
 										},
 										{
-											"id": 1828,
+											"id": 1837,
 											"name": "initialValue",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13383,12 +13544,12 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1811,
+										"id": 1820,
 										"name": "Array.reduce"
 									}
 								},
 								{
-									"id": 1829,
+									"id": 1838,
 									"name": "reduce",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -13400,7 +13561,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 1830,
+											"id": 1839,
 											"name": "U",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -13411,7 +13572,7 @@
 									],
 									"parameters": [
 										{
-											"id": 1831,
+											"id": 1840,
 											"name": "callbackfn",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13424,7 +13585,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1832,
+													"id": 1841,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -13433,7 +13594,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1833,
+															"id": 1842,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -13442,7 +13603,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1834,
+																	"id": 1843,
 																	"name": "previousValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13455,7 +13616,7 @@
 																	}
 																},
 																{
-																	"id": 1835,
+																	"id": 1844,
 																	"name": "currentValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13468,7 +13629,7 @@
 																	}
 																},
 																{
-																	"id": 1836,
+																	"id": 1845,
 																	"name": "currentIndex",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13481,7 +13642,7 @@
 																	}
 																},
 																{
-																	"id": 1837,
+																	"id": 1846,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13505,8 +13666,8 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1356,
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1374,
 															"character": 25
 														}
 													]
@@ -13514,7 +13675,7 @@
 											}
 										},
 										{
-											"id": 1838,
+											"id": 1847,
 											"name": "initialValue",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13536,36 +13697,36 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1811,
+										"id": 1820,
 										"name": "Array.reduce"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1349,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1367,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1350,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1368,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1356,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1374,
 									"character": 10
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1811,
+								"id": 1820,
 								"name": "Array.reduce"
 							}
 						},
 						{
-							"id": 1839,
+							"id": 1848,
 							"name": "reduceRight",
 							"kind": 2048,
 							"kindString": "Method",
@@ -13574,7 +13735,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1840,
+									"id": 1849,
 									"name": "reduceRight",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -13586,7 +13747,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1841,
+											"id": 1850,
 											"name": "callbackfn",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13599,7 +13760,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1842,
+													"id": 1851,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -13608,7 +13769,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1843,
+															"id": 1852,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -13617,7 +13778,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1844,
+																	"id": 1853,
 																	"name": "previousValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13630,7 +13791,7 @@
 																	}
 																},
 																{
-																	"id": 1845,
+																	"id": 1854,
 																	"name": "currentValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13643,7 +13804,7 @@
 																	}
 																},
 																{
-																	"id": 1846,
+																	"id": 1855,
 																	"name": "currentIndex",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13656,7 +13817,7 @@
 																	}
 																},
 																{
-																	"id": 1847,
+																	"id": 1856,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13680,8 +13841,8 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1362,
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1380,
 															"character": 27
 														}
 													]
@@ -13695,12 +13856,12 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1839,
+										"id": 1848,
 										"name": "Array.reduceRight"
 									}
 								},
 								{
-									"id": 1848,
+									"id": 1857,
 									"name": "reduceRight",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -13709,7 +13870,7 @@
 									},
 									"parameters": [
 										{
-											"id": 1849,
+											"id": 1858,
 											"name": "callbackfn",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13719,7 +13880,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1850,
+													"id": 1859,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -13728,7 +13889,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1851,
+															"id": 1860,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -13737,7 +13898,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1852,
+																	"id": 1861,
 																	"name": "previousValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13750,7 +13911,7 @@
 																	}
 																},
 																{
-																	"id": 1853,
+																	"id": 1862,
 																	"name": "currentValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13763,7 +13924,7 @@
 																	}
 																},
 																{
-																	"id": 1854,
+																	"id": 1863,
 																	"name": "currentIndex",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13776,7 +13937,7 @@
 																	}
 																},
 																{
-																	"id": 1855,
+																	"id": 1864,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13800,8 +13961,8 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1363,
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1381,
 															"character": 27
 														}
 													]
@@ -13809,7 +13970,7 @@
 											}
 										},
 										{
-											"id": 1856,
+											"id": 1865,
 											"name": "initialValue",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13828,12 +13989,12 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1839,
+										"id": 1848,
 										"name": "Array.reduceRight"
 									}
 								},
 								{
-									"id": 1857,
+									"id": 1866,
 									"name": "reduceRight",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -13845,7 +14006,7 @@
 									},
 									"typeParameter": [
 										{
-											"id": 1858,
+											"id": 1867,
 											"name": "U",
 											"kind": 131072,
 											"kindString": "Type parameter",
@@ -13856,7 +14017,7 @@
 									],
 									"parameters": [
 										{
-											"id": 1859,
+											"id": 1868,
 											"name": "callbackfn",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13869,7 +14030,7 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1860,
+													"id": 1869,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -13878,7 +14039,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1861,
+															"id": 1870,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -13887,7 +14048,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1862,
+																	"id": 1871,
 																	"name": "previousValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13900,7 +14061,7 @@
 																	}
 																},
 																{
-																	"id": 1863,
+																	"id": 1872,
 																	"name": "currentValue",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13913,7 +14074,7 @@
 																	}
 																},
 																{
-																	"id": 1864,
+																	"id": 1873,
 																	"name": "currentIndex",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13926,7 +14087,7 @@
 																	}
 																},
 																{
-																	"id": 1865,
+																	"id": 1874,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -13950,8 +14111,8 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1369,
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1387,
 															"character": 30
 														}
 													]
@@ -13959,7 +14120,7 @@
 											}
 										},
 										{
-											"id": 1866,
+											"id": 1875,
 											"name": "initialValue",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -13981,31 +14142,31 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1839,
+										"id": 1848,
 										"name": "Array.reduceRight"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1362,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1380,
 									"character": 15
 								},
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1363,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1381,
 									"character": 15
 								},
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1369,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1387,
 									"character": 15
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1839,
+								"id": 1848,
 								"name": "Array.reduceRight"
 							}
 						},
@@ -14045,8 +14206,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1251,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1260,
 									"character": 11
 								}
 							],
@@ -14098,8 +14259,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1255,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1264,
 									"character": 9
 								}
 							],
@@ -14199,8 +14360,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1261,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1270,
 									"character": 9
 								}
 							],
@@ -14211,7 +14372,7 @@
 							}
 						},
 						{
-							"id": 1765,
+							"id": 1774,
 							"name": "some",
 							"kind": 2048,
 							"kindString": "Method",
@@ -14220,7 +14381,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1766,
+									"id": 1775,
 									"name": "some",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -14232,20 +14393,20 @@
 									},
 									"parameters": [
 										{
-											"id": 1767,
-											"name": "callbackfn",
+											"id": 1776,
+											"name": "predicate",
 											"kind": 32768,
 											"kindString": "Parameter",
 											"flags": {
 												"isExported": true
 											},
 											"comment": {
-												"text": "A function that accepts up to three arguments. The some method calls\nthe callbackfn function for each element in the array until the callbackfn returns a value\nwhich is coercible to the Boolean value true, or until the end of the array."
+												"text": "A function that accepts up to three arguments. The some method calls\nthe predicate function for each element in the array until the predicate returns a value\nwhich is coercible to the Boolean value true, or until the end of the array."
 											},
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 1768,
+													"id": 1777,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -14254,7 +14415,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1769,
+															"id": 1778,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -14263,7 +14424,7 @@
 															},
 															"parameters": [
 																{
-																	"id": 1770,
+																	"id": 1779,
 																	"name": "value",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -14276,7 +14437,7 @@
 																	}
 																},
 																{
-																	"id": 1771,
+																	"id": 1780,
 																	"name": "index",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -14289,7 +14450,7 @@
 																	}
 																},
 																{
-																	"id": 1772,
+																	"id": 1781,
 																	"name": "array",
 																	"kind": 32768,
 																	"kindString": "Parameter",
@@ -14313,16 +14474,16 @@
 													],
 													"sources": [
 														{
-															"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-															"line": 1319,
-															"character": 20
+															"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+															"line": 1337,
+															"character": 19
 														}
 													]
 												}
 											}
 										},
 										{
-											"id": 1773,
+											"id": 1782,
 											"name": "thisArg",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -14331,7 +14492,7 @@
 												"isOptional": true
 											},
 											"comment": {
-												"text": "An object to which the this keyword can refer in the callbackfn function.\nIf thisArg is omitted, undefined is used as the this value.\n"
+												"text": "An object to which the this keyword can refer in the predicate function.\nIf thisArg is omitted, undefined is used as the this value.\n"
 											},
 											"type": {
 												"type": "intrinsic",
@@ -14345,21 +14506,21 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1765,
+										"id": 1774,
 										"name": "Array.some"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1319,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1337,
 									"character": 8
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1765,
+								"id": 1774,
 								"name": "Array.some"
 							}
 						},
@@ -14475,8 +14636,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1271,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1280,
 									"character": 8
 								}
 							],
@@ -14644,13 +14805,13 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1277,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1286,
 									"character": 10
 								},
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1284,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1293,
 									"character": 10
 								}
 							],
@@ -14693,8 +14854,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1223,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1232,
 									"character": 18
 								}
 							],
@@ -14737,8 +14898,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1219,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1228,
 									"character": 12
 								}
 							],
@@ -14803,8 +14964,8 @@
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
-									"line": 1289,
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"line": 1298,
 									"character": 11
 								}
 							],
@@ -14815,7 +14976,7 @@
 							}
 						},
 						{
-							"id": 1914,
+							"id": 1923,
 							"name": "values",
 							"kind": 2048,
 							"kindString": "Method",
@@ -14824,7 +14985,7 @@
 							},
 							"signatures": [
 								{
-									"id": 1915,
+									"id": 1924,
 									"name": "values",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -14846,21 +15007,21 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"id": 1914,
+										"id": 1923,
 										"name": "Array.values"
 									}
 								}
 							],
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es2015.iterable.d.ts",
 									"line": 75,
 									"character": 10
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 1914,
+								"id": 1923,
 								"name": "Array.values"
 							}
 						}
@@ -14870,7 +15031,7 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								1869,
+								1878,
 								1703,
 								1702,
 								1704
@@ -14880,37 +15041,37 @@
 							"title": "Methods",
 							"kind": 2048,
 							"children": [
-								1908,
-								1916,
+								1917,
+								1925,
 								1714,
-								1903,
-								1910,
+								1912,
+								1919,
 								1756,
+								1907,
+								1802,
+								1879,
 								1898,
-								1793,
-								1870,
-								1889,
-								1774,
-								1926,
+								1783,
+								1935,
 								1748,
 								1719,
-								1912,
+								1921,
 								1752,
-								1783,
+								1792,
 								1709,
 								1711,
-								1811,
-								1839,
+								1820,
+								1848,
 								1722,
 								1724,
 								1726,
-								1765,
+								1774,
 								1730,
 								1737,
 								1707,
 								1705,
 								1745,
-								1914
+								1923
 							]
 						}
 					],
@@ -14924,7 +15085,7 @@
 					"extendedTypes": [
 						{
 							"type": "reference",
-							"id": 1869,
+							"id": 1878,
 							"typeArguments": [
 								{
 									"type": "intrinsic",
@@ -15002,7 +15163,7 @@
 					]
 				},
 				{
-					"id": 1930,
+					"id": 1939,
 					"name": "TOP_CONTEXT",
 					"kind": 32,
 					"kindString": "Variable",
@@ -15024,7 +15185,7 @@
 					"defaultValue": "[]"
 				},
 				{
-					"id": 1931,
+					"id": 1940,
 					"name": "chaiAsPromised",
 					"kind": 32,
 					"kindString": "Variable",
@@ -15045,21 +15206,21 @@
 					"defaultValue": "null"
 				},
 				{
-					"id": 1932,
+					"id": 1941,
 					"name": "getParent",
 					"kind": 64,
 					"kindString": "Function",
 					"flags": {},
 					"signatures": [
 						{
-							"id": 1933,
+							"id": 1942,
 							"name": "getParent",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"typeParameter": [
 								{
-									"id": 1934,
+									"id": 1943,
 									"name": "S",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -15084,7 +15245,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1935,
+									"id": 1944,
 									"name": "value",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -15175,15 +15336,15 @@
 					"title": "Variables",
 					"kind": 32,
 					"children": [
-						1930,
-						1931
+						1939,
+						1940
 					]
 				},
 				{
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						1932
+						1941
 					]
 				}
 			],
@@ -19135,7 +19296,7 @@
 											},
 											"type": {
 												"type": "reference",
-												"id": 2170,
+												"id": 2179,
 												"name": "RequestOptions"
 											}
 										}
@@ -29330,7 +29491,7 @@
 							"flags": {},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 984,
 									"character": 17
 								}
@@ -29348,7 +29509,7 @@
 							"flags": {},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 974,
 									"character": 11
 								}
@@ -29371,7 +29532,7 @@
 							"flags": {},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 973,
 									"character": 8
 								}
@@ -29396,7 +29557,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 975,
 									"character": 9
 								}
@@ -30126,7 +30287,7 @@
 			]
 		},
 		{
-			"id": 1936,
+			"id": 1945,
 			"name": "\"helpers/pollUntil\"",
 			"kind": 1,
 			"kindString": "Module",
@@ -30136,7 +30297,7 @@
 			"originalName": "src/helpers/pollUntil.ts",
 			"children": [
 				{
-					"id": 1937,
+					"id": 1946,
 					"name": "pollUntil",
 					"kind": 64,
 					"kindString": "Function",
@@ -30145,7 +30306,7 @@
 					},
 					"signatures": [
 						{
-							"id": 1938,
+							"id": 1947,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30159,7 +30320,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1939,
+									"id": 1948,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30170,7 +30331,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1940,
+									"id": 1949,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30186,7 +30347,7 @@
 											{
 												"type": "reflection",
 												"declaration": {
-													"id": 1941,
+													"id": 1950,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
@@ -30195,7 +30356,7 @@
 													},
 													"signatures": [
 														{
-															"id": 1942,
+															"id": 1951,
 															"name": "__call",
 															"kind": 4096,
 															"kindString": "Call signature",
@@ -30225,7 +30386,7 @@
 									}
 								},
 								{
-									"id": 1943,
+									"id": 1952,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30251,7 +30412,7 @@
 									}
 								},
 								{
-									"id": 1944,
+									"id": 1953,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30280,7 +30441,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1945,
+									"id": 1954,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30289,7 +30450,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1946,
+											"id": 1955,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30319,7 +30480,7 @@
 							}
 						},
 						{
-							"id": 1947,
+							"id": 1956,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30328,7 +30489,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1948,
+									"id": 1957,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30339,7 +30500,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1949,
+									"id": 1958,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30352,7 +30513,7 @@
 									}
 								},
 								{
-									"id": 1950,
+									"id": 1959,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30369,7 +30530,7 @@
 									}
 								},
 								{
-									"id": 1951,
+									"id": 1960,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30392,7 +30553,7 @@
 									}
 								},
 								{
-									"id": 1952,
+									"id": 1961,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30418,7 +30579,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1953,
+									"id": 1962,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30427,7 +30588,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1954,
+											"id": 1963,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30457,7 +30618,7 @@
 							}
 						},
 						{
-							"id": 1955,
+							"id": 1964,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30466,7 +30627,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1956,
+									"id": 1965,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30477,7 +30638,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1957,
+									"id": 1966,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30487,7 +30648,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1958,
+											"id": 1967,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -30496,7 +30657,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1959,
+													"id": 1968,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -30520,7 +30681,7 @@
 									}
 								},
 								{
-									"id": 1960,
+									"id": 1969,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30537,7 +30698,7 @@
 									}
 								},
 								{
-									"id": 1961,
+									"id": 1970,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30560,7 +30721,7 @@
 									}
 								},
 								{
-									"id": 1962,
+									"id": 1971,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30586,7 +30747,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1963,
+									"id": 1972,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30595,7 +30756,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1964,
+											"id": 1973,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30625,7 +30786,7 @@
 							}
 						},
 						{
-							"id": 1965,
+							"id": 1974,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30634,7 +30795,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1966,
+									"id": 1975,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30643,7 +30804,7 @@
 									}
 								},
 								{
-									"id": 1967,
+									"id": 1976,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30654,7 +30815,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1968,
+									"id": 1977,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30664,7 +30825,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1969,
+											"id": 1978,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -30673,7 +30834,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1970,
+													"id": 1979,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -30682,7 +30843,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1971,
+															"id": 1980,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30712,7 +30873,7 @@
 									}
 								},
 								{
-									"id": 1972,
+									"id": 1981,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30721,17 +30882,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 1973,
+									"id": 1982,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30754,7 +30909,7 @@
 									}
 								},
 								{
-									"id": 1974,
+									"id": 1983,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30780,7 +30935,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1975,
+									"id": 1984,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -30789,7 +30944,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1976,
+											"id": 1985,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -30819,7 +30974,7 @@
 							}
 						},
 						{
-							"id": 1977,
+							"id": 1986,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -30828,7 +30983,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1978,
+									"id": 1987,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30837,7 +30992,7 @@
 									}
 								},
 								{
-									"id": 1979,
+									"id": 1988,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30846,7 +31001,7 @@
 									}
 								},
 								{
-									"id": 1980,
+									"id": 1989,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -30857,7 +31012,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1981,
+									"id": 1990,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30867,7 +31022,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1982,
+											"id": 1991,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -30876,7 +31031,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1983,
+													"id": 1992,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -30885,7 +31040,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1984,
+															"id": 1993,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30898,7 +31053,7 @@
 															}
 														},
 														{
-															"id": 1985,
+															"id": 1994,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -30928,7 +31083,7 @@
 									}
 								},
 								{
-									"id": 1986,
+									"id": 1995,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30937,21 +31092,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 1987,
+									"id": 1996,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -30974,7 +31119,7 @@
 									}
 								},
 								{
-									"id": 1988,
+									"id": 1997,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31000,7 +31145,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 1989,
+									"id": 1998,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31009,7 +31154,7 @@
 									},
 									"signatures": [
 										{
-											"id": 1990,
+											"id": 1999,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31039,7 +31184,7 @@
 							}
 						},
 						{
-							"id": 1991,
+							"id": 2000,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -31048,7 +31193,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 1992,
+									"id": 2001,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31057,7 +31202,7 @@
 									}
 								},
 								{
-									"id": 1993,
+									"id": 2002,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31066,7 +31211,7 @@
 									}
 								},
 								{
-									"id": 1994,
+									"id": 2003,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31075,7 +31220,7 @@
 									}
 								},
 								{
-									"id": 1995,
+									"id": 2004,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31086,7 +31231,7 @@
 							],
 							"parameters": [
 								{
-									"id": 1996,
+									"id": 2005,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31096,7 +31241,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 1997,
+											"id": 2006,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -31105,7 +31250,7 @@
 											},
 											"signatures": [
 												{
-													"id": 1998,
+													"id": 2007,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -31114,7 +31259,7 @@
 													},
 													"parameters": [
 														{
-															"id": 1999,
+															"id": 2008,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31127,7 +31272,7 @@
 															}
 														},
 														{
-															"id": 2000,
+															"id": 2009,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31140,7 +31285,7 @@
 															}
 														},
 														{
-															"id": 2001,
+															"id": 2010,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31170,7 +31315,7 @@
 									}
 								},
 								{
-									"id": 2002,
+									"id": 2011,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31179,25 +31324,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											},
-											{
-												"type": "typeParameter",
-												"name": "W"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2003,
+									"id": 2012,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31220,7 +31351,7 @@
 									}
 								},
 								{
-									"id": 2004,
+									"id": 2013,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31246,7 +31377,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2005,
+									"id": 2014,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31255,7 +31386,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2006,
+											"id": 2015,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31285,7 +31416,7 @@
 							}
 						},
 						{
-							"id": 2007,
+							"id": 2016,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -31294,7 +31425,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2008,
+									"id": 2017,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31303,7 +31434,7 @@
 									}
 								},
 								{
-									"id": 2009,
+									"id": 2018,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31312,7 +31443,7 @@
 									}
 								},
 								{
-									"id": 2010,
+									"id": 2019,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31321,7 +31452,7 @@
 									}
 								},
 								{
-									"id": 2011,
+									"id": 2020,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31330,7 +31461,7 @@
 									}
 								},
 								{
-									"id": 2012,
+									"id": 2021,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31341,7 +31472,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2013,
+									"id": 2022,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31351,7 +31482,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2014,
+											"id": 2023,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -31360,7 +31491,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2015,
+													"id": 2024,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -31369,7 +31500,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2016,
+															"id": 2025,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31382,7 +31513,7 @@
 															}
 														},
 														{
-															"id": 2017,
+															"id": 2026,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31395,7 +31526,7 @@
 															}
 														},
 														{
-															"id": 2018,
+															"id": 2027,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31408,7 +31539,7 @@
 															}
 														},
 														{
-															"id": 2019,
+															"id": 2028,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31438,7 +31569,7 @@
 									}
 								},
 								{
-									"id": 2020,
+									"id": 2029,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31447,29 +31578,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											},
-											{
-												"type": "typeParameter",
-												"name": "W"
-											},
-											{
-												"type": "typeParameter",
-												"name": "X"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2021,
+									"id": 2030,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31492,7 +31605,7 @@
 									}
 								},
 								{
-									"id": 2022,
+									"id": 2031,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31518,7 +31631,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2023,
+									"id": 2032,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31527,7 +31640,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2024,
+											"id": 2033,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31557,7 +31670,7 @@
 							}
 						},
 						{
-							"id": 2025,
+							"id": 2034,
 							"name": "pollUntil",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -31566,7 +31679,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2026,
+									"id": 2035,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31575,7 +31688,7 @@
 									}
 								},
 								{
-									"id": 2027,
+									"id": 2036,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31584,7 +31697,7 @@
 									}
 								},
 								{
-									"id": 2028,
+									"id": 2037,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31593,7 +31706,7 @@
 									}
 								},
 								{
-									"id": 2029,
+									"id": 2038,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31602,7 +31715,7 @@
 									}
 								},
 								{
-									"id": 2030,
+									"id": 2039,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31611,7 +31724,7 @@
 									}
 								},
 								{
-									"id": 2031,
+									"id": 2040,
 									"name": "Y",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -31622,7 +31735,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2032,
+									"id": 2041,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31632,7 +31745,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2033,
+											"id": 2042,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -31641,7 +31754,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2034,
+													"id": 2043,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -31650,7 +31763,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2035,
+															"id": 2044,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31663,7 +31776,7 @@
 															}
 														},
 														{
-															"id": 2036,
+															"id": 2045,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31676,7 +31789,7 @@
 															}
 														},
 														{
-															"id": 2037,
+															"id": 2046,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31689,7 +31802,7 @@
 															}
 														},
 														{
-															"id": 2038,
+															"id": 2047,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31702,7 +31815,7 @@
 															}
 														},
 														{
-															"id": 2039,
+															"id": 2048,
 															"name": "y",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -31732,7 +31845,7 @@
 									}
 								},
 								{
-									"id": 2040,
+									"id": 2049,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31741,33 +31854,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											},
-											{
-												"type": "typeParameter",
-												"name": "W"
-											},
-											{
-												"type": "typeParameter",
-												"name": "X"
-											},
-											{
-												"type": "typeParameter",
-												"name": "Y"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2041,
+									"id": 2050,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31790,7 +31881,7 @@
 									}
 								},
 								{
-									"id": 2042,
+									"id": 2051,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -31816,7 +31907,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2043,
+									"id": 2052,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -31825,7 +31916,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2044,
+											"id": 2053,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -31909,7 +32000,7 @@
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						1937
+						1946
 					]
 				}
 			],
@@ -31922,7 +32013,7 @@
 			]
 		},
 		{
-			"id": 2045,
+			"id": 2054,
 			"name": "\"helpers/pollUntilTruthy\"",
 			"kind": 1,
 			"kindString": "Module",
@@ -31932,7 +32023,7 @@
 			"originalName": "src/helpers/pollUntilTruthy.ts",
 			"children": [
 				{
-					"id": 2046,
+					"id": 2055,
 					"name": "pollUntilTruthy",
 					"kind": 64,
 					"kindString": "Function",
@@ -31940,166 +32031,6 @@
 						"isExported": true
 					},
 					"signatures": [
-						{
-							"id": 2047,
-							"name": "pollUntilTruthy",
-							"kind": 4096,
-							"kindString": "Call signature",
-							"flags": {
-								"isExported": true
-							},
-							"typeParameter": [
-								{
-									"id": 2048,
-									"name": "T",
-									"kind": 131072,
-									"kindString": "Type parameter",
-									"flags": {
-										"isExported": true
-									}
-								}
-							],
-							"parameters": [
-								{
-									"id": 2049,
-									"name": "poller",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {
-										"isExported": true
-									},
-									"type": {
-										"type": "union",
-										"types": [
-											{
-												"type": "reflection",
-												"declaration": {
-													"id": 2050,
-													"name": "__type",
-													"kind": 65536,
-													"kindString": "Type literal",
-													"flags": {
-														"isExported": true
-													},
-													"signatures": [
-														{
-															"id": 2051,
-															"name": "__call",
-															"kind": 4096,
-															"kindString": "Call signature",
-															"flags": {
-																"isExported": true
-															},
-															"type": {
-																"type": "intrinsic",
-																"name": "any"
-															}
-														}
-													],
-													"sources": [
-														{
-															"fileName": "packages/leadfoot/src/helpers/pollUntilTruthy.ts",
-															"line": 5,
-															"character": 9
-														}
-													]
-												}
-											},
-											{
-												"type": "intrinsic",
-												"name": "string"
-											}
-										]
-									}
-								},
-								{
-									"id": 2052,
-									"name": "timeout",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {
-										"isExported": true,
-										"isOptional": true
-									},
-									"type": {
-										"type": "union",
-										"types": [
-											{
-												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "intrinsic",
-												"name": "number"
-											}
-										]
-									}
-								},
-								{
-									"id": 2053,
-									"name": "pollInterval",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {
-										"isExported": true,
-										"isOptional": true
-									},
-									"type": {
-										"type": "union",
-										"types": [
-											{
-												"type": "intrinsic",
-												"name": "undefined"
-											},
-											{
-												"type": "intrinsic",
-												"name": "number"
-											}
-										]
-									}
-								}
-							],
-							"type": {
-								"type": "reflection",
-								"declaration": {
-									"id": 2054,
-									"name": "__type",
-									"kind": 65536,
-									"kindString": "Type literal",
-									"flags": {
-										"isExported": true
-									},
-									"signatures": [
-										{
-											"id": 2055,
-											"name": "__call",
-											"kind": 4096,
-											"kindString": "Call signature",
-											"flags": {
-												"isExported": true
-											},
-											"type": {
-												"type": "reference",
-												"typeArguments": [
-													{
-														"type": "typeParameter",
-														"name": "T"
-													}
-												],
-												"name": "Promise"
-											}
-										}
-									],
-									"sources": [
-										{
-											"fileName": "packages/leadfoot/src/helpers/pollUntilTruthy.ts",
-											"line": 8,
-											"character": 2
-										}
-									]
-								}
-							}
-						},
 						{
 							"id": 2056,
 							"name": "pollUntilTruthy",
@@ -32129,29 +32060,51 @@
 										"isExported": true
 									},
 									"type": {
-										"type": "intrinsic",
-										"name": "string"
+										"type": "union",
+										"types": [
+											{
+												"type": "reflection",
+												"declaration": {
+													"id": 2059,
+													"name": "__type",
+													"kind": 65536,
+													"kindString": "Type literal",
+													"flags": {
+														"isExported": true
+													},
+													"signatures": [
+														{
+															"id": 2060,
+															"name": "__call",
+															"kind": 4096,
+															"kindString": "Call signature",
+															"flags": {
+																"isExported": true
+															},
+															"type": {
+																"type": "intrinsic",
+																"name": "any"
+															}
+														}
+													],
+													"sources": [
+														{
+															"fileName": "packages/leadfoot/src/helpers/pollUntilTruthy.ts",
+															"line": 5,
+															"character": 9
+														}
+													]
+												}
+											},
+											{
+												"type": "intrinsic",
+												"name": "string"
+											}
+										]
 									}
 								},
 								{
-									"id": 2059,
-									"name": "args",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {
-										"isExported": true,
-										"isOptional": true
-									},
-									"type": {
-										"type": "array",
-										"elementType": {
-											"type": "intrinsic",
-											"name": "any"
-										}
-									}
-								},
-								{
-									"id": 2060,
+									"id": 2061,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32174,7 +32127,7 @@
 									}
 								},
 								{
-									"id": 2061,
+									"id": 2062,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32200,7 +32153,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2062,
+									"id": 2063,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32209,7 +32162,145 @@
 									},
 									"signatures": [
 										{
-											"id": 2063,
+											"id": 2064,
+											"name": "__call",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {
+												"isExported": true
+											},
+											"type": {
+												"type": "reference",
+												"typeArguments": [
+													{
+														"type": "typeParameter",
+														"name": "T"
+													}
+												],
+												"name": "Promise"
+											}
+										}
+									],
+									"sources": [
+										{
+											"fileName": "packages/leadfoot/src/helpers/pollUntilTruthy.ts",
+											"line": 8,
+											"character": 2
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 2065,
+							"name": "pollUntilTruthy",
+							"kind": 4096,
+							"kindString": "Call signature",
+							"flags": {
+								"isExported": true
+							},
+							"typeParameter": [
+								{
+									"id": 2066,
+									"name": "T",
+									"kind": 131072,
+									"kindString": "Type parameter",
+									"flags": {
+										"isExported": true
+									}
+								}
+							],
+							"parameters": [
+								{
+									"id": 2067,
+									"name": "poller",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isExported": true
+									},
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 2068,
+									"name": "args",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isExported": true,
+										"isOptional": true
+									},
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "any"
+										}
+									}
+								},
+								{
+									"id": 2069,
+									"name": "timeout",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isExported": true,
+										"isOptional": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											},
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									}
+								},
+								{
+									"id": 2070,
+									"name": "pollInterval",
+									"kind": 32768,
+									"kindString": "Parameter",
+									"flags": {
+										"isExported": true,
+										"isOptional": true
+									},
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "undefined"
+											},
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									}
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 2071,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"isExported": true
+									},
+									"signatures": [
+										{
+											"id": 2072,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32239,7 +32330,7 @@
 							}
 						},
 						{
-							"id": 2064,
+							"id": 2073,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32248,7 +32339,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2065,
+									"id": 2074,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32259,7 +32350,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2066,
+									"id": 2075,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32269,7 +32360,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2067,
+											"id": 2076,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32278,7 +32369,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2068,
+													"id": 2077,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32302,7 +32393,7 @@
 									}
 								},
 								{
-									"id": 2069,
+									"id": 2078,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32319,7 +32410,7 @@
 									}
 								},
 								{
-									"id": 2070,
+									"id": 2079,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32342,7 +32433,7 @@
 									}
 								},
 								{
-									"id": 2071,
+									"id": 2080,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32368,7 +32459,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2072,
+									"id": 2081,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32377,7 +32468,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2073,
+											"id": 2082,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32407,7 +32498,7 @@
 							}
 						},
 						{
-							"id": 2074,
+							"id": 2083,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32416,7 +32507,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2075,
+									"id": 2084,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32425,7 +32516,7 @@
 									}
 								},
 								{
-									"id": 2076,
+									"id": 2085,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32436,7 +32527,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2077,
+									"id": 2086,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32446,7 +32537,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2078,
+											"id": 2087,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32455,7 +32546,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2079,
+													"id": 2088,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32464,7 +32555,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2080,
+															"id": 2089,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32494,7 +32585,7 @@
 									}
 								},
 								{
-									"id": 2081,
+									"id": 2090,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32503,17 +32594,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2082,
+									"id": 2091,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32536,7 +32621,7 @@
 									}
 								},
 								{
-									"id": 2083,
+									"id": 2092,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32562,7 +32647,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2084,
+									"id": 2093,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32571,7 +32656,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2085,
+											"id": 2094,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32601,7 +32686,7 @@
 							}
 						},
 						{
-							"id": 2086,
+							"id": 2095,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32610,7 +32695,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2087,
+									"id": 2096,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32619,7 +32704,7 @@
 									}
 								},
 								{
-									"id": 2088,
+									"id": 2097,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32628,7 +32713,7 @@
 									}
 								},
 								{
-									"id": 2089,
+									"id": 2098,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32639,7 +32724,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2090,
+									"id": 2099,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32649,7 +32734,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2091,
+											"id": 2100,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32658,7 +32743,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2092,
+													"id": 2101,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32667,7 +32752,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2093,
+															"id": 2102,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32680,7 +32765,7 @@
 															}
 														},
 														{
-															"id": 2094,
+															"id": 2103,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32710,7 +32795,7 @@
 									}
 								},
 								{
-									"id": 2095,
+									"id": 2104,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32719,21 +32804,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2096,
+									"id": 2105,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32756,7 +32831,7 @@
 									}
 								},
 								{
-									"id": 2097,
+									"id": 2106,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32782,7 +32857,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2098,
+									"id": 2107,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -32791,7 +32866,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2099,
+											"id": 2108,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -32821,7 +32896,7 @@
 							}
 						},
 						{
-							"id": 2100,
+							"id": 2109,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -32830,7 +32905,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2101,
+									"id": 2110,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32839,7 +32914,7 @@
 									}
 								},
 								{
-									"id": 2102,
+									"id": 2111,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32848,7 +32923,7 @@
 									}
 								},
 								{
-									"id": 2103,
+									"id": 2112,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32857,7 +32932,7 @@
 									}
 								},
 								{
-									"id": 2104,
+									"id": 2113,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -32868,7 +32943,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2105,
+									"id": 2114,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32878,7 +32953,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2106,
+											"id": 2115,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -32887,7 +32962,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2107,
+													"id": 2116,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -32896,7 +32971,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2108,
+															"id": 2117,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32909,7 +32984,7 @@
 															}
 														},
 														{
-															"id": 2109,
+															"id": 2118,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32922,7 +32997,7 @@
 															}
 														},
 														{
-															"id": 2110,
+															"id": 2119,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -32952,7 +33027,7 @@
 									}
 								},
 								{
-									"id": 2111,
+									"id": 2120,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -32961,25 +33036,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											},
-											{
-												"type": "typeParameter",
-												"name": "W"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2112,
+									"id": 2121,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33002,7 +33063,7 @@
 									}
 								},
 								{
-									"id": 2113,
+									"id": 2122,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33028,7 +33089,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2114,
+									"id": 2123,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -33037,7 +33098,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2115,
+											"id": 2124,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -33067,7 +33128,7 @@
 							}
 						},
 						{
-							"id": 2116,
+							"id": 2125,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -33076,7 +33137,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2117,
+									"id": 2126,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33085,7 +33146,7 @@
 									}
 								},
 								{
-									"id": 2118,
+									"id": 2127,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33094,7 +33155,7 @@
 									}
 								},
 								{
-									"id": 2119,
+									"id": 2128,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33103,7 +33164,7 @@
 									}
 								},
 								{
-									"id": 2120,
+									"id": 2129,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33112,7 +33173,7 @@
 									}
 								},
 								{
-									"id": 2121,
+									"id": 2130,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33123,7 +33184,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2122,
+									"id": 2131,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33133,7 +33194,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2123,
+											"id": 2132,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -33142,7 +33203,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2124,
+													"id": 2133,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -33151,7 +33212,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2125,
+															"id": 2134,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33164,7 +33225,7 @@
 															}
 														},
 														{
-															"id": 2126,
+															"id": 2135,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33177,7 +33238,7 @@
 															}
 														},
 														{
-															"id": 2127,
+															"id": 2136,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33190,7 +33251,7 @@
 															}
 														},
 														{
-															"id": 2128,
+															"id": 2137,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33220,7 +33281,7 @@
 									}
 								},
 								{
-									"id": 2129,
+									"id": 2138,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33229,29 +33290,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											},
-											{
-												"type": "typeParameter",
-												"name": "W"
-											},
-											{
-												"type": "typeParameter",
-												"name": "X"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2130,
+									"id": 2139,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33274,7 +33317,7 @@
 									}
 								},
 								{
-									"id": 2131,
+									"id": 2140,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33300,7 +33343,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2132,
+									"id": 2141,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -33309,7 +33352,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2133,
+											"id": 2142,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -33339,7 +33382,7 @@
 							}
 						},
 						{
-							"id": 2134,
+							"id": 2143,
 							"name": "pollUntilTruthy",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -33348,7 +33391,7 @@
 							},
 							"typeParameter": [
 								{
-									"id": 2135,
+									"id": 2144,
 									"name": "T",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33357,7 +33400,7 @@
 									}
 								},
 								{
-									"id": 2136,
+									"id": 2145,
 									"name": "U",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33366,7 +33409,7 @@
 									}
 								},
 								{
-									"id": 2137,
+									"id": 2146,
 									"name": "V",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33375,7 +33418,7 @@
 									}
 								},
 								{
-									"id": 2138,
+									"id": 2147,
 									"name": "W",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33384,7 +33427,7 @@
 									}
 								},
 								{
-									"id": 2139,
+									"id": 2148,
 									"name": "X",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33393,7 +33436,7 @@
 									}
 								},
 								{
-									"id": 2140,
+									"id": 2149,
 									"name": "Y",
 									"kind": 131072,
 									"kindString": "Type parameter",
@@ -33404,7 +33447,7 @@
 							],
 							"parameters": [
 								{
-									"id": 2141,
+									"id": 2150,
 									"name": "poller",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33414,7 +33457,7 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 2142,
+											"id": 2151,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
@@ -33423,7 +33466,7 @@
 											},
 											"signatures": [
 												{
-													"id": 2143,
+													"id": 2152,
 													"name": "__call",
 													"kind": 4096,
 													"kindString": "Call signature",
@@ -33432,7 +33475,7 @@
 													},
 													"parameters": [
 														{
-															"id": 2144,
+															"id": 2153,
 															"name": "u",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33445,7 +33488,7 @@
 															}
 														},
 														{
-															"id": 2145,
+															"id": 2154,
 															"name": "v",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33458,7 +33501,7 @@
 															}
 														},
 														{
-															"id": 2146,
+															"id": 2155,
 															"name": "w",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33471,7 +33514,7 @@
 															}
 														},
 														{
-															"id": 2147,
+															"id": 2156,
 															"name": "x",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33484,7 +33527,7 @@
 															}
 														},
 														{
-															"id": 2148,
+															"id": 2157,
 															"name": "y",
 															"kind": 32768,
 															"kindString": "Parameter",
@@ -33514,7 +33557,7 @@
 									}
 								},
 								{
-									"id": 2149,
+									"id": 2158,
 									"name": "args",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33523,33 +33566,11 @@
 										"isOptional": true
 									},
 									"type": {
-										"type": "tuple",
-										"elements": [
-											{
-												"type": "typeParameter",
-												"name": "U"
-											},
-											{
-												"type": "typeParameter",
-												"name": "V"
-											},
-											{
-												"type": "typeParameter",
-												"name": "W"
-											},
-											{
-												"type": "typeParameter",
-												"name": "X"
-											},
-											{
-												"type": "typeParameter",
-												"name": "Y"
-											}
-										]
+										"type": "tuple"
 									}
 								},
 								{
-									"id": 2150,
+									"id": 2159,
 									"name": "timeout",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33572,7 +33593,7 @@
 									}
 								},
 								{
-									"id": 2151,
+									"id": 2160,
 									"name": "pollInterval",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -33598,7 +33619,7 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 2152,
+									"id": 2161,
 									"name": "__type",
 									"kind": 65536,
 									"kindString": "Type literal",
@@ -33607,7 +33628,7 @@
 									},
 									"signatures": [
 										{
-											"id": 2153,
+											"id": 2162,
 											"name": "__call",
 											"kind": 4096,
 											"kindString": "Call signature",
@@ -33691,7 +33712,7 @@
 					"title": "Functions",
 					"kind": 64,
 					"children": [
-						2046
+						2055
 					]
 				}
 			],
@@ -33704,7 +33725,7 @@
 			]
 		},
 		{
-			"id": 2154,
+			"id": 2163,
 			"name": "\"index\"",
 			"kind": 1,
 			"kindString": "Module",
@@ -33714,7 +33735,7 @@
 			"originalName": "src/index.ts",
 			"children": [
 				{
-					"id": 2163,
+					"id": 2172,
 					"name": "Capabilities",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33724,7 +33745,7 @@
 					"target": 175
 				},
 				{
-					"id": 2158,
+					"id": 2167,
 					"name": "Command",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33734,7 +33755,7 @@
 					"target": 1233
 				},
 				{
-					"id": 2157,
+					"id": 2166,
 					"name": "Element",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33744,7 +33765,7 @@
 					"target": 1037
 				},
 				{
-					"id": 2164,
+					"id": 2173,
 					"name": "Geolocation",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33754,7 +33775,7 @@
 					"target": 266
 				},
 				{
-					"id": 2168,
+					"id": 2177,
 					"name": "LeadfootError",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33764,7 +33785,7 @@
 					"target": 297
 				},
 				{
-					"id": 2167,
+					"id": 2176,
 					"name": "LeadfootURL",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33774,7 +33795,7 @@
 					"target": 281
 				},
 				{
-					"id": 2165,
+					"id": 2174,
 					"name": "LogEntry",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33784,7 +33805,7 @@
 					"target": 270
 				},
 				{
-					"id": 2170,
+					"id": 2179,
 					"name": "RequestOptions",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33794,7 +33815,7 @@
 					"target": -1
 				},
 				{
-					"id": 2155,
+					"id": 2164,
 					"name": "Server",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33804,7 +33825,7 @@
 					"target": 308
 				},
 				{
-					"id": 2156,
+					"id": 2165,
 					"name": "Session",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33814,7 +33835,7 @@
 					"target": 574
 				},
 				{
-					"id": 2162,
+					"id": 2171,
 					"name": "Strategy",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33824,7 +33845,7 @@
 					"target": 561
 				},
 				{
-					"id": 2166,
+					"id": 2175,
 					"name": "WebDriverCookie",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33834,7 +33855,7 @@
 					"target": 274
 				},
 				{
-					"id": 2169,
+					"id": 2178,
 					"name": "WebDriverResponse",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33844,7 +33865,7 @@
 					"target": 305
 				},
 				{
-					"id": 2159,
+					"id": 2168,
 					"name": "keys",
 					"kind": 16777216,
 					"kindString": "Reference",
@@ -33854,24 +33875,24 @@
 					"target": 60
 				},
 				{
-					"id": 2160,
+					"id": 2169,
 					"name": "pollUntil",
 					"kind": 16777216,
 					"kindString": "Reference",
 					"flags": {
 						"isExported": true
 					},
-					"target": 1937
+					"target": 1946
 				},
 				{
-					"id": 2161,
+					"id": 2170,
 					"name": "pollUntilTruthy",
 					"kind": 16777216,
 					"kindString": "Reference",
 					"flags": {
 						"isExported": true
 					},
-					"target": 2046
+					"target": 2055
 				}
 			],
 			"groups": [
@@ -33879,22 +33900,22 @@
 					"title": "References",
 					"kind": 16777216,
 					"children": [
-						2163,
-						2158,
-						2157,
-						2164,
-						2168,
+						2172,
 						2167,
-						2165,
-						2170,
-						2155,
-						2156,
-						2162,
 						2166,
+						2173,
+						2177,
+						2176,
+						2174,
+						2179,
+						2164,
+						2165,
+						2171,
+						2175,
+						2178,
+						2168,
 						2169,
-						2159,
-						2160,
-						2161
+						2170
 					]
 				}
 			],
@@ -37318,7 +37339,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 984,
 									"character": 17
 								}
@@ -37350,7 +37371,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 974,
 									"character": 11
 								}
@@ -37375,7 +37396,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 973,
 									"character": 8
 								}
@@ -37470,7 +37491,7 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/typescript@3.9.5/node_modules/typescript/lib/lib.es5.d.ts",
+									"fileName": "node_modules/.pnpm/typescript@4.0.2/node_modules/typescript/lib/lib.es5.d.ts",
 									"line": 975,
 									"character": 9
 								}
@@ -37568,18 +37589,17 @@
 							}
 						},
 						{
-							"id": 287,
+							"id": 285,
 							"name": "auth",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
-								"isExported": true,
-								"isOptional": true
+								"isExported": true
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 5,
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 22,
 									"character": 12
 								}
 							],
@@ -37588,103 +37608,100 @@
 								"types": [
 									{
 										"type": "intrinsic",
-										"name": "undefined"
+										"name": "string"
 									},
 									{
 										"type": "intrinsic",
+										"name": "null"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 285,
+								"name": "Url.auth"
+							}
+						},
+						{
+							"id": 286,
+							"name": "hash",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 23,
+									"character": 12
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
 										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "null"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 286,
+								"name": "Url.hash"
+							}
+						},
+						{
+							"id": 287,
+							"name": "host",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 24,
+									"character": 12
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "null"
 									}
 								]
 							},
 							"inheritedFrom": {
 								"type": "reference",
 								"id": 287,
-								"name": "UrlObjectCommon.auth"
+								"name": "Url.host"
 							}
 						},
 						{
 							"id": 288,
-							"name": "hash",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true
-							},
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 6,
-									"character": 12
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 288,
-								"name": "UrlObjectCommon.hash"
-							}
-						},
-						{
-							"id": 289,
-							"name": "host",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true
-							},
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 7,
-									"character": 12
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 289,
-								"name": "UrlObjectCommon.host"
-							}
-						},
-						{
-							"id": 290,
 							"name": "hostname",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
-								"isExported": true,
-								"isOptional": true
+								"isExported": true
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 8,
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 25,
 									"character": 16
 								}
 							],
@@ -37693,53 +37710,43 @@
 								"types": [
 									{
 										"type": "intrinsic",
-										"name": "undefined"
+										"name": "string"
 									},
 									{
 										"type": "intrinsic",
-										"name": "string"
+										"name": "null"
 									}
 								]
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 290,
-								"name": "UrlObjectCommon.hostname"
+								"id": 288,
+								"name": "Url.hostname"
 							}
 						},
 						{
-							"id": 291,
+							"id": 289,
 							"name": "href",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
-								"isExported": true,
-								"isOptional": true
+								"isExported": true
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 9,
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 26,
 									"character": 12
 								}
 							],
 							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
+								"type": "intrinsic",
+								"name": "string"
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 291,
-								"name": "UrlObjectCommon.href"
+								"id": 289,
+								"name": "Url.href"
 							}
 						},
 						{
@@ -37773,18 +37780,17 @@
 							}
 						},
 						{
-							"id": 292,
+							"id": 290,
 							"name": "path",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
-								"isExported": true,
-								"isOptional": true
+								"isExported": true
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 10,
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 27,
 									"character": 12
 								}
 							],
@@ -37793,138 +37799,134 @@
 								"types": [
 									{
 										"type": "intrinsic",
-										"name": "undefined"
+										"name": "string"
 									},
 									{
 										"type": "intrinsic",
+										"name": "null"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 290,
+								"name": "Url.path"
+							}
+						},
+						{
+							"id": 291,
+							"name": "pathname",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 28,
+									"character": 16
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
 										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "null"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 291,
+								"name": "Url.pathname"
+							}
+						},
+						{
+							"id": 295,
+							"name": "port",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 32,
+									"character": 12
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "null"
+									}
+								]
+							},
+							"inheritedFrom": {
+								"type": "reference",
+								"id": 295,
+								"name": "Url.port"
+							}
+						},
+						{
+							"id": 292,
+							"name": "protocol",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isExported": true
+							},
+							"sources": [
+								{
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 29,
+									"character": 16
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "null"
 									}
 								]
 							},
 							"inheritedFrom": {
 								"type": "reference",
 								"id": 292,
-								"name": "UrlObjectCommon.path"
+								"name": "Url.protocol"
 							}
 						},
 						{
-							"id": 293,
-							"name": "pathname",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true
-							},
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 11,
-									"character": 16
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 293,
-								"name": "UrlObjectCommon.pathname"
-							}
-						},
-						{
-							"id": 285,
-							"name": "port",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true
-							},
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 25,
-									"character": 12
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 285,
-								"name": "Url.port"
-							}
-						},
-						{
-							"id": 294,
-							"name": "protocol",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isExported": true,
-								"isOptional": true
-							},
-							"sources": [
-								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 12,
-									"character": 16
-								}
-							],
-							"type": {
-								"type": "union",
-								"types": [
-									{
-										"type": "intrinsic",
-										"name": "undefined"
-									},
-									{
-										"type": "intrinsic",
-										"name": "string"
-									}
-								]
-							},
-							"inheritedFrom": {
-								"type": "reference",
-								"id": 294,
-								"name": "UrlObjectCommon.protocol"
-							}
-						},
-						{
-							"id": 286,
+							"id": 296,
 							"name": "query",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
-								"isExported": true,
-								"isOptional": true
+								"isExported": true
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 26,
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 33,
 									"character": 13
 								}
 							],
@@ -37947,23 +37949,22 @@
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 286,
+								"id": 296,
 								"name": "Url.query"
 							}
 						},
 						{
-							"id": 295,
+							"id": 293,
 							"name": "search",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
-								"isExported": true,
-								"isOptional": true
+								"isExported": true
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 13,
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 30,
 									"character": 14
 								}
 							],
@@ -37972,33 +37973,32 @@
 								"types": [
 									{
 										"type": "intrinsic",
-										"name": "undefined"
+										"name": "string"
 									},
 									{
 										"type": "intrinsic",
-										"name": "string"
+										"name": "null"
 									}
 								]
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 295,
-								"name": "UrlObjectCommon.search"
+								"id": 293,
+								"name": "Url.search"
 							}
 						},
 						{
-							"id": 296,
+							"id": 294,
 							"name": "slashes",
 							"kind": 1024,
 							"kindString": "Property",
 							"flags": {
-								"isExported": true,
-								"isOptional": true
+								"isExported": true
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.0.12/node_modules/@types/node/url.d.ts",
-									"line": 14,
+									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
+									"line": 31,
 									"character": 15
 								}
 							],
@@ -38007,22 +38007,18 @@
 								"types": [
 									{
 										"type": "intrinsic",
-										"name": "undefined"
+										"name": "boolean"
 									},
 									{
 										"type": "intrinsic",
-										"name": "false"
-									},
-									{
-										"type": "intrinsic",
-										"name": "true"
+										"name": "null"
 									}
 								]
 							},
 							"inheritedFrom": {
 								"type": "reference",
-								"id": 296,
-								"name": "UrlObjectCommon.slashes"
+								"id": 294,
+								"name": "Url.slashes"
 							}
 						},
 						{
@@ -38062,19 +38058,19 @@
 							"kind": 1024,
 							"children": [
 								284,
+								285,
+								286,
 								287,
 								288,
 								289,
+								283,
 								290,
 								291,
-								283,
-								292,
-								293,
-								285,
-								294,
-								286,
 								295,
+								292,
 								296,
+								293,
+								294,
 								282
 							]
 						}
@@ -45138,9 +45134,9 @@
 				1036,
 				307,
 				573,
-				1936,
-				2045,
-				2154,
+				1945,
+				2054,
+				2163,
 				174,
 				59,
 				432,
