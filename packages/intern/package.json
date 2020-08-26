@@ -44,7 +44,7 @@
   "dependencies": {
     "@theintern/cli": "workspace:^5.0.0-pre",
     "@theintern/core": "workspace:^5.0.0-pre",
-    "tslib": "~2.0.0"
+    "tslib": "~2.0.1"
   },
   "devDependencies": {
     "@theintern-dev/tsconfig": "workspace:*"

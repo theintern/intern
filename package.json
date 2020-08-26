@@ -30,18 +30,19 @@
     "@types/sinon": "^7.5.2",
     "@typescript-eslint/eslint-plugin": "^3.10.1",
     "@typescript-eslint/parser": "^3.10.1",
-    "cross-env": "^7.0.2",
     "eslint": "^7.7.0",
     "eslint-config-prettier": "^6.11.0",
     "husky": "^4.2.5",
     "intern": "workspace:*",
     "lint-staged": "^10.2.13",
-    "prettier": "^2.1.0",
+    "prettier": "^2.1.1",
     "shelljs": "^0.8.4",
     "shx": "^0.3.2",
     "sinon": "^7.5.0",
+    "ts-loader": "~8.0.3",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.2",
+    "webpack": "~4.44.1"
   },
   "husky": {
     "hooks": {

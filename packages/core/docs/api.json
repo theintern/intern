@@ -40502,11 +40502,6 @@
 									}
 								]
 							},
-							"overwrites": {
-								"type": "reference",
-								"id": 1042,
-								"name": "Error.stack"
-							},
 							"inheritedFrom": {
 								"type": "reference",
 								"id": 1042,
@@ -85410,7 +85405,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/node/util.ts",
-							"line": 147,
+							"line": 150,
 							"character": 20
 						}
 					],
@@ -85651,7 +85646,7 @@
 					"sources": [
 						{
 							"fileName": "packages/core/src/lib/node/util.ts",
-							"line": 152,
+							"line": 155,
 							"character": 32
 						}
 					]

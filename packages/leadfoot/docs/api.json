@@ -29575,11 +29575,6 @@
 									}
 								]
 							},
-							"overwrites": {
-								"type": "reference",
-								"id": 303,
-								"name": "Error.stack"
-							},
 							"inheritedFrom": {
 								"type": "reference",
 								"id": 303,
@@ -37509,11 +37504,6 @@
 									}
 								]
 							},
-							"overwrites": {
-								"type": "reference",
-								"id": 303,
-								"name": "Error.stack"
-							},
 							"inheritedFrom": {
 								"type": "reference",
 								"id": 303,
@@ -37598,8 +37588,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 22,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 21,
 									"character": 12
 								}
 							],
@@ -37632,8 +37622,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 23,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 22,
 									"character": 12
 								}
 							],
@@ -37666,8 +37656,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 24,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 23,
 									"character": 12
 								}
 							],
@@ -37700,8 +37690,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 25,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 24,
 									"character": 16
 								}
 							],
@@ -37734,8 +37724,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 26,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 25,
 									"character": 12
 								}
 							],
@@ -37789,8 +37779,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 27,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 26,
 									"character": 12
 								}
 							],
@@ -37823,8 +37813,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 28,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 27,
 									"character": 16
 								}
 							],
@@ -37857,8 +37847,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 32,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 31,
 									"character": 12
 								}
 							],
@@ -37891,8 +37881,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 29,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 28,
 									"character": 16
 								}
 							],
@@ -37925,8 +37915,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 33,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 32,
 									"character": 13
 								}
 							],
@@ -37963,8 +37953,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 30,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 29,
 									"character": 14
 								}
 							],
@@ -37997,8 +37987,8 @@
 							},
 							"sources": [
 								{
-									"fileName": "node_modules/.pnpm/@types/node@12.12.54/node_modules/@types/node/url.d.ts",
-									"line": 31,
+									"fileName": "node_modules/.pnpm/@types/node@14.6.0/node_modules/@types/node/url.d.ts",
+									"line": 30,
 									"character": 15
 								}
 							],

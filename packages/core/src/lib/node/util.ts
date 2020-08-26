@@ -131,14 +131,17 @@ export function mkdirp(dir: string) {
 }
 
 export function transpileSource(filename: string, code: string) {
-  require.extensions[extname(filename)](
-    {
-      _compile(source: string) {
-        code = source;
-      }
-    } as any,
-    filename
-  );
+  const extRequire = require.extensions[extname(filename)];
+  if (extRequire) {
+    extRequire(
+      {
+        _compile(source: string) {
+          code = source;
+        }
+      } as any,
+      filename
+    );
+  }
 
   return code;
 }

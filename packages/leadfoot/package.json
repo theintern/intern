@@ -16,14 +16,13 @@
   "types": "dist/index.d.ts",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@theintern/common": "workspace:*",
+    "@theintern/common": "workspace:^0.2.4-pre",
     "jszip": "~3.5.0",
-    "tslib": "~1.9.3"
+    "tslib": "~2.0.1"
   },
   "devDependencies": {
     "@theintern-dev/tsconfig": "workspace:*",
-    "@theintern/core": "workspace:*",
-    "@types/node": "^12.12.54"
+    "@theintern/core": "workspace:*"
   },
   "scripts": {
     "apidoc": "dev-apidoc",
