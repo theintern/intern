@@ -11,19 +11,20 @@
   "bin": {
     "dev-apidoc": "bin/dev-apidoc.js",
     "dev-ghpages": "bin/dev-ghpages.js",
+    "dev-syncdeps": "bin/dev-syncdeps.js",
     "dev-version": "bin/dev-version.js",
     "dev-webdriver": "bin/dev-webdriver.js"
   },
   "dependencies": {
-    "glob": "~7.1.6",
-    "semver": "~7.3.2",
-    "tslib": "~2.0.0",
-    "typedoc": "~0.17.7"
+    "glob": "^7.1.6",
+    "semver": "^7.3.2",
+    "tslib": "^2.0.0",
+    "typedoc": "^0.17.7"
   },
   "devDependencies": {
     "@theintern-dev/tsconfig": "workspace:*",
     "@theintern/digdug": "workspace:*",
-    "@types/glob": "~7.1.3",
-    "@types/semver": "~7.2.0"
+    "@types/glob": "^7.1.3",
+    "@types/semver": "^7.3.3"
   }
 }

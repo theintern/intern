@@ -11,8 +11,8 @@
     "watch": "tsc -b --watch"
   },
   "dependencies": {
-    "rewiremock": "~3.13.9",
-    "tslib": "~2.0.0"
+    "rewiremock": "^3.13.9",
+    "tslib": "^2.0.1"
   },
   "devDependencies": {
     "@theintern-dev/tsconfig": "workspace:*"
