@@ -30,8 +30,7 @@ const common: Configuration = {
             silent: true,
             configFile: resolve(__dirname, 'tsconfig.json'),
             onlyCompileBundledFiles: true,
-            transpileOnly: true,
-            experimentalWatchApi: true
+            transpileOnly: true
           }
         }
       },
