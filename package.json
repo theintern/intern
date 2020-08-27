@@ -32,6 +32,7 @@
     "@typescript-eslint/parser": "^3.10.1",
     "eslint": "^7.7.0",
     "eslint-config-prettier": "^6.11.0",
+    "fork-ts-checker-webpack-plugin": "~5.1.0",
     "husky": "^4.2.5",
     "intern": "workspace:*",
     "lint-staged": "^10.2.13",

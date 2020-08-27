@@ -13,7 +13,8 @@ import ConsoleReporter from '../reporters/Console';
 import Dom from '../reporters/Dom';
 import Html from '../reporters/Html';
 import { RuntimeEnvironment } from '../types';
-import Executor, { Config, Events, ExecutorConfig, Plugins } from './Executor';
+import Executor from './Executor';
+import type { Config, Events, ExecutorConfig, Plugins } from './Executor';
 
 /**
  * A Browser executor is used to run unit tests in a browser.

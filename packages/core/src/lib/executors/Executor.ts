@@ -12,18 +12,17 @@ import * as console from '../common/console';
 import ErrorFormatter, { ErrorFormatOptions } from '../common/ErrorFormatter';
 import { normalizePathEnding } from '../common/path';
 import { pullFromArray } from '../common/util';
-import {
+import type {
   Args,
   BenchmarkConfig,
   Config,
   Configurator,
   ConfiguratorFactory,
   LoadedConfig,
-  createConfig,
-  parseArgs,
   PluginDescriptor,
   ReporterDescriptor
 } from '../config';
+import { createConfig, parseArgs } from '../config';
 import {
   BddInterface,
   getInterface as getBddInterface

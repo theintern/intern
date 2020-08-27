@@ -1,10 +1,9 @@
 export { parseArgs } from './lib/args';
 export { DEFAULT_CONFIG } from './lib/const';
 export * from './lib/types';
-export {
+export type {
   Configurator,
   ConfiguratorFactory,
-  ConfiguratorOptions,
-  createConfig,
-  createConfigurator
+  ConfiguratorOptions
 } from './lib/util';
+export { createConfig, createConfigurator } from './lib/util';

@@ -1,7 +1,8 @@
 import { RemoteEvents } from './RemoteSuite';
 import WebSocketChannel from './channels/WebSocket';
 import HttpChannel from './channels/Http';
-import BaseChannel, { ChannelOptions } from './channels/Base';
+import BaseChannel from './channels/Base';
+import type { ChannelOptions } from './channels/Base';
 
 export { ChannelOptions };
 
