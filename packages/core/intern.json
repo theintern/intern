@@ -3,7 +3,7 @@
 
   "description": "Run tests on Node, excluding the benchmark tests",
 
-  "coverage": ["dist/**/*.js", "!dist/browser/**/*.js"],
+  "coverage": ["src/**/*.ts", "!src/browser/**/*.ts"],
 
   "functionalRetries": 1,
 
