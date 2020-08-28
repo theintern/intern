@@ -125,14 +125,22 @@ export default class Browser extends Executor<Events, Plugins> {
   }
 
   protected async _resolveSuites(suites: string[]): Promise<string[]> {
+    let resolvedSuites: string[] | undefined;
+
     try {
       const response = await request('__resolveSuites__', {
         query: { suites }
       });
-      return await response.json<string[]>();
+      resolvedSuites = await response.json<string[]>();
     } catch (error) {
       throw new Error('The server does not support suite glob resolution');
     }
+
+    if (!resolvedSuites || !Array.isArray(resolvedSuites)) {
+      throw new Error('Server returned a non-array value for resolved suites');
+    }
+
+    return resolvedSuites;
   }
 }
 
