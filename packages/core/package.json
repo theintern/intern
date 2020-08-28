@@ -44,14 +44,13 @@
     "apidoc": "dev-apidoc",
     "build": "tsc -b && webpack",
     "clean": "shx rm -rf dist _tests *.tsbuildinfo",
-    "pretest": "webpack --config tests/webpack.config.ts",
     "test": "intern",
-    "test:chrome": "intern --config @chrome",
-    "test:edge": "intern --config @edge",
-    "test:firefox": "intern --config @firefox",
-    "test:safari": "intern --config @safari",
-    "preci": "webpack --config tests/webpack.config.ts",
-    "ci": "intern --config @ci"
+    "build:test": "webpack --config tests/webpack.config.ts",
+    "test:chrome": "pnpm build:test && intern --config @chrome",
+    "test:edge": "pnpm build:test && intern --config @edge",
+    "test:firefox": "pnpm build:test && intern --config @firefox",
+    "test:safari": "pnpm build:test && intern --config @safari",
+    "ci": "pnpm build:test && intern --config @ci"
   },
   "dependencies": {
     "@theintern/common": "workspace:^0.2.4-pre",
