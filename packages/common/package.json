@@ -17,8 +17,7 @@
     "digdug"
   ],
   "files": [
-    "dist/*",
-    "amd/*"
+    "dist/*"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,8 +26,8 @@
     "url": "https://github.com/theintern/intern.git"
   },
   "scripts": {
-    "build": "tsc -b && tsc -b tsconfig.amd.json",
-    "clean": "shx rm -rf dist _tests amd *.tsbuildinfo",
+    "build": "tsc -b",
+    "clean": "shx rm -rf dist _tests *.tsbuildinfo",
     "test": "intern",
     "build:test": "webpack --config tests/webpack.config.ts",
     "test:chrome": "pnpm build:test && intern --config @chrome",

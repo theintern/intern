@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./amd",
-    "module": "amd",
-    "rootDir": "src"
-  },
-  "include": ["src/**/*.ts"]
-}
