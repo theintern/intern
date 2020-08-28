@@ -54,12 +54,10 @@ registerSuite('lib/executors/Browser', function () {
 
   let executor: _Browser;
 
-  type mockRequest = { json: () => Promise<any> };
+  type MockRequest = { json: () => Promise<any> };
 
-  const request = sandbox.spy((_path: string, _data: any) => {
-    return Promise.resolve(<mockRequest>{
-      json: () => Promise.resolve({})
-    });
+  const request = sandbox.stub<[string, any], MockRequest>().resolves({
+    json: () => Promise.resolve({})
   });
 
   class MockMiniMatch {
@@ -320,6 +318,12 @@ registerSuite('lib/executors/Browser', function () {
       '#configure': {
         'suite globs'() {
           executor.configure({ suites: ['**/*.js', 'bar.js'] });
+
+          // Return an array for the suite glob request
+          request.resolves({
+            json: () => Promise.resolve([])
+          });
+
           return executor.run().then(() => {
             assert.equal(request.callCount, 1, 'expected a request');
             assert.deepEqual(
