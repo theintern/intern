@@ -23,6 +23,14 @@ const common: Configuration = {
         use: ['style-loader', 'css-loader', 'sass-loader']
       },
       {
+        test: /.ts/,
+        include: resolve(__dirname, '..', 'src'),
+        exclude: /.scss/,
+        use: {
+          loader: 'istanbul-instrumenter-loader'
+        }
+      },
+      {
         test: /\.ts/,
         use: {
           loader: 'ts-loader',

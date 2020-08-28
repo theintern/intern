@@ -35,6 +35,7 @@
     "fork-ts-checker-webpack-plugin": "~5.1.0",
     "husky": "^4.2.5",
     "intern": "workspace:*",
+    "istanbul-instrumenter-loader": "~3.0.1",
     "lint-staged": "^10.2.13",
     "prettier": "^2.1.1",
     "shelljs": "^0.8.4",
