@@ -79,9 +79,10 @@ the self tests. All of Intern’s build and test processes are handled through
 
 1. Fork this repository and clone your fork
 2. In the repo, run `pnpm install` to install development packages
-3. Run `pnpm test` to run the Node-based self-tests
-4. Run `pnpm run test:chrome` to run the self-tests in Chrome (“edge”,
-   “firefox”, and “safari” are also available)
+3. Run `pnpm build` to build everything
+4. Run `pnpm test` to run the Node-based self-tests
+5. Run `pnpm test:chrome` to run the self-tests in Chrome (“edge”, “firefox”,
+   and “safari” are also available)
 
 > 💡 Intern requires at least Node 10.0.0 to build and run.
 
@@ -114,19 +115,21 @@ may require manual intervention (and will cause a commit to fail).
 
 ### Writing self-tests
 
-Tests are in the `tests` directory, and the test config is the `intern.json`
-file in the project root. Tests are organized by type in `unit/`, `functional/`,
-`integreation/`, and `benchmark/` directories. The directory structure within
-each type should mirror the main `src/` directory structure. For example, unit
-tests for `src/core/lib/executors/Executor` should go in
-`tests/unit/core/lib/executors/Executor`.
+Self tests for each package are in a `tests` directory in the package. Each
+package also contains its own `intern.json` test config.
 
-While most of the existing tests use the “object” interface (`registerSuite`),
+Tests for each package are organized by type in `unit/`, `functional/`,
+`integration/`, and `benchmark/` directories. The directory structure within
+each type should mirror the main `src/` directory structure. For example, unit
+tests for `src/lib/executors/Executor` should go in
+`tests/unit/lib/executors/Executor`.
+
+While many of the existing tests use the “object” interface (`registerSuite`),
 new tests should use the “tdd” interface (`suite` and `test`). Suite names
 should generally indicate what module is being tested.
 
 ```ts
-import { suite, test } from 'src/core/lib/interfaces/tdd';
+const { suite, test } = intern.getPlugin('interface.tdd');
 
 suite('lib/someModule', () => {
   test('feature 1', () => { ... };
