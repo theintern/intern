@@ -29,12 +29,13 @@
   "scripts": {
     "build": "tsc -b && tsc -b tsconfig.amd.json",
     "clean": "shx rm -rf dist _tests amd *.tsbuildinfo",
-    "pretest": "tsc -b tests && webpack --config tests/webpack.config.ts",
     "test": "intern",
-    "test:chrome": "intern --config @chrome",
-    "test:edge": "intern --config @edge",
-    "test:firefox": "intern --config @firefox",
-    "test:safari": "intern --config @safari"
+    "build:test": "webpack --config tests/webpack.config.ts",
+    "test:chrome": "pnpm build:test && intern --config @chrome",
+    "test:edge": "pnpm build:test && intern --config @edge",
+    "test:firefox": "pnpm build:test && intern --config @firefox",
+    "test:safari": "pnpm build:test && intern --config @safari",
+    "ci": "pnpm build:test && intern --config @ci"
   },
   "dependencies": {
     "axios": "^0.19.2",

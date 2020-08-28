@@ -2,27 +2,13 @@ import { join, resolve } from 'path';
 import { Configuration } from 'webpack';
 import { sync as glob } from 'glob';
 
-const common: Configuration = {
-  node: false,
-  performance: {
-    // Hides a warning about large bundles.
-    hints: false
-  },
-  resolve: {
-    extensions: ['.ts', '.js']
-  },
-  stats: 'errors-warnings'
-};
-
-const commonTest: Configuration = {
+const config: Configuration = {
   entry: glob(join(__dirname, 'unit', '**', '*.ts')),
+
   mode: 'development',
+
   module: {
     rules: [
-      {
-        test: /@dojo/,
-        use: 'umd-compat-loader'
-      },
       {
         test: /.ts/,
         include: join(__dirname, '..', 'src'),
@@ -38,23 +24,28 @@ const commonTest: Configuration = {
             instance: 'tests',
             configFile: join(__dirname, 'tsconfig.json'),
             onlyCompileBundledFiles: true,
-            transpileOnly: true,
-            experimentalWatchApi: true
+            transpileOnly: true
           }
         }
       }
     ]
-  }
-};
+  },
 
-// Unit tests for the browser
-const browserTestConfig: Configuration = {
-  ...common,
-  ...commonTest,
   output: {
     filename: join('_tests', 'unit.js'),
     path: resolve(__dirname, '..')
-  }
+  },
+
+  performance: {
+    // Hides a warning about large bundles.
+    hints: false
+  },
+
+  resolve: {
+    extensions: ['.ts', '.js']
+  },
+
+  stats: 'errors-warnings'
 };
 
-module.exports = [browserTestConfig];
+module.exports = config;
