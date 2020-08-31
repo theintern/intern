@@ -8,9 +8,16 @@ const mode =
     ? 'production'
     : 'development';
 
+const baseDir = join(__dirname, 'src', 'browser');
+
 const config: Configuration = {
-  entry: getEntries(),
+  entry: {
+    intern: join(baseDir, 'intern.ts'),
+    remote: join(baseDir, 'remote.ts')
+  },
+
   mode,
+
   module: {
     rules: [
       {
@@ -33,27 +40,24 @@ const config: Configuration = {
     // benchmark's code makes webpack sad; tell webpack not to look at it
     noParse: /benchmark\.js/
   },
+
   output: {
     filename: '[name].js',
     path: join(__dirname, 'dist', 'browser')
   },
+
   performance: {
     // Hides a warning about large bundles.
     hints: false
   },
+
   plugins: [new ForkTsCheckerWebpackPlugin()],
+
   resolve: {
     extensions: ['.ts', '.js']
   },
+
   stats: 'errors-warnings'
 };
 
 module.exports = config;
-
-function getEntries() {
-  const baseDir = join(__dirname, 'src', 'browser');
-  return {
-    intern: join(baseDir, 'intern.ts'),
-    remote: join(baseDir, 'remote.ts')
-  };
-}

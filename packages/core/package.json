@@ -94,7 +94,8 @@
   },
   "devDependencies": {
     "@dojo/loader": "^2.0.0",
-    "@theintern-dev/eslint-config": "workspace:^1.0.0",
+    "@theintern-dev/eslint-config": "workspace:*",
+    "@theintern-dev/intern-config": "workspace:*",
     "@theintern-dev/test-util": "workspace:*",
     "@theintern-dev/tsconfig": "workspace:*",
     "@types/body-parser": "^1.19.0",

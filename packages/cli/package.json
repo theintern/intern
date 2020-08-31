@@ -39,16 +39,15 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "shx rm -rf dist _tests *.tsbuildinfo",
-    "pretest": "tsc -b tests",
     "test": "intern",
-    "preci": "tsc -b tests",
-    "ci": "intern --config @ci"
+    "ci": "intern"
   },
   "engines": {
     "node": ">=10.0.0"
   },
   "devDependencies": {
     "@theintern-dev/eslint-config": "workspace:*",
+    "@theintern-dev/intern-config": "workspace:*",
     "@theintern-dev/tsconfig": "workspace:*",
     "@types/chokidar": "^1.7.5",
     "@types/glob": "^7.1.3",

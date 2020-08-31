@@ -1,5 +1,6 @@
 {
   "$schema": "../core/schemas/config.json",
+  "extends": "./node_modules/@theintern-dev/intern-config/intern.json",
   "coverage": ["src/**/*.ts"],
   "filterErrorStack": true,
   "functionalRetries": 1,

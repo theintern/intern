@@ -1,112 +1,14 @@
 {
   "$schema": "../core/schemas/config.json",
 
-  "configs": {
-    "all": {
-      "environments": [
-        "node",
-        "microsoftedge",
-        "safari",
-        {
-          "browserName": "internet explorer",
-          "version": ["10", "11"]
-        },
-        {
-          "browserName": "firefox",
-          "version": "33",
-          "platform": ["WINDOWS", "MAC"]
-        },
-        {
-          // latest version
-          "browserName": "firefox",
-          "platform": ["WINDOWS", "MAC"],
-          "supportsSessionCommands": false,
-
-          // Needed for file download support
-          // See https://github.com/mozilla/geckodriver/issues/858#issuecomment-322505259
-          "moz:firefoxOptions": {
-            "prefs": { "dom.file.createInChild": true }
-          }
-        },
-        {
-          "browserName": "chrome",
-          "version": "38",
-          "platform": ["WINDOWS", "MAC"]
-        },
-        {
-          // latest version
-          "browserName": "chrome",
-          "platform": ["WINDOWS", "MAC"]
-        }
-      ],
-
-      "tunnel": "browserstack"
-    },
-
-    "ci": {
-      "environments": [
-        "node",
-        { "browserName": "chrome", "version": "latest" },
-        { "browserName": "firefox", "version": "latest" },
-        { "browserName": "safari", "version": "latest" }
-        // { "browserName": "internet explorer", "version": "latest" }
-      ],
-      "tunnel": "browserstack"
-    },
-
-    "wd": {
-      "environments": [
-        "node",
-        {
-          "browserName": "chrome"
-        }
-      ],
-      "tunnelOptions": {
-        "drivers": [{ "name": "chrome", "version": "83.0.4103.39" }]
-      }
-    },
-
-    "chrome": {
-      "extends": "wd",
-      "environments": "chrome"
-    },
-
-    "firefox": {
-      "extends": "wd",
-      "environments": "firefox"
-    },
-
-    "safari": {
-      "extends": "wd",
-      "environments": "safari"
-    },
-
-    "edge": {
-      "extends": "wd",
-      "environments": {
-        "browserName": "MicrosoftEdge",
-        "browserVersion": "insider preview"
-      }
-    }
-  },
+  "extends": "./node_modules/@theintern-dev/intern-config/intern.json",
 
   "coverage": ["src/**/*.ts"],
 
-  "filterErrorStack": true,
-
-  "functionalRetries": 1,
-
   "functionalSuites": "tests/functional/**/*.ts",
 
-  "maxConcurrency": 2,
-
-  "node": {
-    "reporters": {
-      "name": "runner",
-      "options": { "hideSkipped": "~", "hidePassed": "." }
-    },
-    "suites": "tests/unit/lib/util.ts",
-    "tsconfig": "tests/tsconfig.json"
+  "node+": {
+    "suites": "tests/unit/lib/util.ts"
   },
 
   "plugins": "tests/globalUi.ts"

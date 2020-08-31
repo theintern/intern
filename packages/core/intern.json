@@ -1,11 +1,9 @@
 {
   "$schema": "./schemas/config.json",
 
-  "description": "Run tests on Node, excluding the benchmark tests",
+  "extends": "./node_modules/@theintern-dev/intern-config/intern.json",
 
   "coverage": ["src/**/*.ts", "!src/browser/**/*.ts"],
-
-  "functionalRetries": 1,
 
   "suites": [
     "tests/benchmark/example.ts",
@@ -25,7 +23,7 @@
 
   "functionalSuites": "_tests/tests/functional/**/*.js",
 
-  "node": {
+  "node+": {
     "suites": [
       "tests/integration/**/*.ts",
       "tests/unit/cli/*.ts",
@@ -57,16 +55,10 @@
       "tests/support/nodeDom.ts",
       "source-map-support/register",
       "tests/support/tsconfig-paths.ts"
-    ],
-    "reporters": {
-      "name": "runner",
-      "options": { "hideSkipped": "~", "hidePassed": "." }
-    },
-
-    "tsconfig": "tests/tsconfig.json"
+    ]
   },
 
-  "browser": {
+  "browser+": {
     "suites": [
       "tests/unit/lib/executors/Browser.ts",
       "tests/unit/lib/browser/*.ts",
@@ -76,17 +68,10 @@
     "plugins": ["tests/support/globalUi.ts", "tests/support/browserDom.ts"]
   },
 
-  "benchmark": false,
-  "filterErrorStack": false,
-
   "configs": {
     "wd": {
       "description": "Run tests in Chrome using Selenium",
-      "tunnel": "selenium",
       "environments": [{ "browserName": "node" }, { "browserName": "chrome" }],
-      "tunnelOptions": {
-        "drivers": [{ "name": "chrome", "version": "83.0.4103.39" }]
-      },
       // Clear out the general suites list so the browser won't try to load
       // them.
       "suites": [],

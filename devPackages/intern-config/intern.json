@@ -1,0 +1,78 @@
+{
+  "$schema": "../../packages/core/schemas/config.json",
+
+  "description": "Base Intern self-test config",
+
+  "benchmark": false,
+  "coverage": "src/**/*.ts",
+  "filterErrorStack": false,
+  "functionalRetries": 1,
+  "functionalSuites": [],
+  "functionalTimeouts": {
+    "find": 5000,
+    "pageLoad": 10000,
+    "executeAsync": 10000
+  },
+  "maxConcurrency": 2,
+
+  "node": {
+    "reporters": {
+      "name": "runner",
+      "options": { "hideSkipped": "~", "hidePassed": "." }
+    },
+
+    "tsconfig": "tests/tsconfig.json"
+  },
+
+  "suites": [],
+
+  "configs": {
+    "chrome": {
+      "environments": "chrome"
+    },
+
+    "firefox": {
+      "environments": "firefox"
+    },
+
+    "safari": {
+      "environments": "safari"
+    },
+
+    "edge": {
+      "environments": {
+        "browserName": "MicrosoftEdge",
+        "browserVersion": "insider preview"
+      }
+    },
+
+    "ci": {
+      "description": "Run CI tests on the default cloud service (BrowserStack)",
+
+      "capabilities": { "idle-timeout": 60 },
+      "environments": [
+        { "browser": "node" },
+        { "browser": "internet explorer", "version": "11" },
+        {
+          "browser": "firefox",
+          "version": ["latest-3", "latest"],
+          "platform": ["WINDOWS", "MAC"]
+        },
+        {
+          "browser": "chrome",
+          "version": ["latest-3", "latest"],
+          "platform": ["WINDOWS", "MAC"]
+        },
+        { "browser": "safari", "version": "latest" }
+      ],
+      "maxConcurrency": 2,
+      "reporters+": {
+        "name": "jsoncoverage",
+        "options": {
+          "filename": "coverage.json"
+        }
+      },
+      "tunnel": "browserstack"
+    }
+  }
+}

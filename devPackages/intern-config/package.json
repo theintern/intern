@@ -1,0 +1,7 @@
+{
+  "name": "@theintern-dev/intern-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Intern config for Intern projects",
+  "main": "intern.json"
+}

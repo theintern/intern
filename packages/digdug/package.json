@@ -24,6 +24,7 @@
     "tslib": "~2.0.1"
   },
   "devDependencies": {
+    "@theintern-dev/intern-config": "workspace:*",
     "@theintern-dev/test-util": "workspace:*",
     "@theintern-dev/tsconfig": "workspace:*",
     "@theintern/core": "workspace:*",

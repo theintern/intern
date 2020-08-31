@@ -5,7 +5,7 @@
     "apidoc": "pnpm run --stream -r apidoc",
     "build": "pnpm run --stream -r build",
     "clean": "pnpm run --stream -r clean",
-    "ci": "pnpm run build && pnpm run --stream -r ci",
+    "ci": "pnpm build && pnpm run --stream -r ci",
     "test": "pnpm run --stream -r test",
     "test:chrome": "pnpm run --stream -r test:chrome",
     "test:edge": "pnpm run --stream -r test:edge",
