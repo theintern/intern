@@ -35,6 +35,10 @@
       "environments": "firefox"
     },
 
+    "ie": {
+      "environments": "internet explorer"
+    },
+
     "safari": {
       "environments": "safari"
     },

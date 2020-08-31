@@ -33,6 +33,7 @@
     "test:chrome": "pnpm build:test && intern --config @chrome",
     "test:edge": "pnpm build:test && intern --config @edge",
     "test:firefox": "pnpm build:test && intern --config @firefox",
+    "test:ie": "pnpm build:test && intern --config @ie",
     "test:safari": "pnpm build:test && intern --config @safari",
     "ci": "pnpm build:test && intern --config @ci"
   },
