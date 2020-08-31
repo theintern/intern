@@ -9,7 +9,7 @@ import {
   RequestMethod,
   Response
 } from '@theintern/common';
-import Session, { WebDriverTimeouts } from './Session';
+import Session from './Session';
 import Element from './Element';
 import statusCodes from './lib/statusCodes';
 import { format, parse, resolve, Url } from 'url';
@@ -780,6 +780,9 @@ export default class Server {
     }
 
     if (isInternetExplorer(capabilities)) {
+      // Internet Explorer does not allow data URIs to be used for navigation
+      updates.supportsNavigationDataUris = false;
+
       if (isValidVersion(capabilities, 10, Infinity)) {
         // At least IE10+ don't support the /frame/parent command
         updates.brokenParentFrameSwitch = true;
@@ -807,7 +810,7 @@ export default class Server {
 
         // At least IE11 will fail this feature test because it only supports
         // the POST endpoint for timeouts
-        updates.usesWebDriverTimeouts = true;
+        updates.supportsGetTimeouts = false;
 
         // At least IE11 will fail this feature test because it only supports
         // the POST endpoint for timeouts
@@ -914,14 +917,13 @@ export default class Server {
         );
       }
 
-      // Internet Explorer 9 and earlier, and Microsoft Edge build 10240
-      // and earlier, hang when attempting to do navigate after a
-      // `document.write` is performed to reset the tab content; we can
-      // still do some limited testing in these browsers by using the
-      // initial browser URL page and injecting some content through
-      // innerHTML, though it is unfortunately a quirks-mode file so
-      // testing is limited
-      if (isInternetExplorer(capabilities, 0, 10) || isMsEdge(capabilities)) {
+      // Internet Explorer and Microsoft Edge build 10240 and earlier hang when
+      // attempting to do navigate after a `document.write` is performed to
+      // reset the tab content; we can still do some limited testing in these
+      // browsers by using the initial browser URL page and injecting some
+      // content through innerHTML, though it is unfortunately a quirks-mode
+      // file so testing is limited
+      if (isInternetExplorer(capabilities) || isMsEdge(capabilities)) {
         // Edge driver doesn't provide an initialBrowserUrl
         let initialUrl = 'about:blank';
 
@@ -1014,15 +1016,7 @@ export default class Server {
             session
               // Try to set a timeout using W3C semantics
               .serverPost<void>('timeouts', { implicit: 1234 })
-              .then(() => {
-                // Verify that the timeout was set
-                return session
-                  .serverGet<WebDriverTimeouts>('timeouts')
-                  .then(timeouts => {
-                    return timeouts.implicit === 1234;
-                  })
-                  .catch(unsupported);
-              }, unsupported)
+              .then(supported, unsupported)
               .then(logResult('usesWebDriverTimeouts'))
           );
         };
@@ -1321,7 +1315,9 @@ export default class Server {
           )
             .then(() => session.moveMouseTo(100, 50))
             .then(() =>
-              session.execute<{ x: number; y: number }[]>('return events')
+              session.execute<{ x: number; y: number }[]>(
+                'return window.events'
+              )
             )
             .then(events => {
               if (!events) {
