@@ -16,7 +16,7 @@ registerSuite('intern/lib/reporters/Html', {
     ({ default: Html } = await mockImport(
       () => import('src/lib/reporters/Html'),
       replace => {
-        replace('src/lib/reporters/html/html.styl').with({});
+        replace('src/lib/reporters/html/html.scss').with({});
       }
     ));
   },
