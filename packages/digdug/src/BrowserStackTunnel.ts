@@ -16,7 +16,8 @@ import { kill, on } from './lib/util';
  * The accessKey and username properties will be initialized using
  * BROWSERSTACK_ACCESS_KEY and BROWSERSTACK_USERNAME.
  */
-export default class BrowserStackTunnel extends Tunnel
+export default class BrowserStackTunnel
+  extends Tunnel
   implements BrowserStackProperties {
   /**
    * Whether or not to start the tunnel with only WebDriver support. Setting
@@ -86,7 +87,10 @@ export default class BrowserStackTunnel extends Tunnel
 
   get extraCapabilities(): Record<string, any> {
     const capabilities: any = {
-      'browserstack.local': 'true'
+      'browserstack.local': 'true',
+      // Use a non-ancient Selenium version; as of 2020-08-31, BS claims to
+      // default to 2.53 (https://www.browserstack.com/automate/capabilities)
+      'browserstack.selenium_version': '3.141.59'
     };
 
     if (this.tunnelId) {

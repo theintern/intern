@@ -104,7 +104,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 52,
+									"line": 53,
 									"character": 23
 								}
 							],
@@ -523,7 +523,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 25,
+									"line": 26,
 									"character": 14
 								}
 							],
@@ -584,7 +584,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 31,
+									"line": 32,
 									"character": 16
 								}
 							],
@@ -617,7 +617,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 52,
+									"line": 53,
 									"character": 12
 								}
 							],
@@ -678,7 +678,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 37,
+									"line": 38,
 									"character": 18
 								}
 							],
@@ -956,7 +956,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 43,
+									"line": 44,
 									"character": 9
 								}
 							],
@@ -996,7 +996,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 49,
+									"line": 50,
 									"character": 22
 								}
 							],
@@ -1201,7 +1201,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 76,
+									"line": 77,
 									"character": 10
 								}
 							],
@@ -1294,7 +1294,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 80,
+									"line": 81,
 									"character": 16
 								}
 							],
@@ -1350,7 +1350,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 87,
+									"line": 88,
 									"character": 23
 								}
 							],
@@ -1579,7 +1579,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 99,
+									"line": 103,
 									"character": 9
 								}
 							],
@@ -1757,7 +1757,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 132,
+									"line": 136,
 									"character": 21
 								}
 							],
@@ -2015,7 +2015,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 282,
+									"line": 286,
 									"character": 33
 								}
 							],
@@ -2093,7 +2093,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 122,
+									"line": 126,
 									"character": 29
 								}
 							],
@@ -2157,7 +2157,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 201,
+									"line": 205,
 									"character": 18
 								}
 							],
@@ -2205,7 +2205,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 236,
+									"line": 240,
 									"character": 17
 								}
 							],
@@ -2884,7 +2884,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 174,
+									"line": 178,
 									"character": 14
 								}
 							],
@@ -3256,7 +3256,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 330,
+									"line": 334,
 									"character": 14
 								}
 							],
@@ -3313,7 +3313,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 345,
+									"line": 349,
 									"character": 16
 								}
 							],
@@ -3373,7 +3373,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 342,
+									"line": 346,
 									"character": 12
 								}
 							],
@@ -3424,7 +3424,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 333,
+									"line": 337,
 									"character": 18
 								}
 							],
@@ -3593,7 +3593,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 336,
+									"line": 340,
 									"character": 9
 								}
 							],
@@ -3628,7 +3628,7 @@
 							"sources": [
 								{
 									"fileName": "digdug/src/BrowserStackTunnel.ts",
-									"line": 339,
+									"line": 343,
 									"character": 22
 								}
 							],
@@ -3835,7 +3835,7 @@
 					"sources": [
 						{
 							"fileName": "digdug/src/BrowserStackTunnel.ts",
-							"line": 328,
+							"line": 332,
 							"character": 39
 						}
 					],

@@ -27,7 +27,10 @@ registerSuite('BrowserStackTunnel', () => {
       },
 
       '#extraCapabilities'() {
-        const capabilities: any = { 'browserstack.local': 'true' };
+        const capabilities: any = {
+          'browserstack.local': 'true',
+          'browserstack.selenium_version': '3.141.59'
+        };
         assert.deepEqual(tunnel.extraCapabilities, capabilities);
         capabilities['browserstack.localIdentifier'] = tunnel.tunnelId = 'foo';
         assert.deepEqual(tunnel.extraCapabilities, capabilities);
