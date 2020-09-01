@@ -11,7 +11,7 @@ let doc: Document;
 let location: Location;
 let reporter: _Html;
 
-registerSuite('intern/lib/reporters/Html', {
+registerSuite('lib/reporters/Html', {
   async before() {
     ({ default: Html } = await mockImport(
       () => import('src/lib/reporters/Html'),

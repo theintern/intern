@@ -9,7 +9,7 @@ const mockExecutor = createMockBrowserExecutor();
 
 let Dom: typeof _Dom;
 
-registerSuite('intern/lib/reporters/Dom', {
+registerSuite('lib/reporters/Dom', {
   async before() {
     ({ default: Dom } = await mockImport(
       () => import('src/lib/reporters/Dom'),
