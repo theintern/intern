@@ -1,4 +1,4 @@
-import { Url } from 'url';
+import { UrlObject } from 'url';
 
 /**
  * These interface describes the capabilities that may be implemented by a
@@ -279,7 +279,7 @@ export interface WebDriverCookie {
   expiry?: string | Date | number;
 }
 
-export interface LeadfootURL extends Url {
+export interface LeadfootURL extends UrlObject {
   username?: string;
   password?: string;
   accessKey?: string;
