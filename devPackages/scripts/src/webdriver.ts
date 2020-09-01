@@ -1,19 +1,27 @@
-import { promises } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import SeleniumTunnel from '@theintern/digdug/dist/SeleniumTunnel';
-import webdrivers from '@theintern/digdug/dist/webdrivers.json';
+import type webdriversJson from '@theintern/digdug/dist/webdrivers.json';
 import { ask, init, isVersion, print, stop } from './lib/rl';
 
 const projectRoot = resolve(__dirname, '..');
 process.chdir(projectRoot);
 
-type WebDriverData = typeof webdrivers;
+const webdriversJsonFile = require.resolve(
+  '@theintern/digdug/src/webdrivers.json'
+);
 
-async function saveWebdriverJson(data: WebDriverData, filename?: string) {
-  if (!filename) {
-    filename = require.resolve('@theintern/digdug/src/webdrivers.json');
-  }
-  await promises.writeFile(filename, JSON.stringify(data, null, '  '));
+type WebDriverData = typeof webdriversJson;
+
+function loadWebdriverJson(): WebDriverData {
+  const data = readFileSync(webdriversJsonFile, {
+    encoding: 'utf8'
+  });
+  return JSON.parse(data);
+}
+
+function saveWebdriverJson(data: WebDriverData): void {
+  writeFileSync(webdriversJsonFile, JSON.stringify(data, null, '  '));
 }
 
 async function verifyDrivers(data: WebDriverData) {
@@ -33,7 +41,8 @@ async function verifyDrivers(data: WebDriverData) {
 }
 
 async function main() {
-  const updated = JSON.parse(JSON.stringify(webdrivers));
+  const webdrivers = loadWebdriverJson();
+  const updated: WebDriverData = JSON.parse(JSON.stringify(webdrivers));
 
   init();
 
@@ -61,7 +70,7 @@ async function main() {
   const commands: {
     [key: string]: {
       name: string;
-      property: keyof typeof webdrivers.drivers;
+      property: keyof WebDriverData['drivers'];
     };
   } = {
     '1': { name: 'Selenium', property: 'selenium' },
@@ -100,7 +109,7 @@ async function main() {
         await verifyDrivers(webdrivers);
         print('Everything seems good');
 
-        await saveWebdriverJson(webdrivers);
+        saveWebdriverJson(webdrivers);
         print('Updated webdrivers.json');
       } catch (error) {
         console.error(error);
