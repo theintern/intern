@@ -17,17 +17,19 @@
     "digdug"
   ],
   "files": [
+    "browser/*",
     "dist/*"
   ],
   "main": "dist/index.js",
+  "browser": "browser/index.js",
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/theintern/intern.git"
   },
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist _tests *.tsbuildinfo",
+    "build": "tsc -b && tsc -b tsconfig.browser.json",
+    "clean": "shx rm -rf dist browser _tests *.tsbuildinfo",
     "test": "intern",
     "build:test": "webpack --config tests/webpack.config.ts",
     "test:chrome": "pnpm build:test && intern --config @chrome",

@@ -22,6 +22,10 @@ const config: Configuration = {
           loader: 'ts-loader',
           options: {
             instance: 'tests',
+            // Browser build must support IE
+            compilerOptions: {
+              target: 'ES5'
+            },
             configFile: join(__dirname, 'tsconfig.json'),
             onlyCompileBundledFiles: true,
             transpileOnly: true
