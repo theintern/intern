@@ -30,7 +30,9 @@ const config: Configuration = {
           loader: 'ts-loader',
           options: {
             silent: true,
-            configFile: 'tsconfig.json',
+            compilerOptions: {
+              target: 'ES5'
+            },
             onlyCompileBundledFiles: true,
             transpileOnly: true
           }
@@ -43,7 +45,7 @@ const config: Configuration = {
 
   output: {
     filename: '[name].js',
-    path: join(__dirname, 'dist', 'browser')
+    path: join(__dirname, 'browser')
   },
 
   performance: {

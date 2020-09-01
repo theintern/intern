@@ -36,6 +36,10 @@ const common: Configuration = {
           loader: 'ts-loader',
           options: {
             silent: true,
+            // Browser build must support IE
+            compilerOptions: {
+              target: 'ES5'
+            },
             configFile: resolve(__dirname, 'tsconfig.json'),
             onlyCompileBundledFiles: true,
             transpileOnly: true

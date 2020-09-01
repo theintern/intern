@@ -10,6 +10,7 @@
   },
   "files": [
     "bin/*",
+    "browser/*",
     "dist/*",
     "schemas/*",
     "index.html",
@@ -43,7 +44,7 @@
   "scripts": {
     "apidoc": "dev-apidoc",
     "build": "tsc -b && webpack",
-    "clean": "shx rm -rf dist _tests *.tsbuildinfo",
+    "clean": "shx rm -rf dist browser _tests *.tsbuildinfo",
     "test": "intern",
     "build:test": "webpack --config tests/webpack.config.ts",
     "test:chrome": "pnpm build:test && intern --config @chrome",
