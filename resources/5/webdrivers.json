@@ -1,5 +1,6 @@
 {
-  "$schema": "../../../../schemas/webdrivers.json",
+  "$schema": "../schemas/webdrivers.json",
+
   "drivers": {
     "selenium": {
       "baseUrl": "https://selenium-release.storage.googleapis.com",
@@ -7,11 +8,11 @@
     },
     "chrome": {
       "baseUrl": "https://chromedriver.storage.googleapis.com",
-      "latest": "83.0.4103.39"
+      "latest": "85.0.4183.87"
     },
     "firefox": {
       "baseUrl": "https://github.com/mozilla/geckodriver/releases/download",
-      "latest": "0.26.0"
+      "latest": "0.27.0"
     },
     "ie": {
       "baseUrl": "https://selenium-release.storage.googleapis.com",
@@ -34,7 +35,7 @@
     },
     "edgeChromium": {
       "baseUrl": "https://msedgedriver.azureedge.net",
-      "latest": "83.0.478.44"
+      "latest": "85.0.564.41"
     }
   }
 }

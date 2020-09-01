@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://theintern.io/intern/resources/5/schemas/config.json",
+  "$id": "https://theintern.io/schemas/intern/config-4.5.json",
 
   "title": "Intern",
-  "description": "Intern v5.0 config schema",
+  "description": "Intern v4.5 config schema",
 
   "type": "object",
   "allOf": [
@@ -169,33 +169,25 @@
         },
 
         "benchmarkConfig": {
-          "description": "Options for benchmark tests",
           "$ref": "#/definitions/benchmarkOptions"
         },
         "benchmarkConfig+": {
-          "description": "Additional options for benchmark tests",
-          "$ref": "#/definitions/config/properties/benchmarkConfig"
+          "description": "Options for benchmark tests",
+          "$ref": "#/definitions/benchmarkOptions"
         },
 
         "browser": {
           "description": "Resources that will only be loaded/used in browsers",
-          "type": "object",
-          "properties": {
-            "loader": { "$ref": "#/definitions/loaderProperty" },
-            "plugins": { "$ref": "#/definitions/pluginsProperty" },
-            "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
-            "reporters": { "$ref": "#/definitions/reportersProperty" },
-            "reporters+": { "$ref": "#/definitions/reportersProperty+" },
-            "suites": { "$ref": "#/definitions/suitesProperty" },
-            "suites+": { "$ref": "#/definitions/suitesProperty+" }
-          }
+          "$ref": "#/definitions/resourceConfig"
         },
         "browser+": {
           "description": "Additional resources that will only be loaded/used in browsers",
-          "$ref": "#/definitions/config/properties/browser"
+          "$ref": "#/definitions/resourceConfig"
         },
 
-        "capabilities": { "$ref": "#/definitions/capabilities" },
+        "capabilities": {
+          "$ref": "#/definitions/capabilities"
+        },
         "capabilities+": {
           "description": "Additional capabilities",
           "$ref": "#/definitions/capabilities"
@@ -347,20 +339,17 @@
 
         "node": {
           "description": "Resources that will only be loaded/used in Node",
-          "type": "object",
-          "properties": {
-            "loader": { "$ref": "#/definitions/loaderProperty" },
-            "plugins": { "$ref": "#/definitions/pluginsProperty" },
-            "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
-            "reporters": { "$ref": "#/definitions/reportersProperty" },
-            "reporters+": { "$ref": "#/definitions/reportersProperty+" },
-            "suites": { "$ref": "#/definitions/suitesProperty" },
-            "suites+": { "$ref": "#/definitions/suitesProperty+" },
-            "tsconfig": {
-              "oneOf": [{ "type": "string" }, { "const": false }]
+          "anyOf": [
+            { "$ref": "#/definitions/resourceConfig" },
+            {
+              "type": "object",
+              "properties": {
+                "tsconfig": {
+                  "oneOf": [{ "type": "string" }, { "const": false }]
+                }
+              }
             }
-          },
-          "additionalProperties": false
+          ]
         },
         "node+": {
           "description": "Resources that will only be loaded/used in Node",
@@ -864,6 +853,20 @@
     "reportersProperty+": {
       "description": "Additional reporters",
       "$ref": "#/definitions/reportersProperty"
+    },
+
+    "resourceConfig": {
+      "type": "object",
+      "properties": {
+        "loader": { "$ref": "#/definitions/loaderProperty" },
+        "plugins": { "$ref": "#/definitions/pluginsProperty" },
+        "plugins+": { "$ref": "#/definitions/pluginsProperty+" },
+        "reporters": { "$ref": "#/definitions/reportersProperty" },
+        "reporters+": { "$ref": "#/definitions/reportersProperty+" },
+        "suites": { "$ref": "#/definitions/suitesProperty" },
+        "suites+": { "$ref": "#/definitions/suitesProperty+" }
+      },
+      "additionalProperties": false
     },
 
     "seleniumOptions": {
