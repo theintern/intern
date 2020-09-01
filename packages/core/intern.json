@@ -3,6 +3,8 @@
 
   "extends": "./node_modules/@theintern-dev/intern-config/intern.json",
 
+  "capabilities+": { "project": "@theintern/core" },
+
   "coverage": ["src/**/*.ts", "!src/browser/**/*.ts"],
 
   "suites": [

@@ -53,7 +53,7 @@
     "ci": {
       "description": "Run CI tests on the default cloud service (BrowserStack)",
 
-      "capabilities": { "idle-timeout": 60 },
+      "capabilities": { "idle-timeout": 60, "project": "Intern" },
       "environments": [
         { "browser": "node" },
         { "browser": "internet explorer", "version": "11" },

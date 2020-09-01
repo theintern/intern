@@ -1,6 +1,8 @@
 {
   "$schema": "../core/schemas/config.json",
 
+  "capabilities+": { "project": "@theintern/common" },
+
   "extends": "./node_modules/@theintern-dev/intern-config/intern.json",
 
   "browser+": {
