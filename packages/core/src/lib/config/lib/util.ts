@@ -373,10 +373,11 @@ class ConfiguratorImpl implements Configurator {
       config = {};
     }
 
-    // 3. Process all the keys in preConfig into the output config
-    this._addToConfig({ args: preConfig, config, preserveFlags: true });
+    // 3. Process all the keys in preConfig into the output config. Any additive
+    //    keys should be merged at this point.
+    this._addToConfig({ args: preConfig, config, preserveFlags: false });
 
-    // 3. If config has any child configs, process their extends properties
+    // 4. If config has any child configs, process their extends properties
     if (config.configs) {
       for (const child of Object.keys(config.configs)) {
         config.configs[child] = this._resolveChildConfig({
