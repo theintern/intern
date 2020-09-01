@@ -22888,7 +22888,7 @@
 												"type": "intrinsic",
 												"name": "string"
 											},
-											"defaultValue": "\"83.0.4103.39\""
+											"defaultValue": "\"85.0.4183.87\""
 										}
 									],
 									"groups": [
@@ -23206,7 +23206,7 @@
 												"type": "intrinsic",
 												"name": "string"
 											},
-											"defaultValue": "\"81.0.416.58\""
+											"defaultValue": "\"85.0.564.41\""
 										}
 									],
 									"groups": [
@@ -23274,7 +23274,7 @@
 												"type": "intrinsic",
 												"name": "string"
 											},
-											"defaultValue": "\"0.26.0\""
+											"defaultValue": "\"0.27.0\""
 										}
 									],
 									"groups": [
