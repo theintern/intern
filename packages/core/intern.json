@@ -48,6 +48,7 @@
       "tests/unit/lib/reporters/Simple.ts",
       "tests/unit/lib/reporters/TeamCity.ts",
       "tests/unit/lib/reporters/TextCoverage.ts",
+      "tests/unit/lib/resolveEnvironments.ts",
       "tests/unit/tasks/*.ts",
       "tests/unit/tunnels/**/*.ts",
       "tests/unit/webdriver/**/*.ts"
@@ -92,7 +93,6 @@
           "tests/unit/lib/executors/Executor.ts",
           "tests/unit/lib/interfaces/*.ts",
           "tests/unit/lib/reporters/Console.ts",
-          "tests/unit/lib/resolveEnvironments.ts",
           "tests/unit/loaders/*.ts",
           // Top-level node suites
           "tests/integration/**/*.ts",
@@ -116,6 +116,7 @@
           "tests/unit/lib/reporters/Simple.ts",
           "tests/unit/lib/reporters/TeamCity.ts",
           "tests/unit/lib/reporters/TextCoverage.ts",
+          "tests/unit/lib/resolveEnvironments.ts",
           "tests/unit/tasks/*.ts",
           "tests/unit/tunnels/**/*.ts",
           "tests/unit/webdriver/**/*.ts"

@@ -505,7 +505,9 @@ registerSuite('lib/resolveEnvironments', {
     'version aliases': {
       'latest version alias'() {
         const environments = [{ browserName: 'chrome', version: 'latest' }];
-        const expected = [{ browserName: 'chrome', version: '39' }];
+        const expected = [
+          { browserName: 'chrome', browserVersion: '72', version: '72' }
+        ];
         return assertResolveEnvironments(
           environments,
           availableChrome,
@@ -515,7 +517,9 @@ registerSuite('lib/resolveEnvironments', {
 
       'latest-1 version alias'() {
         const environments = [{ browserName: 'chrome', version: 'latest-1' }];
-        const expected = [{ browserName: 'chrome', version: '38' }];
+        const expected = [
+          { browserName: 'chrome', browserVersion: '71', version: '71' }
+        ];
         return assertResolveEnvironments(
           environments,
           availableChrome,
@@ -526,10 +530,10 @@ registerSuite('lib/resolveEnvironments', {
 
     'version ranges': {
       'basic version range'() {
-        const environments = [{ browserName: 'chrome', version: '38..39' }];
+        const environments = [{ browserName: 'chrome', version: '71..72' }];
         const expected = [
-          { browserName: 'chrome', version: '38' },
-          { browserName: 'chrome', version: '39' }
+          { browserName: 'chrome', browserVersion: '71', version: '71' },
+          { browserName: 'chrome', browserVersion: '72', version: '72' }
         ];
         return assertResolveEnvironments(
           environments,
@@ -539,11 +543,11 @@ registerSuite('lib/resolveEnvironments', {
       },
 
       'ranged number .. latest'() {
-        const environments = [{ browserName: 'chrome', version: '37..latest' }];
+        const environments = [{ browserName: 'chrome', version: '70..latest' }];
         const expected = [
-          { browserName: 'chrome', version: '37' },
-          { browserName: 'chrome', version: '38' },
-          { browserName: 'chrome', version: '39' }
+          { browserName: 'chrome', browserVersion: '70', version: '70' },
+          { browserName: 'chrome', browserVersion: '71', version: '71' },
+          { browserName: 'chrome', browserVersion: '72', version: '72' }
         ];
         return assertResolveEnvironments(
           environments,
@@ -557,9 +561,9 @@ registerSuite('lib/resolveEnvironments', {
           { browserName: 'chrome', version: 'latest-2..latest' }
         ];
         const expected = [
-          { browserName: 'chrome', version: '37' },
-          { browserName: 'chrome', version: '38' },
-          { browserName: 'chrome', version: '39' }
+          { browserName: 'chrome', browserVersion: '70', version: '70' },
+          { browserName: 'chrome', browserVersion: '71', version: '71' },
+          { browserName: 'chrome', browserVersion: '72', version: '72' }
         ];
         return assertResolveEnvironments(
           environments,
@@ -576,10 +580,10 @@ registerSuite('lib/resolveEnvironments', {
           { browserName: ['chrome', 'ie'], version: 'latest-1..latest' }
         ];
         const expected = [
-          { browserName: 'chrome', version: '38' },
-          { browserName: 'chrome', version: '39' },
-          { browserName: 'ie', version: '10' },
-          { browserName: 'ie', version: '11' }
+          { browserName: 'chrome', browserVersion: '71', version: '71' },
+          { browserName: 'chrome', browserVersion: '72', version: '72' },
+          { browserName: 'ie', browserVersion: '10', version: '10' },
+          { browserName: 'ie', browserVersion: '11', version: '11' }
         ];
         return assertResolveEnvironments(environments, available, expected);
       },
@@ -606,7 +610,8 @@ registerSuite('lib/resolveEnvironments', {
       const expected = [
         {
           browserName: 'chrome',
-          version: '39',
+          browserVersion: '72',
+          version: '72',
           platformName: 'os2/warp',
           platformVersion: 10
         }
