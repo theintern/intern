@@ -19,26 +19,34 @@ const suffixes = strategyNames.map(name => {
   );
 });
 
+type SessionMethod =
+  | 'getTimeout'
+  | 'setTimeout'
+  | 'find'
+  | 'findAll'
+  | 'findDisplayed'
+  | 'waitForDeleted';
+
 registerSuite('functional/Session', () => {
-  let session: any;
+  let session: Session;
   let resetBrowserState = true;
 
-  function createStubbedSuite(
-    stubbedMethodName: keyof Session,
+  function createStubbedSuite<M extends SessionMethod>(
+    stubbedMethodName: M,
     testMethodName: string,
     placeholders: string[],
     firstArguments: any,
     shouldSkip?: (test: Test) => void
   ) {
-    let originalMethod: Function;
+    let originalMethod: Session[M];
     let calledWith: any;
     const extraArguments: any[] = [];
     const suite: any = {
       before() {
         originalMethod = session[stubbedMethodName];
-        session[stubbedMethodName] = function () {
+        session[stubbedMethodName] = (function () {
           calledWith = arguments;
-        };
+        } as unknown) as Session[M];
 
         for (let i = 0, j = originalMethod.length - 1; i < j; ++i) {
           extraArguments.push('ok' + (i + 2));
@@ -57,14 +65,14 @@ registerSuite('functional/Session', () => {
     };
 
     placeholders.forEach(function (placeholder, index) {
-      const method = testMethodName.replace('_', placeholder);
+      const method = testMethodName.replace('_', placeholder) as SessionMethod;
 
       suite.tests['#' + method] = function () {
         if (shouldSkip) {
           shouldSkip(this);
         }
         assert.isFunction(session[method]);
-        session[method].apply(session, extraArguments);
+        (session[method] as any).apply(session, extraArguments);
         assert.ok(calledWith);
         assert.strictEqual(calledWith[0], firstArguments[index]);
         assert.deepEqual(
@@ -77,13 +85,25 @@ registerSuite('functional/Session', () => {
     return suite;
   }
 
-  function createStorageTests(type: string) {
-    const clear = 'clear' + type + 'Storage';
-    const getKeys = 'get' + type + 'StorageKeys';
-    const get = 'get' + type + 'StorageItem';
-    const set = 'set' + type + 'StorageItem';
-    const del = 'delete' + type + 'StorageItem';
-    const getLength = 'get' + type + 'StorageLength';
+  function createStorageTests(type: 'Local' | 'Session') {
+    const clear = ('clear' + type + 'Storage') as
+      | 'clearLocalStorage'
+      | 'clearSessionStorage';
+    const getKeys = ('get' + type + 'StorageKeys') as
+      | 'getLocalStorageKeys'
+      | 'getSessionStorageKeys';
+    const get = ('get' + type + 'StorageItem') as
+      | 'getLocalStorageItem'
+      | 'getSessionStorageItem';
+    const set = ('set' + type + 'StorageItem') as
+      | 'setLocalStorageItem'
+      | 'setSessionStorageItem';
+    const del = ('delete' + type + 'StorageItem') as
+      | 'deleteLocalStorageItem'
+      | 'deleteSessionStorageItem';
+    const getLength = ('get' + type + 'StorageLength') as
+      | 'getLocalStorageLength'
+      | 'getSessionStorageLength';
 
     return function (this: Test) {
       if (!session.capabilities.webStorageEnabled) {
@@ -172,11 +192,11 @@ registerSuite('functional/Session', () => {
     };
   }
 
-  function getScrollPosition(element: Element) {
+  function getScrollPosition(element: Element | void) {
     // touchScroll scrolls in device pixels; scroll position is normally in
     // reference pixels, so get the correct device pixel location to verify
     // that it worked properly
-    return session.execute(
+    return session.execute<Position>(
       function (element?: HTMLElement) {
         if (!element) {
           element = document.documentElement;
@@ -196,9 +216,11 @@ registerSuite('functional/Session', () => {
 
   return {
     before(suite: Suite) {
-      return util.createSessionFromRemote(suite.remote).then(function () {
-        session = arguments[0];
-      });
+      return util
+        .createSessionFromRemote(suite.remote)
+        .then(function (newSession) {
+          session = newSession;
+        });
     },
 
     beforeEach() {
@@ -369,7 +391,7 @@ registerSuite('functional/Session', () => {
         return session
           .get('tests/functional/data/scripting.html')
           .then(function () {
-            return session.execute(
+            return session.execute<string>(
               'return interns[arguments[0]] + interns[arguments[1]];',
               ['ness', 'paula']
             );
@@ -383,7 +405,7 @@ registerSuite('functional/Session', () => {
         return session
           .get('tests/functional/data/scripting.html')
           .then(function () {
-            return session.execute(
+            return session.execute<string>(
               function (first: string, second: string) {
                 return interns[first] + interns[second];
               },
@@ -403,7 +425,7 @@ registerSuite('functional/Session', () => {
         return session
           .get('tests/functional/data/scripting.html')
           .then(function () {
-            return session.execute(function () {
+            return session.execute<Element>(function () {
               return document.getElementById('child');
             });
           })
@@ -415,7 +437,7 @@ registerSuite('functional/Session', () => {
             );
             return element.getAttribute('id');
           })
-          .then(function (id: string) {
+          .then(function (id) {
             assert.strictEqual(id, 'child');
           });
       },
@@ -428,11 +450,11 @@ registerSuite('functional/Session', () => {
         return session
           .get('tests/functional/data/scripting.html')
           .then(function () {
-            return session.execute(function () {
+            return session.execute<(string | Element)[]>(function () {
               return [interns.poo, document.getElementById('child')];
             });
           })
-          .then(function (elements: any[]) {
+          .then(function (elements: (string | Element)[]) {
             assert.isArray(elements);
             assert.strictEqual(
               elements[0],
@@ -444,9 +466,9 @@ registerSuite('functional/Session', () => {
               'elementId',
               'Returned elements should be Element objects'
             );
-            return elements[1].getAttribute('id');
+            return (elements[1] as Element).getAttribute('id');
           })
-          .then(function (id: string) {
+          .then(function (id) {
             assert.strictEqual(id, 'child');
           });
       },
@@ -542,7 +564,7 @@ registerSuite('functional/Session', () => {
                     ['ness', 'paula']
                   );
                 })
-                .then(function (result: string) {
+                .then(function (result) {
                   assert.strictEqual(result, 'NessPaula');
                 });
             },
@@ -564,7 +586,7 @@ registerSuite('functional/Session', () => {
                     ['ness', 'paula']
                   );
                 })
-                .then(function (result: string) {
+                .then(function (result) {
                   assert.strictEqual(result, 'NessPaula');
                 });
             },
@@ -721,9 +743,9 @@ registerSuite('functional/Session', () => {
                 }
               });
           })
-          .then(function (newHandle: string) {
-            popupHandle = newHandle;
-            return session.switchToWindow(newHandle);
+          .then(function (newHandle) {
+            popupHandle = newHandle!;
+            return session.switchToWindow(newHandle!);
           })
           .then(function () {
             return session.getCurrentWindowHandle();
@@ -1020,7 +1042,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('id', 'a')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'a');
                 });
             },
@@ -1029,7 +1051,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('class name', 'b')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(
                     id,
                     'b2',
@@ -1042,7 +1064,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('css selector', '#c span.b')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'b3');
                 });
             },
@@ -1051,7 +1073,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('name', 'makeD')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'makeD');
                 });
             },
@@ -1060,7 +1082,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('link text', 'What a cute, yellow backpack.')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'c');
                 });
             },
@@ -1069,7 +1091,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('partial link text', 'cute, yellow')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'c');
                 });
             },
@@ -1078,7 +1100,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('link text', 'What a cute backpack.')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'c3');
                 });
             },
@@ -1087,7 +1109,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('partial link text', 'cute backpack')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'c3');
                 });
             },
@@ -1096,7 +1118,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('tag name', 'span')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'b3');
                 });
             },
@@ -1105,7 +1127,7 @@ registerSuite('functional/Session', () => {
               return session
                 .find('xpath', 'id("e")/span[1]')
                 .then(getId)
-                .then(function (id: string) {
+                .then(function (id) {
                   assert.strictEqual(id, 'f');
                 });
             },
@@ -1177,7 +1199,7 @@ registerSuite('functional/Session', () => {
               assert.property(element, 'elementId');
               return element.getAttribute('id');
             })
-            .then(function (id: string) {
+            .then(function (id) {
               assert.strictEqual(id, 'd');
             });
         };
@@ -1215,7 +1237,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('id', 'a')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['a']);
                 });
             },
@@ -1224,7 +1246,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('class name', 'b')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['b2', 'b1', 'b3', 'b4']);
                 });
             },
@@ -1233,7 +1255,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('css selector', '#c span.b')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['b3', 'b4']);
                 });
             },
@@ -1242,7 +1264,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('name', 'makeD')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['makeD', 'killE']);
                 });
             },
@@ -1251,7 +1273,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('link text', 'What a cute, yellow backpack.')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['c', 'c2']);
                 });
             },
@@ -1260,7 +1282,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('partial link text', 'cute, yellow')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['c', 'c2']);
                 });
             },
@@ -1269,7 +1291,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('link text', 'What a cute backpack.')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['c3']);
                 });
             },
@@ -1278,7 +1300,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('partial link text', 'cute backpack')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['c3']);
                 });
             },
@@ -1287,7 +1309,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('tag name', 'span')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['b3', 'b4', 'f', 'g']);
                 });
             },
@@ -1296,7 +1318,7 @@ registerSuite('functional/Session', () => {
               return session
                 .findAll('xpath', 'id("e")/span')
                 .then(getIds)
-                .then(function (ids: string[]) {
+                .then(function (ids) {
                   assert.deepEqual(ids, ['f', 'g']);
                 });
             },
@@ -1524,7 +1546,7 @@ registerSuite('functional/Session', () => {
           .then(function (element: Element) {
             return element.getAttribute('id');
           })
-          .then(function (id: string) {
+          .then(function (id) {
             assert.strictEqual(id, 'input');
           });
       },
@@ -1600,7 +1622,7 @@ registerSuite('functional/Session', () => {
           .then(function () {
             return session.execute('return result.alert;');
           })
-          .then(function (result: boolean) {
+          .then(function (result) {
             assert.isTrue(result);
           });
       },
@@ -1634,7 +1656,7 @@ registerSuite('functional/Session', () => {
           .then(function () {
             return session.execute('return result.prompt;');
           })
-          .then(function (result: string) {
+          .then(function (result) {
             assert.strictEqual(result, 'yes');
           });
       },
@@ -1668,7 +1690,7 @@ registerSuite('functional/Session', () => {
           .then(function () {
             return session.execute('return result.prompt;');
           })
-          .then(function (result: string) {
+          .then(function (result) {
             assert.strictEqual(result, 'yes');
           });
       },
@@ -1696,7 +1718,7 @@ registerSuite('functional/Session', () => {
           .then(function () {
             return session.execute('return result.confirm;');
           })
-          .then(function (result: boolean) {
+          .then(function (result) {
             assert.isTrue(result);
           });
       },
@@ -1724,7 +1746,7 @@ registerSuite('functional/Session', () => {
           .then(function () {
             return session.execute('return result.confirm;');
           })
-          .then(function (result: boolean) {
+          .then(function (result) {
             assert.isFalse(result);
           });
       },
@@ -1746,22 +1768,22 @@ registerSuite('functional/Session', () => {
             return session.moveMouseTo(100, 12);
           })
           .then(function () {
-            return session.execute(
+            return session.execute<MouseEvent>(
               'return result.mousemove.a && result.mousemove.a[result.mousemove.a.length - 1];'
             );
           })
-          .then(function (event: MouseEvent) {
+          .then(function (event) {
             assert.isObject(event);
             assert.strictEqual(event.clientX, 100);
             assert.strictEqual(event.clientY, 12);
             return session.moveMouseTo(100, 41);
           })
           .then(function () {
-            return session.execute(
+            return session.execute<MouseEvent>(
               'return result.mousemove.b && result.mousemove.b[result.mousemove.b.length - 1];'
             );
           })
-          .then(function (event: MouseEvent) {
+          .then(function (event) {
             assert.isObject(event);
             assert.strictEqual(event.clientX, 200);
             assert.strictEqual(event.clientY, 53);
@@ -1771,11 +1793,11 @@ registerSuite('functional/Session', () => {
             return session
               .moveMouseTo(element)
               .then(function () {
-                return session.execute(
+                return session.execute<MouseEvent>(
                   'return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];'
                 );
               })
-              .then(function (event: MouseEvent) {
+              .then(function (event) {
                 assert.isObject(event);
                 assert.closeTo(event.clientX, 450, 4);
                 assert.closeTo(event.clientY, 90, 4);
@@ -1783,11 +1805,11 @@ registerSuite('functional/Session', () => {
               });
           })
           .then(function () {
-            return session.execute(
+            return session.execute<MouseEvent>(
               'return result.mousemove.c && result.mousemove.c[result.mousemove.c.length - 1];'
             );
           })
-          .then(function (event: MouseEvent) {
+          .then(function (event) {
             assert.isObject(event);
             assert.closeTo(event.clientX, 352, 4);
             assert.closeTo(event.clientY, 80, 4);
@@ -1812,10 +1834,10 @@ registerSuite('functional/Session', () => {
               .then(function (event: any) {
                 assert.strictEqual(event.button, button);
                 return session
-                  .execute(
+                  .execute<MouseEvent>(
                     'return result.mousedown.a && result.mousedown.a[0];'
                   )
-                  .then(function (mouseDownEvent: MouseEvent) {
+                  .then(function (mouseDownEvent) {
                     assert.closeTo(
                       event.timeStamp,
                       mouseDownEvent.timeStamp,
@@ -1826,11 +1848,11 @@ registerSuite('functional/Session', () => {
                       '<=',
                       event.timeStamp
                     );
-                    return session.execute(
+                    return session.execute<MouseEvent>(
                       'return result.mouseup.a && result.mouseup.a[0];'
                     );
                   })
-                  .then(function (mouseUpEvent: MouseEvent) {
+                  .then(function (mouseUpEvent) {
                     assert.closeTo(
                       event.timeStamp,
                       mouseUpEvent.timeStamp,
