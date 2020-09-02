@@ -227,10 +227,11 @@ registerSuite('functional/Session', () => {
 
       '#getTimeout implicit'() {
         return session.getTimeout('implicit').then(function (value: number) {
+          const expected = session.capabilities.brokenZeroTimeout ? 1 : 0;
           assert.strictEqual(
             value,
-            // set to 0 in beforeEach
-            0,
+            // set in beforeEach
+            expected,
             'Implicit timeout should be default value'
           );
         });
