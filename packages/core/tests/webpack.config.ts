@@ -30,34 +30,20 @@ const common: Configuration = {
           loader: 'istanbul-instrumenter-loader'
         }
       },
+      // Process both TS and JS through ts-loader to ensure JS is transpiled to
+      // ES5 for IE compatibility
       {
-        test: /\.ts/,
+        test: /\.[tj]s/,
         use: {
           loader: 'ts-loader',
           options: {
-            silent: true,
-            // Browser build must support IE
             compilerOptions: {
+              allowJs: true,
               target: 'ES5'
             },
             configFile: resolve(__dirname, 'tsconfig.json'),
             onlyCompileBundledFiles: true,
-            transpileOnly: true
-          }
-        }
-      },
-      // chai-exclude needs to be ES5 for IE11 compatibility, so run it through
-      // the TS compiler. The tsconfig-tests.json config enables JS compilation
-      // with allowJs.
-      {
-        test: /\.js/,
-        include: [resolve(__dirname, 'node_modules', 'chai-exclude')],
-        use: {
-          loader: 'ts-loader',
-          options: {
             silent: true,
-            configFile: 'tsconfig-tests.json',
-            onlyCompileBundledFiles: true,
             transpileOnly: true
           }
         }
@@ -78,8 +64,10 @@ const common: Configuration = {
     new RewireMockPlugin(),
     // Needed for webpack mocking
     new NormalModuleReplacementPlugin(
-      /.\/rewiremock\.js/,
-      './rewiremock-webpack.js'
+      // Windows will use backslashes in its resource paths, so the matcher
+      // should account for that.
+      /(?<=test-util[\\/]dist[\\/]lib[\\/])rewiremock\.js/,
+      'rewiremock-webpack.js'
     )
   ],
 
