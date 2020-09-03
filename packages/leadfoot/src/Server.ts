@@ -9,7 +9,7 @@ import {
   RequestMethod,
   Response
 } from '@theintern/common';
-import Session from './Session';
+import Session, { WebDriverTimeouts } from './Session';
 import Element from './Element';
 import statusCodes from './lib/statusCodes';
 import { format, parse, resolve, Url } from 'url';
@@ -834,10 +834,8 @@ export default class Server {
     }
 
     // Don't check for touch support if the environment reports that no
-    // touchscreen is available. Also, ChromeDriver
-    // 2.19 claims that it supports touch but it does not implement all of
-    //   the touch endpoints from JsonWireProtocol
-    if (capabilities.hasTouchScreen === false || isChrome(capabilities)) {
+    // touchscreen is available.
+    if (capabilities.hasTouchScreen === false) {
       updates.touchEnabled = false;
     }
 
@@ -1016,7 +1014,24 @@ export default class Server {
             session
               // Try to set a timeout using W3C semantics
               .serverPost<void>('timeouts', { implicit: 1234 })
-              .then(supported, unsupported)
+              .then(() => {
+                // At least IE 11 on BrowserStack doesn't support GET for
+                // timeouts. If we got here, though, the driver supports setting
+                // W3C timeouts.
+                if (isInternetExplorer(capabilities)) {
+                  return supported();
+                }
+
+                // Verify that the timeout was set; at least Firefox 77 with
+                // geckodriver 0.26 on BrowserStack will allow some properties
+                // to be set using W3C-style data, but will fail to set the
+                // `implicit` timeout this way. Note that IE11 doesn't support
+                // GET for timeouts, so will always fail this test.
+                return session
+                  .serverGet<WebDriverTimeouts>('timeouts')
+                  .then(timeouts => timeouts.implicit === 1234)
+                  .catch(unsupported);
+              }, unsupported)
               .then(logResult('usesWebDriverTimeouts'))
           );
         };
@@ -2126,18 +2141,6 @@ function isAndroid(capabilities: Capabilities) {
 function isAndroidEmulator(capabilities: Capabilities) {
   const { deviceName = '' } = capabilities;
   return deviceName.toLowerCase() === 'android emulator';
-}
-
-function isChrome(
-  capabilities: Capabilities,
-  minOrExactVersion?: number,
-  maxVersion?: number
-) {
-  const { browserName = '' } = capabilities;
-  if (browserName.toLowerCase() !== 'chrome') {
-    return false;
-  }
-  return isValidVersion(capabilities, minOrExactVersion, maxVersion);
 }
 
 function isIos(capabilities: Capabilities) {
