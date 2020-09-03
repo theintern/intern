@@ -1,6 +1,10 @@
 {
   "$schema": "../core/schemas/config.json",
 
+  "capabilities+": {
+    "build": "@theintern/leadfoot 5.0.0-alpha"
+  },
+
   "extends": "./node_modules/@theintern-dev/intern-config/intern.json",
 
   "coverage": ["src/**/*.ts"],

@@ -4,6 +4,12 @@
   "description": "Base Intern self-test config",
 
   "benchmark": false,
+
+  "capabilities": {
+    "idle-timeout": 60,
+    "project": "Intern"
+  },
+
   "coverage": "src/**/*.ts",
   "filterErrorStack": false,
   "functionalRetries": 1,
@@ -53,7 +59,6 @@
     "ci": {
       "description": "Run CI tests on the default cloud service (BrowserStack)",
 
-      "capabilities": { "idle-timeout": 60, "project": "Intern" },
       "environments": [
         { "browser": "node" },
         { "browser": "internet explorer", "version": "11" },

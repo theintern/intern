@@ -3,7 +3,9 @@
 
   "extends": "./node_modules/@theintern-dev/intern-config/intern.json",
 
-  "capabilities+": { "project": "@theintern/core" },
+  "capabilities+": {
+    "build": "@theintern/core 5.0.0-alpha"
+  },
 
   "coverage": ["src/**/*.ts", "!src/browser/**/*.ts"],
 
@@ -162,7 +164,6 @@
       },
       "tunnel": "browserstack",
       "maxConcurrency": 2,
-      "capabilities": { "idle-timeout": 60 },
       "environments": [
         { "browser": "node" },
         { "browser": "internet explorer", "version": "11" },
