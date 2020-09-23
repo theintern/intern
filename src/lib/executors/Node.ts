@@ -1005,7 +1005,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     this._unhookRequire = hookRequire(
       filename => this.shouldInstrumentFile(filename),
       (code, { filename }) => this.instrumentCode(code, filename),
-      { extensions: ['.js', '.jsx', '.ts', 'tsx'] }
+      { extensions: ['.js', '.jsx', '.ts', '.tsx'] }
     );
   }
 
