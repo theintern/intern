@@ -992,7 +992,7 @@ export default class Node extends Executor<NodeEvents, NodePlugins> {
         this._coverageFiles[filename] = true;
         return this.instrumentCode(code, filename);
       },
-      { extensions: ['.js', '.jsx', '.ts', 'tsx'] }
+      { extensions: ['.js', '.jsx', '.ts', '.tsx'] }
     );
   }
 
