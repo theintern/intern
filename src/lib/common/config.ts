@@ -303,6 +303,12 @@ export interface Config extends ResourceConfig {
   socketPort?: number;
 
   /**
+   * The number of milliseconds to wait before a websocket message is considered
+   * to be timed out.
+   */
+  socketTimeout?: number;
+
+  /**
    * The Dig Dug tunnel class to use for WebDriver testing.
    *
    * There are several built in tunnel types, and others can be added through

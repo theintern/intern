@@ -88,6 +88,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       serverPort: 9000,
       serverUrl: '',
       socketPort: 9001,
+      socketTimeout: 10000,
       tunnel: 'selenium',
       tunnelOptions: { tunnelId: String(Date.now()) }
     });

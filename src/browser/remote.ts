@@ -16,7 +16,8 @@ const config = <RemoteConfig>parseArgs(parseQuery());
 const channel = new Channel({
   url: config.serverUrl,
   sessionId: config.sessionId,
-  port: config.socketPort
+  port: config.socketPort,
+  timeout: config.socketTimeout
 });
 
 function displayMessage(message: string) {

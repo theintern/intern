@@ -664,7 +664,8 @@ export function processOption<C extends Config>(
     case 'heartbeatInterval':
     case 'maxConcurrency':
     case 'serverPort':
-    case 'socketPort': {
+    case 'socketPort':
+    case 'socketTimeout': {
       setOption(config, name, parseValue(name, value, 'number'));
       break;
     }
