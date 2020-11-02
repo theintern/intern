@@ -33592,7 +33592,7 @@
 							"sources": [
 								{
 									"fileName": "lib/channels/WebSocket.ts",
-									"line": 84,
+									"line": 87,
 									"character": 24
 								}
 							]
@@ -33636,7 +33636,7 @@
 							"sources": [
 								{
 									"fileName": "lib/channels/WebSocket.ts",
-									"line": 78,
+									"line": 81,
 									"character": 26
 								}
 							]
@@ -33702,7 +33702,7 @@
 							"sources": [
 								{
 									"fileName": "lib/channels/WebSocket.ts",
-									"line": 51,
+									"line": 54,
 									"character": 21
 								}
 							],

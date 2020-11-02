@@ -18,7 +18,10 @@ export default class WebSocketChannel extends BaseChannel {
 
   constructor(options: ChannelOptions) {
     super(options);
-    this.timeout = options.timeout || 10000;
+    this.timeout = 10000;
+    if (options.timeout !== undefined) {
+      this.timeout = options.timeout;
+    }
 
     if (!options.port) {
       throw new Error('A port is required for a WebSocket channel');
