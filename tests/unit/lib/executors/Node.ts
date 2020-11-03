@@ -723,6 +723,7 @@ registerSuite('lib/executors/Node', function() {
           maxConcurrency: numberTest('maxConcurrency'),
           serverPort: numberTest('serverPort'),
           socketPort: numberTest('socketPort'),
+          socketTimeout: numberTest('socketTimeout'),
 
           functionalBaseUrl: stringTest('functionalBaseUrl'),
           proxy: stringTest('proxy'),

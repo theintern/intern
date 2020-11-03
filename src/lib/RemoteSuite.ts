@@ -191,7 +191,8 @@ export default class RemoteSuite extends Suite {
           runInSync: config.runInSync || false,
           serverUrl: serverUrl.href,
           sessionId: sessionId,
-          socketPort: server.socketPort
+          socketPort: server.socketPort,
+          socketTimeout: config.socketTimeout
         };
 
         // Do some pre-serialization of the options
@@ -239,7 +240,8 @@ export default class RemoteSuite extends Suite {
           reporters: true,
           serverUrl: true,
           sessionId: true,
-          socketPort: true
+          socketPort: true,
+          socketTimeout: true
         };
 
         // Pass all non-excluded keys to the remote config
@@ -304,4 +306,5 @@ export interface RemoteConfig extends Config {
   sessionId: string;
   runInSync: boolean;
   socketPort?: number;
+  socketTimeout?: number;
 }
