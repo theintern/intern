@@ -245,6 +245,13 @@ export default class Server {
             };
           }
 
+          // At least BrowserStack in December 2020 returns response data with
+          // a value but no status
+          if (!data.status) {
+            data.status =
+              response.status === 404 || response.status === 501 ? 9 : 13;
+          }
+
           // At least InternetExplorerDriver 3.141.59 includes `status` and
           // `value` fields but uses HTTP status codes
           if (data.status === 404 || data.status === 501) {
