@@ -61,7 +61,7 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
-    "@theintern/common": "~0.2.3",
+    "@theintern/common": "~0.2.4",
     "@theintern/digdug": "~2.5.0",
     "@theintern/leadfoot": "~2.3.2",
     "@types/benchmark": "1.0.31",
@@ -82,7 +82,6 @@
     "diff": "~4.0.1",
     "express": "~4.17.1",
     "glob": "~7.1.4",
-    "handlebars": "~4.5.3",
     "http-errors": "~1.7.2",
     "istanbul-lib-coverage": "~2.0.5",
     "istanbul-lib-hook": "~2.0.7",
