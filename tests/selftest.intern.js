@@ -1,5 +1,6 @@
 define({
 	proxyPort: 9000,
+	proxyMaxPort: 9003,
 	proxyUrl: 'http://localhost:9000/',
 
 	capabilities: {
