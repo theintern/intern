@@ -1,5 +1,5 @@
 import { stat, readFile } from 'fs';
-import * as createError from 'http-errors';
+import createError from 'http-errors';
 import { lookup } from 'mime-types';
 import { join, resolve } from 'path';
 import { RequestHandler } from 'express';
@@ -38,7 +38,7 @@ export default function instrument(context: Context): RequestHandler {
       const send = (contentType: string, data: string) => {
         response.writeHead(200, {
           'Content-Type': contentType,
-          'Content-Length': Buffer.byteLength(data)
+          'Content-Length': Buffer.byteLength(data),
         });
         response.end(request.method === 'HEAD' ? '' : data, callback);
       };
@@ -77,7 +77,7 @@ export default function instrument(context: Context): RequestHandler {
             // strictly speaking mtime could reflect a previous
             // version, assume those race conditions are rare
             mtime,
-            data
+            data,
           };
           send(contentType, data);
         });

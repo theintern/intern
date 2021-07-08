@@ -7,7 +7,7 @@ import { createSourceMapStore, MapStore } from 'istanbul-lib-source-maps';
 import {
   hookRunInThisContext,
   hookRequire,
-  unhookRunInThisContext
+  unhookRunInThisContext,
 } from 'istanbul-lib-hook';
 import { register } from 'ts-node';
 import { global, Task, CancellablePromise, deepMixin } from '@theintern/common';
@@ -17,10 +17,10 @@ import Tunnel, { DownloadProgressEvent } from '@theintern/digdug/Tunnel';
 
 // Dig Dug tunnels
 import SeleniumTunnel, {
-  DriverDescriptor
+  DriverDescriptor,
 } from '@theintern/digdug/SeleniumTunnel';
 import BrowserStackTunnel, {
-  BrowserStackOptions
+  BrowserStackOptions,
 } from '@theintern/digdug/BrowserStackTunnel';
 import SauceLabsTunnel from '@theintern/digdug/SauceLabsTunnel';
 import TestingBotTunnel from '@theintern/digdug/TestingBotTunnel';
@@ -90,7 +90,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       socketPort: 9001,
       socketTimeout: 10000,
       tunnel: 'selenium',
-      tunnelOptions: { tunnelId: String(Date.now()) }
+      tunnelOptions: { tunnelId: String(Date.now()) },
     });
 
     this._coverageFiles = [];
@@ -99,22 +99,28 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     this._errorFormatter = new ErrorFormatter(this);
     this._coverageMap = createCoverageMap();
 
-    this.registerReporter('pretty', options => new Pretty(this, options));
-    this.registerReporter('simple', options => new Simple(this, options));
-    this.registerReporter('runner', options => new Runner(this, options));
-    this.registerReporter('benchmark', options => new Benchmark(this, options));
-    this.registerReporter('junit', options => new JUnit(this, options));
+    this.registerReporter('pretty', (options) => new Pretty(this, options));
+    this.registerReporter('simple', (options) => new Simple(this, options));
+    this.registerReporter('runner', (options) => new Runner(this, options));
+    this.registerReporter(
+      'benchmark',
+      (options) => new Benchmark(this, options)
+    );
+    this.registerReporter('junit', (options) => new JUnit(this, options));
     this.registerReporter(
       'jsoncoverage',
-      options => new JsonCoverage(this, options)
+      (options) => new JsonCoverage(this, options)
     );
     this.registerReporter(
       'htmlcoverage',
-      options => new HtmlCoverage(this, options)
+      (options) => new HtmlCoverage(this, options)
     );
-    this.registerReporter('lcov', options => new Lcov(this, options));
-    this.registerReporter('cobertura', options => new Cobertura(this, options));
-    this.registerReporter('teamcity', options => new TeamCity(this, options));
+    this.registerReporter('lcov', (options) => new Lcov(this, options));
+    this.registerReporter(
+      'cobertura',
+      (options) => new Cobertura(this, options)
+    );
+    this.registerReporter('teamcity', (options) => new TeamCity(this, options));
 
     this.registerTunnel('null', NullTunnel);
     this.registerTunnel('selenium', SeleniumTunnel);
@@ -158,7 +164,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       }
     });
 
-    this.on('coverage', message => {
+    this.on('coverage', (message) => {
       this._coverageMap.merge(message.coverage);
     });
   }
@@ -327,7 +333,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // callback that resolves to undefined
       return Promise.all(promises).then(
         () => {},
-        error => this.emit('error', error)
+        (error) => this.emit('error', error)
       );
     });
   }
@@ -357,7 +363,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
               executor: this,
               port: config.serverPort,
               runInSync: config.runInSync,
-              socketPort: config.socketPort
+              socketPort: config.socketPort,
             });
 
             server
@@ -377,7 +383,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             // In serveOnly mode we just start the server to static
             // file serving and instrumentation. Return an
             // unresolved Task to pause indefinitely until canceled.
-            return new Task<boolean>(resolve => {
+            return new Task<boolean>((resolve) => {
               process.on('SIGINT', () => {
                 resolve(true);
               });
@@ -422,17 +428,17 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     const tunnel = new TunnelConstructor(this.config.tunnelOptions);
     this.tunnel = tunnel;
 
-    tunnel.on('downloadprogress', progress => {
+    tunnel.on('downloadprogress', (progress) => {
       this.emit('tunnelDownloadProgress', {
         tunnel,
-        progress
+        progress,
       });
     });
 
-    tunnel.on('status', status => {
+    tunnel.on('status', (status) => {
       this.emit('tunnelStatus', {
         tunnel,
-        status: status.status
+        status: status.status,
       });
     });
 
@@ -454,7 +460,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     const config = this.config;
 
     const leadfootServer = new LeadfootServer(tunnel.clientUrl, {
-      proxy: 'proxy' in config ? config.proxy : tunnel.proxy
+      proxy: 'proxy' in config ? config.proxy : tunnel.proxy,
     });
 
     const executor = this;
@@ -472,7 +478,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     // config.environments was resolved in resolveConfig
     this._sessionSuites = this.config.environments
       .filter(isRemoteEnvironment)
-      .map(environmentType => {
+      .map((environmentType) => {
         let session: ProxiedSession;
 
         // Create a new root suite for each environment
@@ -489,7 +495,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             executor.log('Creating session for', environmentType);
             return leadfootServer
               .createSession<ProxiedSession>(environmentType)
-              .then(_session => {
+              .then((_session) => {
                 session = _session;
                 this.executor.log('Created session:', session.capabilities);
 
@@ -554,7 +560,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
                   return suite.tests.filter(isSuite).some(hasError);
                 }
                 return tunnel.sendJobState(remote.session.sessionId, {
-                  success: !hasError(this)
+                  success: !hasError(this),
                 });
               };
 
@@ -567,7 +573,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
               return remote.quit().finally(endSession);
             }
-          }
+          },
         });
 
         // If browser-compatible unit tests were added to this executor,
@@ -637,7 +643,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       }
 
       // Normalize browser names
-      config.environments.forEach(env => {
+      config.environments.forEach((env) => {
         const { browserName } = env;
         const newName = getNormalizedBrowserName(browserName)!;
         env.browserName = newName;
@@ -649,7 +655,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // Normalize tunnel driver names
       if (config.tunnelOptions.drivers) {
         config.tunnelOptions.drivers = config.tunnelOptions.drivers.map(
-          driver => {
+          (driver) => {
             let driverName: string | undefined;
 
             if (typeof driver === 'string') {
@@ -667,7 +673,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
             if ('name' in driver) {
               return {
                 ...driver,
-                name: newName!
+                name: newName!,
               };
             }
 
@@ -687,14 +693,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           // intern directory
           config.internPath = dirname(
             nodeResolve('intern', {
-              basedir: process.cwd()
+              basedir: process.cwd(),
             })
           );
         }
       }
 
       (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
-        property => {
+        (property) => {
           config[property] = normalizePathEnding(
             resolve(config[property]),
             sep
@@ -705,7 +711,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       if (config.benchmarkConfig) {
         config.reporters.push({
           name: 'benchmark',
-          options: config.benchmarkConfig
+          options: config.benchmarkConfig,
         });
       }
 
@@ -713,7 +719,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
 
       if (config.coverage) {
         // Coverage file entries should be absolute paths
-        this._coverageFiles = expandFiles(config.coverage).map(path =>
+        this._coverageFiles = expandFiles(config.coverage).map((path) =>
           resolve(path)
         );
       }
@@ -732,9 +738,12 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       }
 
       // Ensure URLs end with a '/'
-      (['serverUrl', 'functionalBaseUrl'] as (
-        | 'serverUrl'
-        | 'functionalBaseUrl')[]).forEach(property => {
+      (
+        ['serverUrl', 'functionalBaseUrl'] as (
+          | 'serverUrl'
+          | 'functionalBaseUrl'
+        )[]
+      ).forEach((property) => {
         if (config[property]) {
           config[property] = config[property]!.replace(/\/*$/, '/');
         }
@@ -762,22 +771,25 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // Expand suite globs into the node and browser objects
       config.node.suites = expandFiles([
         ...config.suites,
-        ...config.node.suites
+        ...config.node.suites,
       ]);
       config.browser.suites = expandFiles([
         ...config.suites,
-        ...config.browser.suites
+        ...config.browser.suites,
       ]);
 
       // Clear out the suites list after combining the suites
+      // @ts-ignore
       delete config.suites;
 
       if (!require.extensions['.ts']) {
         if (
           ((config.node &&
-            config.node.suites.some(pattern => pattern.endsWith('.ts'))) ||
+            config.node.suites.some((pattern) => pattern.endsWith('.ts'))) ||
             (config.plugins &&
-              config.plugins.some(plugin => plugin.script.endsWith('.ts')))) &&
+              config.plugins.some((plugin) =>
+                plugin.script.endsWith('.ts')
+              ))) &&
           typeof this.config.node.tsconfig === 'undefined'
         ) {
           register();
@@ -793,11 +805,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           {
             esModules: true,
             coverageVariable: config.coverageVariable,
-            ...config.instrumenterOptions
+            ...config.instrumenterOptions,
           },
           {
             preserveComments: true,
-            produceSourceMap: true
+            produceSourceMap: true,
           }
         )
       );
@@ -812,14 +824,14 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           // Remove all the driver names from driverNames that are already
           // specified in tunnelOptions.drivers
           tunnelOptions.drivers
-            .map(driver => {
+            .map((driver) => {
               if (typeof driver === 'string') {
                 return driver;
               }
               return (driver as any).name;
             })
-            .filter(name => name)
-            .forEach(name => {
+            .filter((name) => name)
+            .forEach((name) => {
               const index = driverNames.indexOf(name);
               if (index !== -1) {
                 driverNames.splice(index, 1);
@@ -828,18 +840,17 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           // Mix the required driverNames into the drivers already in the config
           tunnelOptions.drivers = [
             ...tunnelOptions.drivers,
-            ...driverNames.map(name => ({ name }))
+            ...driverNames.map((name) => ({ name })),
           ];
         } else {
-          tunnelOptions.drivers = driverNames.map(name => ({ name }));
+          tunnelOptions.drivers = driverNames.map((name) => ({ name }));
         }
       }
 
       // If there are remote environments, resolve them using environments
       // available through the tunnel specified in the config.
-      const remoteEnvironments = config.environments.filter(
-        isRemoteEnvironment
-      );
+      const remoteEnvironments =
+        config.environments.filter(isRemoteEnvironment);
       if (remoteEnvironments.length > 0 && config.tunnel && !config.serveOnly) {
         const tunnel = this._createTunnel();
 
@@ -850,7 +861,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           config.capabilities
         );
 
-        return tunnel.getEnvironments().then(tunnelEnvironments => {
+        return tunnel.getEnvironments().then((tunnelEnvironments) => {
           // Resolve the environments, matching versions, platforms, and browser
           // names from the config with whats available from the tunnel
           // enviroment.
@@ -861,7 +872,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
           );
 
           const localEnvironments = config.environments.filter(
-            env => !isRemoteEnvironment(env)
+            (env) => !isRemoteEnvironment(env)
           );
 
           // The full environments list is all the local environments (generally
@@ -938,10 +949,10 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
       // read the file and instrument the code (adding it to the overall
       // coverage map)
       const coveredFiles = this._coverageMap.files();
-      const uncoveredFiles = this._coverageFiles.filter(filename => {
+      const uncoveredFiles = this._coverageFiles.filter((filename) => {
         return coveredFiles.indexOf(filename) === -1;
       });
-      uncoveredFiles.forEach(filename => {
+      uncoveredFiles.forEach((filename) => {
         try {
           const code = readFileSync(filename, { encoding: 'utf8' });
           this.instrumentCode(
@@ -969,7 +980,7 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
     const runTask = new Task(
       (resolve, reject) => {
         Task.all(
-          sessionSuites.map(suite => {
+          sessionSuites.map((suite) => {
             this.log('Queueing suite', suite.name);
             return queue.enqueue(() => {
               this.log('Running suite', suite.name);
@@ -1000,11 +1011,11 @@ export default class Node extends Executor<NodeEvents, Config, NodePlugins> {
    */
   protected _setInstrumentationHooks() {
     hookRunInThisContext(
-      filename => this.shouldInstrumentFile(filename),
+      (filename) => this.shouldInstrumentFile(filename),
       (code, { filename }) => this.instrumentCode(code, filename)
     );
     this._unhookRequire = hookRequire(
-      filename => this.shouldInstrumentFile(filename),
+      (filename) => this.shouldInstrumentFile(filename),
       (code, { filename }) => this.instrumentCode(code, filename),
       { extensions: ['.js', '.jsx', '.ts', 'tsx'] }
     );
@@ -1091,8 +1102,8 @@ class FunctionQueue {
   }
 
   clear() {
-    this.activeTasks.forEach(task => task.cancel());
-    this.funcTasks.forEach(task => task.cancel());
+    this.activeTasks.forEach((task) => task.cancel());
+    this.funcTasks.forEach((task) => task.cancel());
     this.activeTasks = [];
     this.funcTasks = [];
     this.queue = [];

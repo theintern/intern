@@ -1,9 +1,9 @@
 import {
   CoverageMap,
   CoverageMapData,
-  createCoverageMap
+  createCoverageMap,
 } from 'istanbul-lib-coverage';
-import { createContext, summarizers, Watermarks } from 'istanbul-lib-report';
+import { createContext, Watermarks } from 'istanbul-lib-report';
 import { create, ReportType } from 'istanbul-reports';
 import Reporter, { createEventHandler, ReporterProperties } from './Reporter';
 import Node, { NodeEvents } from '../executors/Node';
@@ -12,8 +12,10 @@ export { ReportType };
 
 const eventHandler = createEventHandler<NodeEvents>();
 
-export default abstract class Coverage extends Reporter
-  implements CoverageProperties {
+export default abstract class Coverage
+  extends Reporter
+  implements CoverageProperties
+{
   abstract readonly reportType: ReportType;
   readonly executor!: Node;
 
@@ -37,11 +39,14 @@ export default abstract class Coverage extends Reporter
 
   getReporterOptions(): { [key: string]: any } {
     return {
-      file: this.filename
+      file: this.filename,
     };
   }
 
-  createCoverageReport(type: ReportType, data: CoverageMapData | CoverageMap) {
+  async createCoverageReport(
+    type: ReportType,
+    data: CoverageMapData | CoverageMap
+  ) {
     let map: CoverageMap;
 
     if (isCoverageMap(data)) {
@@ -50,23 +55,25 @@ export default abstract class Coverage extends Reporter
       map = createCoverageMap(data);
     }
 
-    const transformed = this.executor.sourceMapStore.transformCoverage(map);
+    const transformed = await this.executor.sourceMapStore.transformCoverage(
+      map
+    );
 
     const context = createContext({
+      coverageMap: transformed,
       dir: this.directory,
-      sourceFinder: transformed.sourceFinder,
-      watermarks: this.watermarks
+      sourceFinder: (path: string) =>
+        this.executor.sourceMapStore.sourceFinder(path),
+      watermarks: this.watermarks,
     });
-    const tree = summarizers.pkg(transformed.map);
-    const report = create(type, this.getReporterOptions());
-    tree.visit(report, context);
+    create(type, this.getReporterOptions()).execute(context);
   }
 
   @eventHandler()
-  runEnd(): void {
+  runEnd(): void | Promise<any> {
     const map = this.executor.coverageMap;
     if (map.files().length > 0) {
-      this.createCoverageReport(this.reportType, map);
+      return this.createCoverageReport(this.reportType, map);
     }
   }
 }

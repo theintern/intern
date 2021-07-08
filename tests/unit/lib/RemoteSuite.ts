@@ -4,7 +4,7 @@ import {
   createMockNodeExecutor,
   createMockRemoteAndSession,
   createMockServer,
-  MockNode
+  MockNode,
 } from '../../support/unit/mocks';
 import { ObjectSuiteDescriptor } from '../../../src/lib/interfaces/object';
 
@@ -13,8 +13,8 @@ registerSuite('lib/RemoteSuite', {
     const remoteSuite = new RemoteSuite({
       name: 'foo',
       parent: <any>{
-        name: 'bar'
-      }
+        name: 'bar',
+      },
     });
     assert.strictEqual(
       remoteSuite.id,
@@ -23,7 +23,7 @@ registerSuite('lib/RemoteSuite', {
     );
   },
 
-  '#run': (function() {
+  '#run': (function () {
     let remoteSuite: RemoteSuite;
     let subscribers: ServerListener[];
     let executor: MockNode;
@@ -38,7 +38,7 @@ registerSuite('lib/RemoteSuite', {
             heartbeatInterval: 123,
             serverUrl: 'http://foo.com/somewhere/else',
             basePath: '',
-            internPath: ''
+            internPath: '',
           },
 
           server: createMockServer({
@@ -47,14 +47,14 @@ registerSuite('lib/RemoteSuite', {
             subscribe(_sessionId: string, handler: ServerListener) {
               subscribers.push(handler);
               return {
-                destroy() {}
+                destroy() {},
               };
-            }
-          })
+            },
+          }),
         });
 
         remoteSuite = new RemoteSuite({
-          parent: <any>{ remote: createMockRemoteAndSession('foo') }
+          parent: <any>{ remote: createMockRemoteAndSession('foo') },
         });
         remoteSuite.executor = executor;
       },
@@ -66,7 +66,7 @@ registerSuite('lib/RemoteSuite', {
             () => {
               throw new Error('Suite should have failed');
             },
-            error => {
+            (error) => {
               assert.match(error.message, /waiting for remote/);
             }
           );
@@ -74,9 +74,10 @@ registerSuite('lib/RemoteSuite', {
 
         'simple run'() {
           const dfd = this.async();
-          remoteSuite
-            .run()
-            .then(() => dfd.resolve(), error => dfd.reject(error));
+          remoteSuite.run().then(
+            () => dfd.resolve(undefined),
+            (error) => dfd.reject(error)
+          );
 
           assert.lengthOf(subscribers, 1);
           subscribers[0]('remoteStatus', 'initialized');
@@ -99,14 +100,14 @@ registerSuite('lib/RemoteSuite', {
           setTimeout(
             dfd.callback(() => {
               handler('suiteStart', {
-                tests: ['foo', 'bar']
+                tests: ['foo', 'bar'],
               });
 
               assert.deepEqual(<any[]>remoteSuite.tests, ['foo', 'bar']);
               assert.lengthOf(events, 1);
               assert.deepEqual(events[0], {
                 name: 'suiteStart',
-                data: remoteSuite
+                data: remoteSuite,
               });
 
               handler('suiteEnd', { tests: ['baz', 'bif'] });
@@ -120,9 +121,9 @@ registerSuite('lib/RemoteSuite', {
 
           promise.then(
             () => {
-              dfd.resolve();
+              dfd.resolve(undefined);
             },
-            error => {
+            (error) => {
               dfd.reject(error);
             }
           );
@@ -138,20 +139,20 @@ registerSuite('lib/RemoteSuite', {
           setTimeout(
             dfd.callback(() => {
               handler('suiteStart', {
-                tests: ['foo', 'bar']
+                tests: ['foo', 'bar'],
               });
 
               assert.deepEqual(<any[]>remoteSuite.tests, ['foo', 'bar']);
               assert.lengthOf(events, 1);
               assert.deepEqual(events[0], {
                 name: 'suiteStart',
-                data: remoteSuite
+                data: remoteSuite,
               });
 
               const suiteError = new Error('foo');
               handler('suiteEnd', {
                 tests: ['baz', 'bif'],
-                error: suiteError
+                error: suiteError,
               });
 
               assert.deepEqual(<any[]>remoteSuite.tests, ['baz', 'bif']);
@@ -169,7 +170,7 @@ registerSuite('lib/RemoteSuite', {
             () => {
               dfd.reject(new Error('Suite should not have passed'));
             },
-            error => {
+            (error) => {
               if (error.message === 'foo') {
                 dfd.resolve();
               } else {
@@ -190,7 +191,7 @@ registerSuite('lib/RemoteSuite', {
             dfd.callback(() => {
               const suite = {
                 hasParent: true,
-                tests: ['foo', 'bar']
+                tests: ['foo', 'bar'],
               };
               handler('suiteStart', suite);
 
@@ -198,7 +199,7 @@ registerSuite('lib/RemoteSuite', {
               assert.lengthOf(events, 1);
               assert.deepEqual(events[0], {
                 name: 'suiteStart',
-                data: suite
+                data: suite,
               });
 
               handler('suiteEnd', suite);
@@ -206,7 +207,7 @@ registerSuite('lib/RemoteSuite', {
               assert.lengthOf(events, 2);
               assert.deepEqual(events[1], {
                 name: 'suiteEnd',
-                data: suite
+                data: suite,
               });
 
               handler('runEnd');
@@ -217,7 +218,7 @@ registerSuite('lib/RemoteSuite', {
             () => {
               dfd.resolve();
             },
-            error => {
+            (error) => {
               dfd.reject(error);
             }
           );
@@ -249,7 +250,7 @@ registerSuite('lib/RemoteSuite', {
             () => {
               dfd.resolve();
             },
-            error => {
+            (error) => {
               dfd.reject(error);
             }
           );
@@ -280,7 +281,7 @@ registerSuite('lib/RemoteSuite', {
             () => {
               dfd.reject(new Error('Suite should not have passed'));
             },
-            error => {
+            (error) => {
               if (error.message === 'foo') {
                 dfd.resolve();
               } else {
@@ -313,12 +314,12 @@ registerSuite('lib/RemoteSuite', {
             () => {
               dfd.resolve();
             },
-            error => {
+            (error) => {
               dfd.reject(error);
             }
           );
-        }
-      }
+        },
+      },
     };
-  })()
+  })(),
 });

@@ -9,7 +9,7 @@ import { testProperty } from '../../../support/unit/executor';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/executors/Node', function() {
+registerSuite('lib/executors/Node', function () {
   const sandbox = createSandbox();
 
   function createExecutor(
@@ -74,7 +74,7 @@ registerSuite('lib/executors/Node', function() {
 
     lastSourceMap: () => {},
 
-    lastFileCoverage: sandbox.stub().returns(undefined)
+    lastFileCoverage: sandbox.stub().returns(undefined),
   };
 
   class MockServer {
@@ -118,7 +118,7 @@ registerSuite('lib/executors/Node', function() {
     extraCapabilities = {};
 
     constructor(options: { [key: string]: any } = {}) {
-      Object.keys(options).forEach(option => {
+      Object.keys(options).forEach((option) => {
         (<any>this)[option] = options[option];
       });
       tunnels.push(this);
@@ -151,12 +151,12 @@ registerSuite('lib/executors/Node', function() {
   const mockConsole = {
     log: sandbox.spy((..._args: any[]) => {}),
     warn: sandbox.spy((..._args: any[]) => {}),
-    error: sandbox.spy((..._args: any[]) => {})
+    error: sandbox.spy((..._args: any[]) => {}),
   };
 
   const mockChai = {
     assert: 'assert',
-    should: sandbox.spy(() => 'should')
+    should: sandbox.spy(() => 'should'),
   };
 
   const mockFs = {
@@ -172,7 +172,7 @@ registerSuite('lib/executors/Node', function() {
       error.code = 'ENOENT';
 
       throw error;
-    }
+    },
   };
 
   const mockPath = {
@@ -188,7 +188,7 @@ registerSuite('lib/executors/Node', function() {
     normalize(path: string) {
       return path;
     },
-    sep: '/'
+    sep: '/',
   };
 
   const mockGlobal = {
@@ -198,8 +198,8 @@ registerSuite('lib/executors/Node', function() {
       env: {},
       exit: sandbox.spy((..._args: any[]) => {}),
       on: sandbox.spy((..._args: any[]) => {}),
-      stdout: process.stdout
-    }
+      stdout: process.stdout,
+    },
   };
 
   class MockRemoteSuite {
@@ -222,7 +222,7 @@ registerSuite('lib/executors/Node', function() {
     readSourceMap() {
       return {};
     },
-    transpileSource: sandbox.spy()
+    transpileSource: sandbox.spy(),
   };
 
   type IstanbulMatcher = (filename: string) => boolean;
@@ -235,7 +235,7 @@ registerSuite('lib/executors/Node', function() {
     hookRequire: sandbox.spy(
       (_matcher: IstanbulMatcher, _hook: IstanbulHook) => undefined
     ),
-    unhookRunInThisContext: sandbox.spy()
+    unhookRunInThisContext: sandbox.spy(),
   };
 
   let executor: _Node;
@@ -253,7 +253,7 @@ registerSuite('lib/executors/Node', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Node', {
-        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
+        'src/lib/common/ErrorFormatter': MockErrorFormatter,
         'src/lib/common/console': mockConsole,
         'src/lib/node/util': mockNodeUtil,
         chai: mockChai,
@@ -263,26 +263,26 @@ registerSuite('lib/executors/Node', function() {
           global: mockGlobal,
           isPromiseLike,
           Task,
-          deepMixin
+          deepMixin,
         },
-        'src/lib/reporters/Pretty': { default: MockReporter },
-        'src/lib/reporters/Runner': { default: MockReporter },
-        'src/lib/reporters/Simple': { default: MockReporter },
-        'src/lib/reporters/JsonCoverage': { default: MockReporter },
-        'src/lib/reporters/HtmlCoverage': { default: MockReporter },
-        'src/lib/reporters/Lcov': { default: MockReporter },
-        'src/lib/reporters/Benchmark': { default: MockReporter },
+        'src/lib/reporters/Pretty': MockReporter,
+        'src/lib/reporters/Runner': MockReporter,
+        'src/lib/reporters/Simple': MockReporter,
+        'src/lib/reporters/JsonCoverage': MockReporter,
+        'src/lib/reporters/HtmlCoverage': MockReporter,
+        'src/lib/reporters/Lcov': MockReporter,
+        'src/lib/reporters/Benchmark': MockReporter,
         'istanbul-lib-coverage': {
           classes: {
             FileCoverage: {
               prototype: {
-                merge() {}
-              }
-            }
+                merge() {},
+              },
+            },
           },
           createCoverageMap() {
             return new MockCoverageMap();
-          }
+          },
         },
         'istanbul-lib-hook': mockIstanbulHook,
         'istanbul-lib-instrument': {
@@ -291,29 +291,27 @@ registerSuite('lib/executors/Node', function() {
           },
           readInitialCoverage(code: string) {
             return { coverageData: `covered: ${code}` };
-          }
+          },
         },
         'istanbul-lib-source-maps': {
           createSourceMapStore() {
             return new MockMapStore();
-          }
+          },
         },
         'ts-node': {
-          register: mockTsNodeRegister
+          register: mockTsNodeRegister,
         },
-        'src/lib/Server': { default: MockServer },
-        'src/lib/resolveEnvironments': {
-          default: () => {
-            return ['foo env'];
-          }
+        'src/lib/Server': MockServer,
+        'src/lib/resolveEnvironments': () => {
+          return ['foo env'];
         },
-        '@theintern/leadfoot/Command': { default: MockCommand },
-        '@theintern/leadfoot/Server': { default: MockLeadfootServer },
-        '@theintern/digdug/NullTunnel': { default: MockTunnel },
-        '@theintern/digdug/BrowserStackTunnel': { default: MockTunnel },
-        'src/lib/ProxiedSession': { default: MockSession },
-        'src/lib/RemoteSuite': { default: MockRemoteSuite }
-      }).then(handle => {
+        '@theintern/leadfoot/Command': MockCommand,
+        '@theintern/leadfoot/Server': MockLeadfootServer,
+        '@theintern/digdug/NullTunnel': MockTunnel,
+        '@theintern/digdug/BrowserStackTunnel': MockTunnel,
+        'src/lib/ProxiedSession': MockSession,
+        'src/lib/RemoteSuite': MockRemoteSuite,
+      }).then((handle) => {
         removeMocks = handle.remove;
         Node = handle.module.default;
       });
@@ -352,8 +350,8 @@ registerSuite('lib/executors/Node', function() {
               'benchmark',
               'jsoncoverage',
               'htmlcoverage',
-              'lcov'
-            ]
+              'lcov',
+            ],
           });
           return executor.run().then(() => {
             assert.lengthOf(
@@ -483,7 +481,7 @@ registerSuite('lib/executors/Node', function() {
               reason2,
               'expected emitted error to be error passed to error listener'
             );
-          }
+          },
         },
 
         'unhandled error': {
@@ -579,8 +577,8 @@ registerSuite('lib/executors/Node', function() {
               'expected emitted error to be error passed to listener'
             );
             assert.equal(caughtError!.message, 'An error was emitted');
-          }
-        }
+          },
+        },
       },
 
       '#configure': (() => {
@@ -623,14 +621,14 @@ registerSuite('lib/executors/Node', function() {
         return {
           'capabilities (additive)'() {
             executor.configure(<any>{
-              capabilities: { foo: 'bar' }
+              capabilities: { foo: 'bar' },
             });
             executor.configure(<any>{
-              'capabilities+': { bar: 3 }
+              'capabilities+': { bar: 3 },
             });
             assert.deepEqual(executor.config.capabilities, <any>{
               foo: 'bar',
-              bar: 3
+              bar: 3,
             });
           },
 
@@ -665,16 +663,16 @@ registerSuite('lib/executors/Node', function() {
 
             additive() {
               executor.configure(<any>{
-                instrumenterOptions: { foo: 'bar' }
+                instrumenterOptions: { foo: 'bar' },
               });
               executor.configure(<any>{
-                'instrumenterOptions+': { bar: 3 }
+                'instrumenterOptions+': { bar: 3 },
               });
               assert.deepEqual(executor.config.instrumenterOptions, {
                 foo: 'bar',
-                bar: 3
+                bar: 3,
               });
-            }
+            },
           },
 
           tunnel() {
@@ -683,14 +681,14 @@ registerSuite('lib/executors/Node', function() {
 
           'tunnelOptions (additive)'() {
             executor.configure(<any>{
-              tunnelOptions: { foo: 'bar' }
+              tunnelOptions: { foo: 'bar' },
             });
             executor.configure(<any>{
-              'tunnelOptions+': { bar: 3 }
+              'tunnelOptions+': { bar: 3 },
             });
             assert.deepEqual(executor.config.tunnelOptions, <any>{
               foo: 'bar',
-              bar: 3
+              bar: 3,
             });
           },
 
@@ -727,7 +725,7 @@ registerSuite('lib/executors/Node', function() {
 
           functionalBaseUrl: stringTest('functionalBaseUrl'),
           proxy: stringTest('proxy'),
-          serverUrl: stringTest('serverUrl')
+          serverUrl: stringTest('serverUrl'),
         };
       })(),
 
@@ -828,12 +826,12 @@ registerSuite('lib/executors/Node', function() {
                 () => {
                   throw new Error('load should have failed');
                 },
-                error => {
+                (error) => {
                   assert.match(error.message, /Cannot find module/);
                 }
               );
-            }
-          }
+            },
+          },
         };
       })(),
 
@@ -911,9 +909,9 @@ registerSuite('lib/executors/Node', function() {
                 })
               );
               executor.run();
-            }
-          }
-        }
+            },
+          },
+        },
       },
 
       '#run': {
@@ -922,7 +920,7 @@ registerSuite('lib/executors/Node', function() {
             environments: 'chrome',
             tunnel: 'null',
             suites: 'foo.js',
-            functionalTimeouts: { pageLoad: 10 }
+            functionalTimeouts: { pageLoad: 10 },
           });
           return executor.run().then(() => {
             const suite = executor['_sessionSuites']![0];
@@ -969,7 +967,7 @@ registerSuite('lib/executors/Node', function() {
           executor.configure(<any>{
             environments: 'chrome',
             tunnel: 'browserstack',
-            suites: 'foo2.js'
+            suites: 'foo2.js',
           });
           return executor.run().then(() => {
             assert.deepEqual(
@@ -986,7 +984,7 @@ registerSuite('lib/executors/Node', function() {
             serveOnly: true,
             environments: 'chrome',
             tunnel: 'null',
-            suites: 'foo.js'
+            suites: 'foo.js',
           });
           executor.on(
             'beforeRun',
@@ -1049,7 +1047,7 @@ registerSuite('lib/executors/Node', function() {
             environments: 'chrome',
             tunnel: 'null',
             suites: 'foo.js',
-            coverage: ['foo.js', 'bar.js']
+            coverage: ['foo.js', 'bar.js'],
           });
 
           await executor.run();
@@ -1058,11 +1056,11 @@ registerSuite('lib/executors/Node', function() {
           assert.equal(map.addFileCoverage.callCount, 2);
           assert.deepEqual(map.addFileCoverage.args[0][0], {
             code: 'foo',
-            filename: 'foo.js'
+            filename: 'foo.js',
           });
           assert.deepEqual(map.addFileCoverage.args[1][0], {
             code: 'bar',
-            filename: 'bar.js'
+            filename: 'bar.js',
           });
 
           assert.equal(
@@ -1082,7 +1080,7 @@ registerSuite('lib/executors/Node', function() {
           fsData['bar.js'] = 'if (bar) {}';
           let loadResolver: () => void;
           let loadRejector: (reason: Error) => void;
-          const loadPromise = new Promise((resolve, reject) => {
+          const loadPromise = new Promise<void>((resolve, reject) => {
             loadResolver = resolve;
             loadRejector = reject;
           });
@@ -1090,7 +1088,7 @@ registerSuite('lib/executors/Node', function() {
           const exec = createExecutor(
             {
               suites: ['foo.js'],
-              coverage: ['foo.js', 'bar.js']
+              coverage: ['foo.js', 'bar.js'],
             },
             (modules: string[]) => {
               try {
@@ -1098,11 +1096,10 @@ registerSuite('lib/executors/Node', function() {
 
                 // Check that the hook matchers both say to instrument the
                 // module
-                const requireMatcher = mockIstanbulHook.hookRequire.getCall(0)
-                  .args[0];
-                const runInContextMatcher = mockIstanbulHook.hookRequire.getCall(
-                  0
-                ).args[0];
+                const requireMatcher =
+                  mockIstanbulHook.hookRequire.getCall(0).args[0];
+                const runInContextMatcher =
+                  mockIstanbulHook.hookRequire.getCall(0).args[0];
                 assert(
                   requireMatcher(mod),
                   'expected matcher for un-required file to return true'
@@ -1113,8 +1110,8 @@ registerSuite('lib/executors/Node', function() {
                 );
 
                 // Run the require hook, which should instrument the module
-                const requireHook = mockIstanbulHook.hookRequire.getCall(0)
-                  .args[1];
+                const requireHook =
+                  mockIstanbulHook.hookRequire.getCall(0).args[1];
                 requireHook(fsData[mod], { filename: mod });
 
                 // The require hook should instrument the module
@@ -1183,7 +1180,7 @@ registerSuite('lib/executors/Node', function() {
             name: 'foo executor',
             environments: 'chrome',
             tunnel: 'null',
-            functionalSuites: ['foo.js']
+            functionalSuites: ['foo.js'],
           });
 
           let settled = false;
@@ -1197,9 +1194,12 @@ registerSuite('lib/executors/Node', function() {
                   tests: [],
                   parent,
                   run() {
-                    suiteTask = new Task<void>(() => {}, () => {});
+                    suiteTask = new Task<void>(
+                      () => {},
+                      () => {}
+                    );
                     return suiteTask;
-                  }
+                  },
                 });
               });
             }
@@ -1233,7 +1233,7 @@ registerSuite('lib/executors/Node', function() {
               environments: 'chrome',
               tunnel: 'browserstack',
               tunnelOptions: { proxy: 'foo' },
-              suites: 'foo2.js'
+              suites: 'foo2.js',
             });
             return executor.run().then(() => {
               assert.equal(
@@ -1250,7 +1250,7 @@ registerSuite('lib/executors/Node', function() {
               proxy: 'bar',
               tunnel: 'browserstack',
               tunnelOptions: { proxy: 'foo' },
-              suites: 'foo2.js'
+              suites: 'foo2.js',
             });
             return executor.run().then(() => {
               assert.equal(
@@ -1267,7 +1267,7 @@ registerSuite('lib/executors/Node', function() {
               proxy: null,
               tunnel: 'browserstack',
               tunnelOptions: { proxy: 'foo' },
-              suites: 'foo2.js'
+              suites: 'foo2.js',
             });
             return executor.run().then(() => {
               assert.isUndefined(
@@ -1275,7 +1275,7 @@ registerSuite('lib/executors/Node', function() {
                 'expected server to use configured proxy'
               );
             });
-          }
+          },
         },
 
         'selenium tunnelOptions': {
@@ -1284,7 +1284,7 @@ registerSuite('lib/executors/Node', function() {
               environments: ['chrome', 'firefox', 'ie'],
               tunnel: 'selenium',
               suites: 'foo2.js',
-              showConfig: true
+              showConfig: true,
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
@@ -1292,7 +1292,7 @@ registerSuite('lib/executors/Node', function() {
                 [
                   { name: 'chrome' },
                   { name: 'firefox' },
-                  { name: 'internet explorer' }
+                  { name: 'internet explorer' },
                 ],
                 'unexpected value for tunnelOptions.drivers'
               );
@@ -1304,10 +1304,10 @@ registerSuite('lib/executors/Node', function() {
               environments: ['chrome', 'firefox', 'ie'],
               tunnel: 'selenium',
               tunnelOptions: {
-                drivers: ['chrome', { name: 'ie', options: {} }]
+                drivers: ['chrome', { name: 'ie', options: {} }],
               },
               suites: 'foo2.js',
-              showConfig: true
+              showConfig: true,
             });
             return executor.run().then(() => {
               assert.sameDeepMembers(
@@ -1315,12 +1315,12 @@ registerSuite('lib/executors/Node', function() {
                 [
                   'chrome',
                   { name: 'firefox' },
-                  { name: 'internet explorer', options: {} }
+                  { name: 'internet explorer', options: {} },
                 ],
                 'unexpected value for tunnelOptions.drivers'
               );
             });
-          }
+          },
         },
 
         'tsconfig option': {
@@ -1331,14 +1331,14 @@ registerSuite('lib/executors/Node', function() {
               environments: 'chrome',
               tunnel: 'null',
               suites: 'foo.ts',
-              coverage: ['foo.ts', 'bar.d.ts']
+              coverage: ['foo.ts', 'bar.d.ts'],
             });
 
             return executor.run().then(() => {
               assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
               assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
                 'foo.ts',
-                'foo'
+                'foo',
               ]);
               assert.isTrue(mockTsNodeRegister.called);
               assert.deepEqual(mockTsNodeRegister.args[0], []);
@@ -1355,7 +1355,7 @@ registerSuite('lib/executors/Node', function() {
               tunnel: 'null',
               suites: 'foo.js',
               plugins: 'foo.ts',
-              coverage: ['foo.js']
+              coverage: ['foo.js'],
             });
 
             return executor.run().then(() => {
@@ -1371,7 +1371,7 @@ registerSuite('lib/executors/Node', function() {
               environments: 'chrome',
               tunnel: 'null',
               suites: 'foo.js',
-              coverage: ['foo.js']
+              coverage: ['foo.js'],
             });
 
             return executor.run().then(() => {
@@ -1388,20 +1388,20 @@ registerSuite('lib/executors/Node', function() {
               tunnel: 'null',
               suites: 'foo.ts',
               node: {
-                tsconfig: './test/tsconfig.json'
+                tsconfig: './test/tsconfig.json',
               },
-              coverage: ['foo.ts', 'bar.d.ts']
+              coverage: ['foo.ts', 'bar.d.ts'],
             });
 
             return executor.run().then(() => {
               assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
               assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
                 'foo.ts',
-                'foo'
+                'foo',
               ]);
               assert.isTrue(mockTsNodeRegister.calledOnce);
               assert.deepEqual(mockTsNodeRegister.args[0][0], {
-                project: './test/tsconfig.json'
+                project: './test/tsconfig.json',
               });
             });
           },
@@ -1415,16 +1415,16 @@ registerSuite('lib/executors/Node', function() {
               tunnel: 'null',
               suites: 'foo.ts',
               node: {
-                tsconfig: './test/tsconfig.json'
+                tsconfig: './test/tsconfig.json',
               },
-              coverage: ['foo.ts', 'bar.d.ts']
+              coverage: ['foo.ts', 'bar.d.ts'],
             });
 
             return executor.run().then(() => {
               assert.isTrue(mockNodeUtil.transpileSource.calledOnce);
               assert.deepEqual(mockNodeUtil.transpileSource.args[0], [
                 'foo.ts',
-                'foo'
+                'foo',
               ]);
               assert.isTrue(mockTsNodeRegister.notCalled);
             });
@@ -1437,9 +1437,9 @@ registerSuite('lib/executors/Node', function() {
               tunnel: 'null',
               suites: 'foo.ts',
               node: {
-                tsconfig: false
+                tsconfig: false,
               },
-              coverage: ['foo.ts']
+              coverage: ['foo.ts'],
             });
 
             return executor.run().then(() => {
@@ -1454,17 +1454,17 @@ registerSuite('lib/executors/Node', function() {
               tunnel: 'null',
               suites: 'foo.ts',
               node: {
-                tsconfig: 'false'
+                tsconfig: 'false',
               },
-              coverage: ['foo.ts']
+              coverage: ['foo.ts'],
             });
 
             return executor.run().then(() => {
               assert.isTrue(mockTsNodeRegister.notCalled);
             });
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   };
 });

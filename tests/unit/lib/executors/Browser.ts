@@ -17,7 +17,7 @@ function createExecutor(config?: Partial<Config>) {
   return executor;
 }
 
-registerSuite('lib/executors/Browser', function() {
+registerSuite('lib/executors/Browser', function () {
   class MockErrorFormatter {
     format(error: Error) {
       return 'Foo: ' + error.message;
@@ -29,12 +29,12 @@ registerSuite('lib/executors/Browser', function() {
   const mockConsole = {
     log: sandbox.spy(() => {}),
     warn: sandbox.spy(() => {}),
-    error: sandbox.spy(() => {})
+    error: sandbox.spy(() => {}),
   };
 
   const mockChai = {
     assert: 'assert',
-    should: sandbox.spy(() => 'should')
+    should: sandbox.spy(() => 'should'),
   };
 
   const mockGlobal = {
@@ -46,13 +46,13 @@ registerSuite('lib/executors/Browser', function() {
         return {
           addEventListener(_name: string, callback: () => void) {
             callback();
-          }
+          },
         };
       }),
       body: {
-        appendChild: sandbox.spy(() => {})
-      }
-    }
+        appendChild: sandbox.spy(() => {}),
+      },
+    },
   };
 
   let executor: _Browser;
@@ -61,7 +61,7 @@ registerSuite('lib/executors/Browser', function() {
 
   const request = sandbox.spy((_path: string, _data: any) => {
     return Promise.resolve(<mockRequest>{
-      json: () => Promise.resolve({})
+      json: () => Promise.resolve({}),
     });
   });
 
@@ -80,13 +80,13 @@ registerSuite('lib/executors/Browser', function() {
   const mockUtil = {
     getDefaultBasePath() {
       return '';
-    }
+    },
   };
 
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Browser', {
-        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
+        'src/lib/common/ErrorFormatter': MockErrorFormatter,
         'src/lib/common/console': mockConsole,
         'src/lib/browser/util': mockUtil,
         chai: mockChai,
@@ -96,9 +96,9 @@ registerSuite('lib/executors/Browser', function() {
           global: mockGlobal,
           isPromiseLike,
           Task,
-          deepMixin
-        }
-      }).then(handle => {
+          deepMixin,
+        },
+      }).then((handle) => {
         removeMocks = handle.remove;
         Browser = handle.module.default;
       });
@@ -315,7 +315,7 @@ registerSuite('lib/executors/Browser', function() {
         configure() {
           const configured = createExecutor({ suites: ['foo.js'] });
           assert.deepEqual(configured.config.suites, ['foo.js']);
-        }
+        },
       },
 
       '#configure': {
@@ -327,12 +327,12 @@ registerSuite('lib/executors/Browser', function() {
               request.args[0],
               [
                 '__resolveSuites__',
-                { query: { suites: ['**/*.js', 'bar.js'] } }
+                { query: { suites: ['**/*.js', 'bar.js'] } },
               ],
               'unexpected args to suite resolution request'
             );
           });
-        }
+        },
       },
 
       '#environment'() {
@@ -362,12 +362,12 @@ registerSuite('lib/executors/Browser', function() {
             assert.equal(createElement.getCall(0).args[0], 'script');
             assert.equal(createElement.getCall(1).args[0], 'script');
           });
-        }
+        },
       },
 
       '#run'() {
         return executor.run();
-      }
-    }
+      },
+    },
   };
 });

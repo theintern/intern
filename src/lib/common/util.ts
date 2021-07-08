@@ -2,7 +2,6 @@ import { CancellablePromise, deepMixin } from '@theintern/common';
 
 import { Config, ResourceConfig } from './config';
 import { Events, Executor, PluginDescriptor } from '../executors/Executor';
-import { TextLoader } from './util';
 import { getPathSep, join, normalize } from './path';
 import { InternError } from '../types';
 
@@ -97,7 +96,7 @@ export function getConfigDescription(config: any, prefix = '') {
     const width = Object.keys(config.configs).reduce((width, name) => {
       return Math.max(width, name.length);
     }, 0);
-    const lines = Object.keys(config.configs).map(name => {
+    const lines = Object.keys(config.configs).map((name) => {
       const child = config.configs[name];
       while (name.length < width) {
         name += ' ';
@@ -125,7 +124,7 @@ export function loadConfig(
   args?: { [key: string]: any },
   childConfig?: string | string[]
 ): CancellablePromise<any> {
-  return _loadConfig(configPath, loadText, args, childConfig).then(config => {
+  return _loadConfig(configPath, loadText, args, childConfig).then((config) => {
     // 'config' and 'extends' are only applicable to the config loader, not
     // the Executors
     delete config.config;
@@ -285,7 +284,7 @@ export function parseValue(
       if (typeof value === 'string') {
         value = [value];
       }
-      if (Array.isArray(value) && value.every(v => typeof v === 'string')) {
+      if (Array.isArray(value) && value.every((v) => typeof v === 'string')) {
         return value;
       }
       throw new Error(`Non-string[] value "${value}" for ${name}`);
@@ -305,7 +304,7 @@ export function parseValue(
 export function prefix(message: string, prefix: string) {
   return message
     .split('\n')
-    .map(line => prefix + line)
+    .map((line) => prefix + line)
     .join('\n');
 }
 
@@ -379,14 +378,14 @@ export function processOption<C extends Config>(
         case 'scripts':
           emit('deprecated', {
             original: 'scripts',
-            replacement: 'plugins'
+            replacement: 'plugins',
           });
           _name = 'plugins';
           break;
         case 'require':
           emit('deprecated', {
             original: 'require',
-            replacement: 'plugins'
+            replacement: 'plugins',
           });
           _name = 'plugins';
           break;
@@ -394,7 +393,7 @@ export function processOption<C extends Config>(
           emit('deprecated', {
             original: 'require',
             replacement: 'plugins',
-            message: 'Set `useLoader: true`'
+            message: 'Set `useLoader: true`',
           });
           _name = 'plugins';
           useLoader = true;
@@ -427,7 +426,7 @@ export function processOption<C extends Config>(
       const envName = name;
       const _value = parseValue(name, value, 'object');
       if (_value) {
-        Object.keys(_value).forEach(valueKey => {
+        Object.keys(_value).forEach((valueKey) => {
           const key = <keyof ResourceConfig>valueKey;
           let resource = _value[key];
           let { name, addToExisting } = evalProperty(key);
@@ -451,7 +450,7 @@ export function processOption<C extends Config>(
                 case 'scripts': {
                   emit('deprecated', {
                     original: 'scripts',
-                    replacement: 'plugins'
+                    replacement: 'plugins',
                   });
                   name = 'plugins';
                   break;
@@ -459,7 +458,7 @@ export function processOption<C extends Config>(
                 case 'require': {
                   emit('deprecated', {
                     original: 'require',
-                    replacement: 'plugins'
+                    replacement: 'plugins',
                   });
                   name = 'plugins';
                   break;
@@ -468,7 +467,7 @@ export function processOption<C extends Config>(
                   emit('deprecated', {
                     original: 'requires',
                     replacement: 'plugins',
-                    message: 'Set `useLoader: true`'
+                    message: 'Set `useLoader: true`',
                   });
                   name = 'plugins';
                   useLoader = true;
@@ -495,7 +494,7 @@ export function processOption<C extends Config>(
               break;
             }
             case 'tsconfig': {
-              resource = parseValue(name, resource, tsconfig => {
+              resource = parseValue(name, resource, (tsconfig) => {
                 let value;
 
                 if (tsconfig === false || tsconfig === 'false') {
@@ -576,7 +575,7 @@ export function processOption<C extends Config>(
     case 'excludeInstrumentation': {
       emit('deprecated', {
         original: 'excludeInstrumentation',
-        replacement: 'coverage'
+        replacement: 'coverage',
       });
       break;
     }
@@ -633,12 +632,12 @@ export function processOption<C extends Config>(
       if (parsedTimeout) {
         // If the given value was an object, mix it in to the
         // default functionalTimeouts
-        Object.keys(parsedTimeout).forEach(timeoutKey => {
+        Object.keys(parsedTimeout).forEach((timeoutKey) => {
           const key = <keyof Config['functionalTimeouts']>timeoutKey;
           if (key === 'connectTimeout') {
             emit('deprecated', {
               original: 'functionalTimeouts.connectTimeout',
-              replacement: 'connectTimeout'
+              replacement: 'connectTimeout',
             });
             setOption(
               config,
@@ -825,7 +824,7 @@ export function splitConfigPath(
   // a child config
   return {
     configFile: path.slice(0, lastSep),
-    childConfig: path.slice(lastSep + 1)
+    childConfig: path.slice(lastSep + 1),
   };
 }
 
@@ -849,7 +848,7 @@ function _loadConfig(
   childConfig?: string | string[]
 ): CancellablePromise<any> {
   return loadText(configPath)
-    .then(text => {
+    .then((text) => {
       let preConfig: { [key: string]: any };
 
       try {
@@ -872,12 +871,12 @@ function _loadConfig(
           loadText,
           undefined,
           childConfig
-        ).then(extension => {
+        ).then((extension) => {
           // Process all keys except 'configs' from the config to the
           // thing it's extending
           Object.keys(preConfig)
-            .filter(key => key !== 'configs')
-            .forEach(key => {
+            .filter((key) => key !== 'configs')
+            .forEach((key) => {
               processOption(<keyof Config>key, preConfig[key], extension);
             });
 
@@ -887,7 +886,7 @@ function _loadConfig(
             if (extension.configs == null) {
               extension.configs = {};
             }
-            Object.keys(preConfig.configs).forEach(key => {
+            Object.keys(preConfig.configs).forEach((key) => {
               extension.configs[key] = preConfig.configs[key];
             });
           }
@@ -895,13 +894,13 @@ function _loadConfig(
         });
       } else {
         const config: any = {};
-        Object.keys(preConfig).forEach(key => {
+        Object.keys(preConfig).forEach((key) => {
           processOption(<keyof Config>key, preConfig[key], config);
         });
         return config;
       }
     })
-    .then(config => {
+    .then((config) => {
       if (args && (args.showConfigs || args.help)) {
         // If we're showing the configs, don't mix in children
         return config;
@@ -912,7 +911,7 @@ function _loadConfig(
           const configs = Array.isArray(childConfig)
             ? childConfig
             : [childConfig];
-          configs.forEach(childConfig => {
+          configs.forEach((childConfig) => {
             const child = config.configs[childConfig];
             if (!child) {
               throw new Error(`Unknown child config "${childConfig}"`);
@@ -927,12 +926,12 @@ function _loadConfig(
             // environment resource objects will be mixed into the
             // corresponding objects on the parent.
             Object.keys(child)
-              .filter(key => key !== 'node' && key !== 'browser')
-              .forEach(key => {
+              .filter((key) => key !== 'node' && key !== 'browser')
+              .forEach((key) => {
                 processOption(<keyof Config>key, child[key], config);
               });
 
-            ['node', 'browser'].forEach(key => {
+            ['node', 'browser'].forEach((key) => {
               if (child[key]) {
                 if (config[key]) {
                   // Run the environment config through
@@ -953,7 +952,7 @@ function _loadConfig(
       }
       return config;
     })
-    .then(config => {
+    .then((config) => {
       if (args) {
         // If any non-additive resources are specified in args, they
         // will apply to all environments and will override any
@@ -961,20 +960,20 @@ function _loadConfig(
         const resources: (keyof ResourceConfig)[] = [
           'plugins',
           'reporters',
-          'suites'
+          'suites',
         ];
         resources
-          .filter(resource => resource in args)
-          .forEach(resource => {
+          .filter((resource) => resource in args)
+          .forEach((resource) => {
             const environments: (keyof Config)[] = ['node', 'browser'];
             environments
-              .filter(environment => config[environment])
-              .forEach(environment => {
+              .filter((environment) => config[environment])
+              .forEach((environment) => {
                 delete config[environment][resource];
               });
           });
 
-        Object.keys(args).forEach(key => {
+        Object.keys(args).forEach((key) => {
           processOption(<keyof Config>key, args[key], config);
         });
       }
@@ -1007,15 +1006,8 @@ export function errorToJSON(error?: InternError): InternError | undefined {
   if (!error) {
     return undefined;
   }
-  const {
-    name,
-    message,
-    stack,
-    lifecycleMethod,
-    showDiff,
-    actual,
-    expected
-  } = error;
+  const { name, message, stack, lifecycleMethod, showDiff, actual, expected } =
+    error;
 
   return {
     name,
@@ -1023,6 +1015,6 @@ export function errorToJSON(error?: InternError): InternError | undefined {
     stack,
     ...(lifecycleMethod ? { lifecycleMethod } : {}),
     showDiff: Boolean(showDiff),
-    ...(showDiff ? { actual, expected } : {})
+    ...(showDiff ? { actual, expected } : {}),
   };
 }

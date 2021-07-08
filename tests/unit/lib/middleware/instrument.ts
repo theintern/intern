@@ -1,4 +1,4 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import _instrument from 'src/lib/middleware/instrument';
 import Server from 'src/lib/Server';
@@ -7,7 +7,7 @@ import {
   createMockServer,
   MockRequest,
   MockResponse,
-  createMockServerContext
+  createMockServerContext,
 } from '../../../support/unit/mocks';
 import { mockFs, mockPath, MockStats } from '../../../support/unit/nodeMocks';
 import { normalize } from 'path';
@@ -16,7 +16,7 @@ import { Stats } from 'fs';
 const mockRequire = <mocking.MockRequire>intern.getPlugin('mockRequire');
 const testPath = normalize('/base/foo/thing.js');
 
-registerSuite('lib/middleware/instrument', function() {
+registerSuite('lib/middleware/instrument', function () {
   let instrument: typeof _instrument;
   let removeMocks: () => void;
 
@@ -37,8 +37,8 @@ registerSuite('lib/middleware/instrument', function() {
     before() {
       return mockRequire(require, 'src/lib/middleware/instrument', {
         fs,
-        path
-      }).then(resource => {
+        path,
+      }).then((resource) => {
         removeMocks = resource.remove;
         instrument = resource.module.default;
       });
@@ -52,12 +52,12 @@ registerSuite('lib/middleware/instrument', function() {
       fs.__fileData = {
         [testPath]: {
           type: 'file',
-          data: 'what a fun time'
-        }
+          data: 'what a fun time',
+        },
       };
       server = createMockServer({
         basePath: '/base',
-        executor: createMockNodeExecutor()
+        executor: createMockNodeExecutor(),
       });
       shouldInstrumentFile = sandbox.stub(
         server.executor,
@@ -123,13 +123,13 @@ registerSuite('lib/middleware/instrument', function() {
           },
 
           'read error'() {
-            sandbox.stub(fs, 'stat').callsFake((path, callback) => {
+            sandbox.stub(fs, 'stat').callsFake((path, opts, callback) => {
               const data = fs.__fileData[testPath];
               fs.__fileData[testPath] = undefined;
-              callback(null, (new MockStats(
-                path,
-                data!.type
-              ) as unknown) as Stats);
+              (callback ?? opts)(
+                null,
+                new MockStats(path, data!.type) as unknown as Stats
+              );
             });
             handler(request, response, next);
 
@@ -165,14 +165,14 @@ registerSuite('lib/middleware/instrument', function() {
 
                 assert.isFalse(next.called);
                 assert.isFalse(end.called);
-              }
+              },
             },
 
             after() {
               if (server) {
                 (<any>server).stopped = false;
               }
-            }
+            },
           },
 
           HEAD() {
@@ -184,8 +184,8 @@ registerSuite('lib/middleware/instrument', function() {
             assert.isFalse(next.called);
             assert.isTrue(end.calledOnce);
             assert.strictEqual(end.firstCall.args[0], '');
-          }
-        }
+          },
+        },
       },
 
       'non-instrumented file'() {
@@ -216,7 +216,7 @@ registerSuite('lib/middleware/instrument', function() {
           0,
           'next should have been called with no arguments'
         );
-      }
-    }
+      },
+    },
   };
 });

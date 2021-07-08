@@ -27,13 +27,13 @@ function assertRunFails(executor: ExecutorType, errorMatcher: RegExp) {
     () => {
       throw new Error('run should have failed');
     },
-    error => {
+    (error) => {
       assert.match(error.message, errorMatcher);
     }
   );
 }
 
-registerSuite('lib/executors/Executor', function() {
+registerSuite('lib/executors/Executor', function () {
   class MockErrorFormatter {
     format(error: Error) {
       return 'Foo: ' + error.message;
@@ -42,7 +42,7 @@ registerSuite('lib/executors/Executor', function() {
 
   const sandbox = createSandbox();
   const testLoader = sandbox.spy((mods: string[]) => {
-    mods.forEach(mod => {
+    mods.forEach((mod) => {
       if (scripts[mod]) {
         scripts[mod]();
       }
@@ -62,12 +62,12 @@ registerSuite('lib/executors/Executor', function() {
   const mockConsole = {
     log: sandbox.spy((..._args: any[]) => {}),
     warn: sandbox.spy((..._args: any[]) => {}),
-    error: sandbox.spy((..._args: any[]) => {})
+    error: sandbox.spy((..._args: any[]) => {}),
   };
 
   const mockChai = {
     assert: 'assert',
-    should: sandbox.spy(() => 'should')
+    should: sandbox.spy(() => 'should'),
   };
 
   const loadScript = sandbox.spy((script: string) => {
@@ -83,16 +83,16 @@ registerSuite('lib/executors/Executor', function() {
   return {
     before() {
       return mockRequire(require, 'src/lib/executors/Executor', {
-        'src/lib/common/ErrorFormatter': { default: MockErrorFormatter },
+        'src/lib/common/ErrorFormatter': MockErrorFormatter,
         'src/lib/common/console': mockConsole,
         chai: mockChai,
         '@theintern/common': {
           global: { __coverage__: {} },
           isPromiseLike,
           Task,
-          deepMixin
-        }
-      }).then(handle => {
+          deepMixin,
+        },
+      }).then((handle) => {
         removeMocks = handle.remove;
         Executor = handle.module.default;
         Executor.prototype.loadScript = loadScript;
@@ -145,7 +145,7 @@ registerSuite('lib/executors/Executor', function() {
               'coverage should have been emitted for root suite'
             );
           });
-        }
+        },
       },
 
       '#config'() {
@@ -156,7 +156,7 @@ registerSuite('lib/executors/Executor', function() {
           browser: {
             plugins: [],
             reporters: [],
-            suites: []
+            suites: [],
           },
           coverageVariable: '__coverage__',
           debug: false,
@@ -168,12 +168,12 @@ registerSuite('lib/executors/Executor', function() {
           node: {
             plugins: [],
             reporters: [],
-            suites: []
+            suites: [],
           },
           plugins: [],
           reporters: [],
           sessionId: '',
-          suites: <string[]>[]
+          suites: <string[]>[],
         };
         assert.deepEqual<any>(executor.config, expected);
       },
@@ -200,7 +200,7 @@ registerSuite('lib/executors/Executor', function() {
           executor.configure(<any>{ 'reporters+': 'bar' });
           assert.deepEqual(executor.config.reporters, [
             { name: 'foo' },
-            { name: 'bar' }
+            { name: 'bar' },
           ]);
 
           executor.configure(<any>{ 'grep+': 'bar' });
@@ -214,14 +214,14 @@ registerSuite('lib/executors/Executor', function() {
 
         'environment config mixin'() {
           executor.configure(<any>{
-            node: { suites: ['foo'], plugins: ['bar'] }
+            node: { suites: ['foo'], plugins: ['bar'] },
           });
           assert.deepEqual<any>(
             executor.config.node,
             {
               suites: ['foo'],
               reporters: [],
-              plugins: [{ script: 'bar' }]
+              plugins: [{ script: 'bar' }],
             },
             'values should have been set on node'
           );
@@ -229,15 +229,15 @@ registerSuite('lib/executors/Executor', function() {
             node: {
               'suites+': ['bif'],
               reporters: ['bof'],
-              plugins: ['buf']
-            }
+              plugins: ['buf'],
+            },
           });
           assert.deepEqual<any>(
             executor.config.node,
             {
               suites: ['foo', 'bif'],
               reporters: [{ name: 'bof' }],
-              plugins: [{ script: 'buf' }]
+              plugins: [{ script: 'buf' }],
             },
             'values should have been mixed into node'
           );
@@ -270,12 +270,16 @@ registerSuite('lib/executors/Executor', function() {
           const stringTest = (name: keyof Config) => () => {
             test(name, 5, 'foo', 'foo', /Non-string/);
           };
-          const objectArrayTest = (
-            name: keyof Config,
-            requiredProperty: string
-          ) => () => {
-            test(name, 5, 'foo', [{ [requiredProperty]: 'foo' }], /Non-object/);
-          };
+          const objectArrayTest =
+            (name: keyof Config, requiredProperty: string) => () => {
+              test(
+                name,
+                5,
+                'foo',
+                [{ [requiredProperty]: 'foo' }],
+                /Non-object/
+              );
+            };
 
           return {
             loader() {
@@ -343,7 +347,7 @@ registerSuite('lib/executors/Executor', function() {
                 {
                   plugins: [],
                   reporters: [],
-                  suites: []
+                  suites: [],
                 },
                 /Non-object/
               );
@@ -354,7 +358,7 @@ registerSuite('lib/executors/Executor', function() {
                 {
                   plugins: [],
                   reporters: [],
-                  suites: []
+                  suites: [],
                 },
                 /Non-object/
               );
@@ -366,7 +370,7 @@ registerSuite('lib/executors/Executor', function() {
                   plugins: [],
                   reporters: [],
                   suites: [],
-                  tsconfig: './test/tsconfig.json'
+                  tsconfig: './test/tsconfig.json',
                 },
                 /Non-object/
               );
@@ -378,7 +382,7 @@ registerSuite('lib/executors/Executor', function() {
                   plugins: [],
                   reporters: [],
                   suites: ['foo'],
-                  tsconfig: './test/tsconfig.json'
+                  tsconfig: './test/tsconfig.json',
                 },
                 /Non-object/
               );
@@ -393,9 +397,9 @@ registerSuite('lib/executors/Executor', function() {
                 { disableDomUpdates: true },
                 /Non-object/
               );
-            }
+            },
           };
-        })()
+        })(),
       },
 
       '#emit': {
@@ -422,7 +426,7 @@ registerSuite('lib/executors/Executor', function() {
             () => {
               throw new Error('emit should have rejected');
             },
-            error => {
+            (error) => {
               assert.equal(error.message, 'An error was emitted');
             }
           );
@@ -447,7 +451,7 @@ registerSuite('lib/executors/Executor', function() {
             'coverage',
             'suiteEnd',
             'runEnd',
-            'afterRun'
+            'afterRun',
           ];
           executor.on('*', (event: { name: string; data: any }) => {
             events.push(event.name);
@@ -480,7 +484,7 @@ registerSuite('lib/executors/Executor', function() {
               'an error should not have been logged'
             );
           });
-        }
+        },
       },
 
       '#getPlugin': {
@@ -500,7 +504,7 @@ registerSuite('lib/executors/Executor', function() {
               executor.getPlugin<any>('foo');
             }, /has not been registered/);
           });
-        }
+        },
       },
 
       '#log'() {
@@ -578,13 +582,13 @@ registerSuite('lib/executors/Executor', function() {
                 );
               });
           });
-        }
+        },
       },
 
       '#registerPlugin': {
         config() {
           executor.configure({
-            plugins: { script: 'foo.js', useLoader: true }
+            plugins: { script: 'foo.js', useLoader: true },
           });
           const pluginInit = spy(() => 'bar');
           const pluginScript = spy(() => {
@@ -625,7 +629,7 @@ registerSuite('lib/executors/Executor', function() {
           assert.throws(() => {
             executor.registerPlugin('reporter', 'foo', pluginInit as any);
           }, /must be a constructor/);
-        }
+        },
       },
 
       '#run': {
@@ -676,7 +680,7 @@ registerSuite('lib/executors/Executor', function() {
         },
 
         'run error'() {
-          executor.addSuite(rootSuite => {
+          executor.addSuite((rootSuite) => {
             rootSuite.run = () => Task.reject<void>(new Error('foo'));
           });
           return assertRunFails(executor, /foo/);
@@ -696,7 +700,7 @@ registerSuite('lib/executors/Executor', function() {
 
         'custom reporter'() {
           executor.registerPlugin('reporter.foo', () => {
-            const CustomReporter = function() {};
+            const CustomReporter = function () {};
             return Promise.resolve(CustomReporter);
           });
           executor.configure({ reporters: <any>'foo' });
@@ -708,7 +712,7 @@ registerSuite('lib/executors/Executor', function() {
           missing() {
             executor.configure({ reporters: <any>'foo' });
             return assertRunFails(executor, /has not been registered/);
-          }
+          },
         },
 
         'loader failure'() {
@@ -728,12 +732,12 @@ registerSuite('lib/executors/Executor', function() {
           executor.configure({ showConfig: true });
           const executor2 = createExecutor({
             showConfig: true,
-            benchmark: true
+            benchmark: true,
           });
           const executor3 = createExecutor({
             showConfig: true,
             benchmark: true,
-            baseline: true
+            baseline: true,
           });
 
           return executor
@@ -756,8 +760,8 @@ registerSuite('lib/executors/Executor', function() {
               const data = JSON.parse(mockConsole.log.getCall(0).args[0]);
               assert.propertyVal(data.benchmarkConfig, 'mode', 'baseline');
             });
-        }
-      }
-    }
+        },
+      },
+    },
   };
 });

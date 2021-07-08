@@ -6,7 +6,7 @@ import {
   createMockCharm,
   createMockConsole,
   createMockCoverageMap,
-  createMockNodeExecutor
+  createMockNodeExecutor,
 } from '../../../support/unit/mocks';
 
 import { TunnelMessage } from '../../../../src/lib/executors/Node';
@@ -15,7 +15,7 @@ const { registerSuite } = intern.getPlugin('interface.object');
 const { assert } = intern.getPlugin('chai');
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/reporters/Runner', function() {
+registerSuite('lib/reporters/Runner', function () {
   const sandbox = createSandbox();
   const mockCharm = createMockCharm();
   const mockExecutor = createMockNodeExecutor();
@@ -30,10 +30,10 @@ registerSuite('lib/reporters/Runner', function() {
     before() {
       return mockRequire(require, 'src/lib/reporters/Runner', {
         'istanbul-lib-coverage': {
-          createCoverageMap: createMockCoverageMap
+          createCoverageMap: createMockCoverageMap,
         },
-        charm: () => mockCharm
-      }).then(handle => {
+        charm: () => mockCharm,
+      }).then((handle) => {
         removeMocks = handle.remove;
         Runner = handle.module.default;
       });
@@ -48,7 +48,7 @@ registerSuite('lib/reporters/Runner', function() {
       mockCharm._reset();
       reporter = new Runner(mockExecutor, {
         hidePassed: true,
-        console: <any>createMockConsole()
+        console: <any>createMockConsole(),
       });
     },
 
@@ -64,14 +64,14 @@ registerSuite('lib/reporters/Runner', function() {
         reporter.sessions['bar'] = <any>{};
         reporter.coverage({
           sessionId: 'bar',
-          coverage: { 'foo.js': {} }
+          coverage: { 'foo.js': {} },
         });
         const coverageMap: MockCoverageMap = <any>(
           reporter.sessions['bar'].coverage
         );
         assert.equal(coverageMap.merge.callCount, 1);
         assert.deepEqual(coverageMap.merge.getCall(0).args[0], {
-          'foo.js': {}
+          'foo.js': {},
         });
       },
 
@@ -79,7 +79,7 @@ registerSuite('lib/reporters/Runner', function() {
         reporter.deprecated({
           original: 'foo',
           replacement: 'bar',
-          message: "don't mix them"
+          message: "don't mix them",
         });
         assert.equal(mockCharm.write.callCount, 4);
         assert.match(mockCharm.write.getCall(0).args[0], /is deprecated/);
@@ -88,14 +88,14 @@ registerSuite('lib/reporters/Runner', function() {
         reporter.deprecated({
           original: 'foo',
           replacement: 'bar',
-          message: "don't mix them"
+          message: "don't mix them",
         });
         assert.equal(mockCharm.write.callCount, 4, 'expected no new writes');
 
         // Send the same message again -- should be ignored
         reporter.deprecated({
           original: 'bar',
-          message: "don't mix them"
+          message: "don't mix them",
         });
         assert.equal(mockCharm.write.callCount, 8);
         assert.match(mockCharm.write.getCall(5).args[0], /open a ticket/);
@@ -133,10 +133,10 @@ registerSuite('lib/reporters/Runner', function() {
               numTests: 2,
               numPassedTests: 0,
               numFailedTests: 1,
-              numSkippedTests: 1
-            }
+              numSkippedTests: 1,
+            },
           };
-          reporter.createCoverageReport = spy(() => {});
+          reporter.createCoverageReport = spy(() => Promise.resolve());
           coverageMap._files = ['foo.js'];
           reporter.runEnd();
 
@@ -151,7 +151,7 @@ registerSuite('lib/reporters/Runner', function() {
             // This line is because we have files
             ['Total coverage\n'],
             ['TOTAL: tested 1 platforms, 0 passed, 1 failed, 1 skipped'],
-            ['\n']
+            ['\n'],
           ]);
         },
 
@@ -163,11 +163,11 @@ registerSuite('lib/reporters/Runner', function() {
               numTests: 2,
               numPassedTests: 1,
               numFailedTests: 1,
-              numSkippedTests: 0
-            }
+              numSkippedTests: 0,
+            },
           };
           reporter.hasRunErrors = true;
-          reporter.createCoverageReport = spy(() => {});
+          reporter.createCoverageReport = spy(() => Promise.resolve());
           coverageMap._files = ['foo.js'];
           reporter.runEnd();
 
@@ -182,9 +182,9 @@ registerSuite('lib/reporters/Runner', function() {
             // This line is because we have files
             ['Total coverage\n'],
             [
-              'TOTAL: tested 1 platforms, 1 passed, 1 failed; fatal error occurred'
+              'TOTAL: tested 1 platforms, 1 passed, 1 failed; fatal error occurred',
             ],
-            ['\n']
+            ['\n'],
           ]);
         },
 
@@ -196,11 +196,11 @@ registerSuite('lib/reporters/Runner', function() {
               numTests: 2,
               numPassedTests: 2,
               numFailedTests: 0,
-              numSkippedTests: 0
-            }
+              numSkippedTests: 0,
+            },
           };
           reporter.hasSuiteErrors = true;
-          reporter.createCoverageReport = spy(() => {});
+          reporter.createCoverageReport = spy(() => Promise.resolve());
           coverageMap._files = ['foo.js'];
           reporter.runEnd();
 
@@ -215,30 +215,30 @@ registerSuite('lib/reporters/Runner', function() {
             // This line is because we have files
             ['Total coverage\n'],
             [
-              'TOTAL: tested 1 platforms, 2 passed, 0 failed; suite error occurred'
+              'TOTAL: tested 1 platforms, 2 passed, 0 failed; suite error occurred',
             ],
-            ['\n']
+            ['\n'],
           ]);
-        }
+        },
       },
 
       serverStart: {
         'no websocket'() {
           reporter.serverStart(<any>{ port: 12345 });
           assert.deepEqual(mockCharm.write.args, [
-            ['Listening on localhost:12345\n']
+            ['Listening on localhost:12345\n'],
           ]);
         },
 
         websocket() {
           reporter.serverStart(<any>{
             port: 12345,
-            socketPort: 54321
+            socketPort: 54321,
           });
           assert.deepEqual(mockCharm.write.args, [
-            ['Listening on localhost:12345 (ws 54321)\n']
+            ['Listening on localhost:12345 (ws 54321)\n'],
           ]);
-        }
+        },
       },
 
       suiteEnd: {
@@ -246,7 +246,7 @@ registerSuite('lib/reporters/Runner', function() {
           reporter.suiteEnd(<any>{ sessionId: 'bar' });
           assert.deepEqual(mockCharm.write.args, [
             ['BUG: suiteEnd was received for invalid session bar'],
-            ['\n']
+            ['\n'],
           ]);
         },
 
@@ -254,12 +254,12 @@ registerSuite('lib/reporters/Runner', function() {
           reporter.sessions[''] = <any>{};
           reporter.suiteEnd(<any>{
             id: 'foo',
-            error: new Error('failed')
+            error: new Error('failed'),
           });
           assert.deepEqual(mockCharm.write.args, [
             ['Suite foo ERROR\n'],
             ['Error: failed'],
-            ['\n']
+            ['\n'],
           ]);
           assert.isTrue(
             reporter.hasSuiteErrors,
@@ -281,21 +281,21 @@ registerSuite('lib/reporters/Runner', function() {
                 numTests: 2,
                 numPassedTests: 2,
                 numFailedTests: 0,
-                numSkippedTests: 0
+                numSkippedTests: 0,
               };
             },
 
             tests: {
               coverage() {
                 session.coverage = {};
-                const createCoverageReport = spy(() => {});
+                const createCoverageReport = spy(() => Promise.resolve());
                 reporter.createCoverageReport = createCoverageReport;
                 reporter.suiteEnd(suite);
                 assert.equal(createCoverageReport.callCount, 1);
                 assert.deepEqual(mockCharm.write.args, [
                   ['\n'],
                   ['foo: 2 passed, 0 failed'],
-                  ['\n']
+                  ['\n'],
                 ]);
               },
 
@@ -305,7 +305,7 @@ registerSuite('lib/reporters/Runner', function() {
                   ['No unit test coverage for foo'],
                   ['\n'],
                   ['foo: 2 passed, 0 failed'],
-                  ['\n']
+                  ['\n'],
                 ]);
               },
 
@@ -316,7 +316,7 @@ registerSuite('lib/reporters/Runner', function() {
                   ['No unit test coverage for foo'],
                   ['\n'],
                   ['foo: 1 passed, 0 failed, 1 skipped'],
-                  ['\n']
+                  ['\n'],
                 ]);
               },
 
@@ -327,23 +327,23 @@ registerSuite('lib/reporters/Runner', function() {
                   ['No unit test coverage for foo'],
                   ['\n'],
                   ['foo: 2 passed, 0 failed; suite error occurred'],
-                  ['\n']
+                  ['\n'],
                 ]);
-              }
-            }
+              },
+            },
           };
-        })()
+        })(),
       },
 
       suiteStart() {
         reporter.sessions['foo'] = <any>{};
         reporter.suiteStart(<any>{
           sessionId: 'foo',
-          name: 'bar'
+          name: 'bar',
         });
         assert.deepEqual(mockCharm.write.args, [
           ['\n'],
-          ['‣ Created remote session bar (foo)\n']
+          ['‣ Created remote session bar (foo)\n'],
         ]);
       },
 
@@ -352,14 +352,14 @@ registerSuite('lib/reporters/Runner', function() {
           reporter.testEnd(<any>{
             error: new Error('failed'),
             id: 'foo',
-            timeElapsed: 123
+            timeElapsed: 123,
           });
           assert.deepEqual(mockCharm.write.args, [
             ['× foo'],
             [' (0.123s)'],
             ['\n'],
             ['    Error: failed'],
-            ['\n\n']
+            ['\n\n'],
           ]);
         },
 
@@ -368,7 +368,7 @@ registerSuite('lib/reporters/Runner', function() {
             reporter.hideSkipped = true;
             reporter.testEnd(<any>{
               skipped: 'yes',
-              id: 'foo'
+              id: 'foo',
             });
             assert.deepEqual(mockCharm.write.args, []);
           },
@@ -376,20 +376,20 @@ registerSuite('lib/reporters/Runner', function() {
           shown() {
             reporter.testEnd(<any>{
               skipped: 'yes',
-              id: 'foo'
+              id: 'foo',
             });
             assert.deepEqual(mockCharm.write.args, [
               ['~ foo'],
               [' (yes)'],
-              ['\n']
+              ['\n'],
             ]);
-          }
+          },
         },
 
         passed: {
           hidden() {
             reporter.testEnd(<any>{
-              id: 'foo'
+              id: 'foo',
             });
             assert.deepEqual(mockCharm.write.args, []);
           },
@@ -398,15 +398,15 @@ registerSuite('lib/reporters/Runner', function() {
             reporter.hidePassed = false;
             reporter.testEnd(<any>{
               id: 'foo',
-              timeElapsed: 123
+              timeElapsed: 123,
             });
             assert.deepEqual(mockCharm.write.args, [
               ['✓ foo'],
               [' (0.123s)'],
-              ['\n']
+              ['\n'],
             ]);
-          }
-        }
+          },
+        },
       },
 
       tunnelDownloadProgress() {
@@ -417,8 +417,8 @@ registerSuite('lib/reporters/Runner', function() {
             `Tunnel download: ${(
               (progress.received / progress.total) *
               100
-            ).toFixed(3)}%\r`
-          ]
+            ).toFixed(3)}%\r`,
+          ],
         ]);
       },
 
@@ -438,7 +438,7 @@ registerSuite('lib/reporters/Runner', function() {
       tunnelStatus() {
         reporter.tunnelStatus(<any>{ status: 'fine' });
         assert.deepEqual(mockCharm.write.args, [['fine\x1b[K\r']]);
-      }
-    }
+      },
+    },
   };
 });

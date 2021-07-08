@@ -3,12 +3,10 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader(options => {
+intern.registerLoader((options) => {
   const globalObj: any = typeof window !== 'undefined' ? window : global;
-  const {
-    internLoaderPath = 'node_modules/dojo/dojo.js',
-    ...loaderConfig
-  } = options;
+  const { internLoaderPath = 'node_modules/dojo/dojo.js', ...loaderConfig } =
+    options;
 
   loaderConfig.baseUrl = loaderConfig.baseUrl || intern.config.basePath;
   if (!('async' in loaderConfig)) {
@@ -17,7 +15,7 @@ intern.registerLoader(options => {
 
   loaderConfig.has = {
     'dojo-timeout-api': true,
-    ...loaderConfig.has
+    ...loaderConfig.has,
   };
 
   intern.log('Configuring Dojo loader with:', loaderConfig);
@@ -30,7 +28,7 @@ intern.registerLoader(options => {
     return (modules: string[]) => {
       let handle: { remove(): void };
 
-      return new Promise((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         handle = require.on('error', (error: Error) => {
           intern.emit('error', error);
           reject(new Error(`Dojo loader error: ${error.message}`));
@@ -44,7 +42,7 @@ intern.registerLoader(options => {
         () => {
           handle.remove();
         },
-        error => {
+        (error) => {
           handle && handle.remove();
           throw error;
         }

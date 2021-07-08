@@ -8,9 +8,9 @@ class MockNode {}
 registerSuite('index', {
   before() {
     return mockRequire(require, 'src/index', {
-      'src/lib/executors/Node': { default: MockNode },
-      '@theintern/common': { global: mockGlobal }
-    }).then(resource => {
+      'src/lib/executors/Node': MockNode,
+      '@theintern/common': { global: mockGlobal },
+    }).then((resource) => {
       removeMocks = resource.remove;
     });
   },
@@ -25,6 +25,6 @@ registerSuite('index', {
         mockGlobal.intern,
         'expected intern global to have been defined'
       );
-    }
-  }
+    },
+  },
 });

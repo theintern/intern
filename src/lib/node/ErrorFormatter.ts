@@ -37,9 +37,13 @@ export default class NodeErrorFormatter extends ErrorFormatter {
     let match: RegExpMatchArray | null;
     let source: string | undefined;
     let line: number;
-    let col: number | undefined;
+    let col: number | null;
     let map: SourceMapConsumer | undefined;
-    let originalPos: { source?: string; line: number; column?: number };
+    let originalPos: {
+      source?: string | null;
+      line: number | null;
+      column: number | null;
+    };
     let result: string;
 
     if (!(match = /^(.*?):(\d+)(:\d+)?$/.exec(tracepath))) {
@@ -49,7 +53,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 
     tracepath = match[1];
     line = Number(match[2]);
-    col = match[3] ? Number(match[3].substring(1)) : undefined;
+    col = match[3] ? Number(match[3].substring(1)) : null;
 
     // If the tracepath starts with the server URL, resolve it to something
     // local
@@ -71,7 +75,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
     if (tracepath in instrumentedStore.data) {
       map = new SourceMapConsumer(instrumentedStore.data[tracepath].data);
       originalPos = this.getOriginalPosition(map, line, col);
-      line = originalPos.line;
+      line = originalPos.line!;
       col = originalPos.column;
       if (originalPos.source) {
         source = originalPos.source;
@@ -92,7 +96,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
 
     if (map) {
       originalPos = this.getOriginalPosition(map, line, col);
-      line = originalPos.line;
+      line = originalPos.line!;
       col = originalPos.column;
       if (originalPos.source) {
         // If original source starts with ./ or ../, or is just a bare
@@ -130,11 +134,11 @@ export default class NodeErrorFormatter extends ErrorFormatter {
   private getOriginalPosition(
     map: SourceMapConsumer,
     line: number,
-    column?: number
-  ): { line: number; column?: number; source?: string } {
+    column: number | null
+  ): { line: number | null; column: number | null; source?: string | null } {
     const originalPosition = map.originalPositionFor({
       line: line,
-      column: column!
+      column: column!,
     });
 
     // if the SourceMapConsumer was able to find a location, return it
@@ -147,7 +151,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
     // find all map entries that apply to the given line in the generated
     // output
     map.eachMapping(
-      entry => {
+      (entry) => {
         if (entry.generatedLine === line) {
           entries.push(entry);
         }
@@ -192,7 +196,7 @@ export default class NodeErrorFormatter extends ErrorFormatter {
     return {
       line: position.originalLine,
       column: position.originalColumn,
-      source: position.source
+      source: position.source,
     };
   }
 

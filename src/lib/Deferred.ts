@@ -5,10 +5,13 @@ export default class Deferred<T> {
 
   constructor() {
     this.promise = new Promise<T>((resolve, reject) => {
-      this._resolver = resolve;
+      this._resolver = resolve as (value?: T) => void;
       this._rejector = reject;
     });
-    this.promise.then(() => this._finalize, () => this._finalize);
+    this.promise.then(
+      () => this._finalize,
+      () => this._finalize
+    );
   }
 
   /**
@@ -17,7 +20,7 @@ export default class Deferred<T> {
    */
   callback(callback: Function): any {
     const dfd = this;
-    return this.rejectOnError(function(this: any, ...args: any[]) {
+    return this.rejectOnError(function (this: any, ...args: any[]) {
       const returnValue = callback.apply(this, args);
       dfd.resolve();
       return returnValue;
@@ -29,7 +32,7 @@ export default class Deferred<T> {
    */
   rejectOnError(callback: Function): any {
     const dfd = this;
-    return function(this: any, ...args: any[]) {
+    return function (this: any, ...args: any[]) {
       try {
         return callback.apply(this, args);
       } catch (error) {

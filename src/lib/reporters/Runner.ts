@@ -1,4 +1,4 @@
-import * as charm from 'charm';
+import charm from 'charm';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { Writable } from 'stream';
 
@@ -122,7 +122,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
 
   @eventHandler()
   log(message: string) {
-    message.split('\n').forEach(line => {
+    message.split('\n').forEach((line) => {
       this.console.log(`DEBUG: ${line}`);
     });
   }
@@ -141,8 +141,8 @@ export default class Runner extends TextCoverage implements RunnerProperties {
     // A session may contain only coverage data, so ensure that only those
     // with suites are considered
     sessionIds
-      .filter(sessionId => this.sessions[sessionId].suite)
-      .forEach(sessionId => {
+      .filter((sessionId) => this.sessions[sessionId].suite)
+      .forEach((sessionId) => {
         const suite = this.sessions[sessionId].suite!;
         numTests += suite.numTests;
         numPassedTests += suite.numPassedTests;
@@ -193,9 +193,7 @@ export default class Runner extends TextCoverage implements RunnerProperties {
   serverStart(server: Server) {
     if (this.executor.config.serveOnly) {
       this.charm.write(
-        `To use the browser client, browse to\n\n  ${
-          this.executor.config.serverUrl
-        }__intern/\n\n`
+        `To use the browser client, browse to\n\n  ${this.executor.config.serverUrl}__intern/\n\n`
       );
       this.charm.write('Press CTRL-C to stop serving\n\n');
     } else {

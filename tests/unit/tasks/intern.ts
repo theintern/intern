@@ -1,15 +1,15 @@
-import * as sinon from 'sinon';
-import * as _gruntTask from 'src/tasks/intern';
+import sinon from 'sinon';
+import _gruntTask from 'src/tasks/intern';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('tasks/intern', function() {
+registerSuite('tasks/intern', function () {
   const sandbox = sinon.createSandbox();
 
   let mockDone: sinon.SinonSpy<any[], void>;
 
   function setupDone() {
-    return new Promise(resolve => {
+    return new Promise<void>((resolve) => {
       mockDone = sinon.spy((..._args: any[]) => resolve());
     });
   }
@@ -17,7 +17,7 @@ registerSuite('tasks/intern', function() {
   const mockGrunt = {
     registerMultiTask: sandbox.stub(),
     async: sandbox.spy(() => mockDone),
-    options: sandbox.stub()
+    options: sandbox.stub(),
   };
 
   const mockRun = sandbox.stub();
@@ -41,10 +41,10 @@ registerSuite('tasks/intern', function() {
   return {
     before() {
       return mockRequire(require, 'src/tasks/intern', {
-        'src/lib/executors/Node': { default: MockNode },
+        'src/lib/executors/Node': MockNode,
         '@theintern/common': { global: {} },
-        'src/lib/node/util': { getConfig: mockGetConfig }
-      }).then(handle => {
+        'src/lib/node/util': { getConfig: mockGetConfig },
+      }).then((handle) => {
         removeMocks = handle.remove;
         gruntTask = handle.module;
       });
@@ -81,12 +81,12 @@ registerSuite('tasks/intern', function() {
           mockGrunt.registerMultiTask.callsArgOn(1, mockGrunt);
           mockGrunt.options.returns({
             config: '@coverage',
-            foo: 'bar'
+            foo: 'bar',
           });
           mockGetConfig.resolves({
             config: {
-              spam: 'ham'
-            }
+              spam: 'ham',
+            },
           });
           const done = setupDone();
 
@@ -103,10 +103,10 @@ registerSuite('tasks/intern', function() {
             assert.equal(mockGetConfig.getCall(0).args[0], '@coverage');
             assert.equal(mockConfigure.callCount, 2);
             assert.deepEqual(mockConfigure.getCall(0).args[0], {
-              spam: 'ham'
+              spam: 'ham',
             });
             assert.deepEqual(mockConfigure.getCall(1).args[0], {
-              foo: 'bar'
+              foo: 'bar',
             });
             assert.equal(mockDone.callCount, 1);
             // First arg is an error, so it should be undefined here
@@ -117,7 +117,7 @@ registerSuite('tasks/intern', function() {
         'no config'() {
           mockGrunt.registerMultiTask.callsArgOn(1, mockGrunt);
           mockGrunt.options.returns({
-            foo: 'bar'
+            foo: 'bar',
           });
           const done = setupDone();
 
@@ -134,19 +134,19 @@ registerSuite('tasks/intern', function() {
             assert.equal(mockConfigure.callCount, 2);
             assert.deepEqual(mockConfigure.getCall(0).args[0], {});
             assert.deepEqual(mockConfigure.getCall(1).args[0], {
-              foo: 'bar'
+              foo: 'bar',
             });
             assert.equal(mockDone.callCount, 1);
             // First arg is an error, so it should be undefined here
             assert.isUndefined(mockDone.getCall(0).args[0]);
           });
-        }
+        },
       },
 
       error() {
         mockGrunt.registerMultiTask.callsArgOn(1, mockGrunt);
         mockGrunt.options.returns({
-          foo: 'bar'
+          foo: 'bar',
         });
         const error = new Error('bad');
         mockRun.rejects(error);
@@ -161,7 +161,7 @@ registerSuite('tasks/intern', function() {
           assert.equal(mockDone.callCount, 1);
           assert.equal(mockDone.getCall(0).args[0], error);
         });
-      }
-    }
+      },
+    },
   };
 });

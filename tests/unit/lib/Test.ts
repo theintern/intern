@@ -6,15 +6,15 @@ import Test, {
   isTestFunction,
   isTestOptions,
   TestOptions,
-  TestProperties
+  TestProperties,
 } from 'src/lib/Test';
 import Suite from 'src/lib/Suite';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import {
   createMockRemote,
   createMockExecutor,
-  createMockSession
+  createMockSession,
 } from '../../support/unit/mocks';
 import { createSuite } from '../../support/unit/factories';
 
@@ -67,11 +67,11 @@ registerSuite('lib/Test', {
         name: 'foo',
         test() {
           executed = true;
-        }
+        },
       });
 
       test.run().then(
-        dfd.callback(function() {
+        dfd.callback(function () {
           assert.isTrue(
             executed,
             'Test function should be called when run is called'
@@ -87,7 +87,7 @@ registerSuite('lib/Test', {
         name: 'foo',
         test() {
           throw thrownError;
-        }
+        },
       });
 
       test.run().then(
@@ -118,11 +118,11 @@ registerSuite('lib/Test', {
           name: 'foo',
           test() {
             const dfd = this.async();
-            setTimeout(function() {
+            setTimeout(function () {
               resolved = true;
               dfd.resolve();
             }, 0);
-          }
+          },
         });
 
         const promise = test.run().then(
@@ -150,13 +150,13 @@ registerSuite('lib/Test', {
         const test = createTest({
           name: 'foo',
           test() {
-            return new Promise(resolve => {
-              setTimeout(function() {
+            return new Promise<void>((resolve) => {
+              setTimeout(function () {
                 resolved = true;
                 resolve();
               }, 0);
             });
-          }
+          },
         });
 
         const promise = test.run().then(
@@ -188,11 +188,11 @@ registerSuite('lib/Test', {
             const dfd = this.async(250, 3);
 
             for (let i = 0; i < 3; ++i) {
-              dfd.callback(function() {
+              dfd.callback(function () {
                 ++numCalls;
               })();
             }
-          }
+          },
         });
 
         test.run().then(
@@ -220,7 +220,7 @@ registerSuite('lib/Test', {
           name: 'foo',
           test() {
             this.async(100);
-          }
+          },
         });
 
         test.run().then(
@@ -231,7 +231,7 @@ registerSuite('lib/Test', {
               )
             );
           },
-          error => {
+          (error) => {
             assert.ok(error, 'Timeout error thrown in async test');
             dfd.resolve();
           }
@@ -244,7 +244,7 @@ registerSuite('lib/Test', {
           test() {
             const clock = sandbox.useFakeTimers();
             clock.setSystemTime(1);
-          }
+          },
         });
 
         await test.run();
@@ -264,7 +264,7 @@ registerSuite('lib/Test', {
             const clock = sandbox.useFakeTimers();
             clock.setSystemTime(1);
             this.async(100);
-          }
+          },
         });
 
         test.run().then(
@@ -275,7 +275,7 @@ registerSuite('lib/Test', {
               )
             );
           },
-          error => {
+          (error) => {
             assert.ok(error, 'Timeout error thrown in async test');
             dfd.resolve();
           }
@@ -290,7 +290,7 @@ registerSuite('lib/Test', {
           test() {
             const d = this.async();
             d.reject(thrownError);
-          }
+          },
         });
 
         test.run().then(
@@ -299,7 +299,7 @@ registerSuite('lib/Test', {
               'Test should throw if async and the promise is rejected'
             );
           },
-          error => {
+          (error) => {
             assert.strictEqual<Error | undefined>(
               test.error,
               error,
@@ -321,16 +321,16 @@ registerSuite('lib/Test', {
             const d = this.async();
             d.resolve();
             d.resolve();
-          }
+          },
         });
 
         return test.run().then(
           () => {
             throw new Error('Test should have thrown');
           },
-          error => assert.match(error.message, /called too many times/)
+          (error) => assert.match(error.message, /called too many times/)
         );
-      }
+      },
     },
 
     '#timeElapsed'() {
@@ -338,10 +338,10 @@ registerSuite('lib/Test', {
         name: 'foo',
         test() {
           const dfd = this.async();
-          setTimeout(function() {
+          setTimeout(function () {
             dfd.resolve();
           }, 100);
-        }
+        },
       });
 
       return test.run().then(() => {
@@ -368,9 +368,9 @@ registerSuite('lib/Test', {
           id: 'parent id',
           name: 'parent id',
           sessionId: 'abcd',
-          timeout: 30000
+          timeout: 30000,
         },
-        test() {}
+        test() {},
       });
       const expected: { [key: string]: any } = {
         id: 'parent id - test name',
@@ -379,7 +379,7 @@ registerSuite('lib/Test', {
         sessionId: 'abcd',
         timeElapsed: 100,
         timeout: 30000,
-        hasPassed: true
+        hasPassed: true,
       };
 
       return test.run().then(() => {
@@ -397,7 +397,7 @@ registerSuite('lib/Test', {
           name: 'Oops',
           message: 'message',
           stack: 'stack',
-          showDiff: false
+          showDiff: false,
         };
 
         test.suiteError = expected.suiteError = {
@@ -405,7 +405,7 @@ registerSuite('lib/Test', {
           message: 'message',
           stack: 'stack',
           lifecycleMethod: 'afterEach' as const,
-          showDiff: false
+          showDiff: false,
         };
 
         assert.deepEqual(
@@ -420,7 +420,7 @@ registerSuite('lib/Test', {
           stack: 'stack',
           showDiff: true,
           expected: 'foo',
-          actual: 'bar'
+          actual: 'bar',
         };
         assert.deepEqual(
           test.toJSON(),
@@ -438,7 +438,7 @@ registerSuite('lib/Test', {
         name: 'bad',
         test() {
           throw thrownError;
-        }
+        },
       });
 
       assert.isFalse(
@@ -450,7 +450,7 @@ registerSuite('lib/Test', {
         'Bad test should not have passed if it has not been executed'
       );
       goodTest.run().finally(
-        dfd.callback(function() {
+        dfd.callback(function () {
           assert.isTrue(
             goodTest.hasPassed,
             'Good test should have passed after execution without error'
@@ -461,7 +461,7 @@ registerSuite('lib/Test', {
         .run()
         .catch(() => {})
         .finally(
-          dfd.callback(function() {
+          dfd.callback(function () {
             assert.isFalse(
               badTest.hasPassed,
               'Bad test should not have passed after execution with error'
@@ -478,7 +478,7 @@ registerSuite('lib/Test', {
     '#sessionId'() {
       const test = createTest({
         name: 'foo',
-        parent: createSuite({ name: 'bar', sessionId: 'parent' })
+        parent: createSuite({ name: 'bar', sessionId: 'parent' }),
       });
       assert.strictEqual(
         test.sessionId,
@@ -489,11 +489,11 @@ registerSuite('lib/Test', {
 
     '#remote'() {
       const remote = createMockRemote({
-        session: createMockSession({ sessionId: 'test' })
+        session: createMockSession({ sessionId: 'test' }),
       });
       const test = createTest({
         name: 'foo',
-        parent: createSuite({ name: 'bar', remote })
+        parent: createSuite({ name: 'bar', remote }),
       });
       assert.strictEqual(
         test.remote,
@@ -515,11 +515,11 @@ registerSuite('lib/Test', {
               actual = data;
             }
             return Task.resolve();
-          }
-        })
+          },
+        }),
       });
 
-      return expected.run().then(function() {
+      return expected.run().then(function () {
         assert.strictEqual(
           actual,
           expected,
@@ -541,14 +541,14 @@ registerSuite('lib/Test', {
           name: 'foo',
           test() {
             this.remote;
-          }
+          },
         });
 
         return test.run().then(
           () => {
             assert.fail('test should not have passed');
           },
-          error => {
+          (error) => {
             assert.match(
               error.message,
               /^Remote used in synchronous test/,
@@ -566,7 +566,7 @@ registerSuite('lib/Test', {
           test() {
             this.remote;
             return Promise.resolve();
-          }
+          },
         });
 
         return test.run();
@@ -577,15 +577,15 @@ registerSuite('lib/Test', {
         this.timeout = 5000;
         const test = createTest({
           name: 'foo',
-          test: function() {
+          test: function () {
             const dfd = this.async();
             this.remote;
             dfd.resolve();
-          }
+          },
         });
 
         return test.run();
-      }
+      },
     },
 
     '#restartTimeout'() {
@@ -594,17 +594,17 @@ registerSuite('lib/Test', {
         test() {
           // Set a short timeout -- test will fail if restartTimeout isn't called
           this.timeout = 400;
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             setTimeout(resolve, 800);
           });
-        }
+        },
       });
 
       const run = test.run();
       // Call restartTimeout in a setTimeout so it isn't called until the test has
       // actually started
       setTimeout(() => test.restartTimeout(1000));
-      return run.catch(function() {
+      return run.catch(function () {
         assert(false, 'Test should not timeout before it is resolved');
       });
     },
@@ -615,14 +615,14 @@ registerSuite('lib/Test', {
         test() {
           this.timeout = 1;
           return <PromiseLike<any>>{ then() {} };
-        }
+        },
       });
 
       return test.run().then(
-        function() {
+        function () {
           assert(false, 'Test should timeout');
         },
-        function(error: Error) {
+        function (error: Error) {
           assert.include(
             error.message,
             'Timeout reached',
@@ -651,7 +651,7 @@ registerSuite('lib/Test', {
         assert.isFalse(isTestFunction(null));
         assert.isFalse(isTestFunction({}));
         assert.isTrue(isTestFunction(() => {}));
-      }
+      },
     },
 
     cancel() {
@@ -662,7 +662,7 @@ registerSuite('lib/Test', {
         name: 'foo',
         test() {
           return task;
-        }
+        },
       });
 
       const runTask = test.run();
@@ -687,6 +687,6 @@ registerSuite('lib/Test', {
           })
         );
       });
-    }
-  }
+    },
+  },
 });

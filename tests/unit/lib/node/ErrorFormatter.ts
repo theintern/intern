@@ -8,7 +8,7 @@ const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
 let ErrorFormatter: typeof _ErrorFormatter;
 
-registerSuite('lib/node/ErrorFormatter', function() {
+registerSuite('lib/node/ErrorFormatter', function () {
   class SourceMapConsumer {
     map: { file: string };
     constructor(map: { file: string }) {
@@ -23,6 +23,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
       position = { ...position };
       position.source = this.map.file;
       if (position.line > 20) {
+        // @ts-ignore
         delete position.line;
       }
       return position;
@@ -34,20 +35,20 @@ registerSuite('lib/node/ErrorFormatter', function() {
           generatedLine: 30,
           generatedColumn: 15,
           originalLine: 33,
-          originalColumn: 22
+          originalColumn: 22,
         },
         {
           generatedLine: 30,
           generatedColumn: 20,
           originalLine: 34,
-          originalColumn: 22
+          originalColumn: 22,
         },
         {
           generatedLine: 30,
           generatedColumn: 21,
           originalLine: 35,
-          originalColumn: 22
-        }
+          originalColumn: 22,
+        },
       ].forEach(callback);
     }
   }
@@ -64,7 +65,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
     },
     resolve(path: string) {
       return path;
-    }
+    },
   };
 
   const mockFs = {
@@ -75,7 +76,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
       const error = new Error('File not found');
       (<any>error).code = 'ENOENT';
       throw error;
-    }
+    },
   };
 
   const mockUtil = {
@@ -83,7 +84,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
       if (filename === 'hasmap.js') {
         return {};
       }
-    }
+    },
   };
 
   let fsData: { [name: string]: string };
@@ -95,8 +96,8 @@ registerSuite('lib/node/ErrorFormatter', function() {
         'source-map': { SourceMapConsumer },
         path: mockPath,
         fs: mockFs,
-        'src/lib/node/util': mockUtil
-      }).then(handle => {
+        'src/lib/node/util': mockUtil,
+      }).then((handle) => {
         removeMocks = handle.remove;
         ErrorFormatter = handle.module.default;
       });
@@ -111,7 +112,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
     },
 
     tests: {
-      '#format': (function() {
+      '#format': (function () {
         let executor: MockNode;
         let formatter: _ErrorFormatter;
 
@@ -123,19 +124,19 @@ registerSuite('lib/node/ErrorFormatter', function() {
               data: {
                 'instrumented.js': {
                   data: {
-                    file: 'instrumented.js'
-                  }
-                }
-              }
+                    file: 'instrumented.js',
+                  },
+                },
+              },
             };
             executor.sourceMapStore = {
               data: {
                 'noninstrumented.js': {
                   data: {
-                    file: 'noninstrumented.js'
-                  }
-                }
-              }
+                    file: 'noninstrumented.js',
+                  },
+                },
+              },
             };
             formatter = new ErrorFormatter(executor);
           },
@@ -149,7 +150,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
               'anonymous entry'() {
                 const err = <InternError>{
                   message: 'foo',
-                  stack: 'Error: foo\n  at <anonymous>'
+                  stack: 'Error: foo\n  at <anonymous>',
                 };
                 assert.equal(
                   formatter.format(err),
@@ -160,7 +161,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
               'no line/col data'() {
                 const err = <InternError>{
                   message: 'foo',
-                  stack: 'Error: foo\n  at function (somefile.js)'
+                  stack: 'Error: foo\n  at function (somefile.js)',
                 };
                 assert.equal(
                   formatter.format(err),
@@ -171,7 +172,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
               'instrumented file'() {
                 const err = <InternError>{
                   message: 'foo',
-                  stack: 'Error: foo\n  at function (instrumented.js:10:20)'
+                  stack: 'Error: foo\n  at function (instrumented.js:10:20)',
                 };
                 assert.equal(
                   formatter.format(err),
@@ -182,7 +183,8 @@ registerSuite('lib/node/ErrorFormatter', function() {
               'exact position in source map'() {
                 const err = <InternError>{
                   message: 'foo',
-                  stack: 'Error: foo\n  at function1 (noninstrumented.js:10:20)'
+                  stack:
+                    'Error: foo\n  at function1 (noninstrumented.js:10:20)',
                 };
                 assert.equal(
                   formatter.format(err),
@@ -193,7 +195,8 @@ registerSuite('lib/node/ErrorFormatter', function() {
               'approximate position in source map'() {
                 const err = <InternError>{
                   message: 'foo',
-                  stack: 'Error: foo\n  at function2 (noninstrumented.js:30:20)'
+                  stack:
+                    'Error: foo\n  at function2 (noninstrumented.js:30:20)',
                 };
                 assert.equal(
                   formatter.format(err),
@@ -205,7 +208,8 @@ registerSuite('lib/node/ErrorFormatter', function() {
               'no match in source map'() {
                 const err = <InternError>{
                   message: 'foo',
-                  stack: 'Error: foo\n  at function2 (noninstrumented.js:40:20)'
+                  stack:
+                    'Error: foo\n  at function2 (noninstrumented.js:40:20)',
                 };
                 assert.equal(
                   formatter.format(err),
@@ -225,7 +229,7 @@ registerSuite('lib/node/ErrorFormatter', function() {
                     'at function2 (hasmap.js:40:20)\n' +
                     'at function2 (hasmap.js:44:21)\n' +
                     'at function2 (hasnomap.js:40:20)\n' +
-                    'at function2 (hasnomap.js:50:30)'
+                    'at function2 (hasnomap.js:50:30)',
                 };
                 assert.equal(
                   formatter.format(err),
@@ -236,11 +240,11 @@ registerSuite('lib/node/ErrorFormatter', function() {
                     '  at function2 @ hasnomap.js:50:30',
                   'expected stack trace to use original position'
                 );
-              }
-            }
-          }
+              },
+            },
+          },
         };
-      })()
-    }
+      })(),
+    },
   };
 });

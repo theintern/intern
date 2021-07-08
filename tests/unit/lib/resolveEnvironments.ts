@@ -3,7 +3,7 @@ import { sep } from 'path';
 
 import Environment from 'src/lib/Environment';
 import _resolveEnvironments, {
-  EnvironmentOptions
+  EnvironmentOptions,
 } from 'src/lib/resolveEnvironments';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
@@ -17,50 +17,50 @@ const availableChrome: NormalizedEnvironment[] = [
     version: 'beta',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
+    intern: { platform: '', browserName: '', version: '' },
   },
   {
     browserName: 'chrome',
     version: 'dev',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
+    intern: { platform: '', browserName: '', version: '' },
   },
   {
     browserName: 'chrome',
     version: 'alpha',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
+    intern: { platform: '', browserName: '', version: '' },
   },
   {
     browserName: 'chrome',
     version: '39',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
+    intern: { platform: '', browserName: '', version: '' },
   },
   {
     browserName: 'chrome',
     version: '38',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
+    intern: { platform: '', browserName: '', version: '' },
   },
   {
     browserName: 'chrome',
     version: '37',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
+    intern: { platform: '', browserName: '', version: '' },
   },
   {
     browserName: 'chrome',
     version: '36',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  }
+    intern: { platform: '', browserName: '', version: '' },
+  },
 ];
 const availableIe: NormalizedEnvironment[] = [
   {
@@ -68,15 +68,15 @@ const availableIe: NormalizedEnvironment[] = [
     version: '11',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
+    intern: { platform: '', browserName: '', version: '' },
   },
   {
     browserName: 'ie',
     version: '10',
     platform: 'windows',
     descriptor: {},
-    intern: { platform: '', browserName: '', version: '' }
-  }
+    intern: { platform: '', browserName: '', version: '' },
+  },
 ];
 
 function assertResolve(
@@ -107,11 +107,9 @@ registerSuite('lib/resolveEnvironments', {
   before() {
     return mockRequire(require, 'src/lib/resolveEnvironments', {
       'src/lib/node/process': {
-        default: {
-          cwd: () => (sep === '/' ? '/foo' : 'C:\\foo')
-        }
-      }
-    }).then(handle => {
+        cwd: () => (sep === '/' ? '/foo' : 'C:\\foo'),
+      },
+    }).then((handle) => {
       removeMocks = handle.remove;
       resolveEnvironments = handle.module.default;
     });
@@ -124,19 +122,19 @@ registerSuite('lib/resolveEnvironments', {
   tests: {
     'no version, is passed through'() {
       const environments = <EnvironmentOptions[]>[
-        { browserName: 'chrome', platformVersion: '10' }
+        { browserName: 'chrome', platformVersion: '10' },
       ];
       assertResolveEnvironments(environments, availableChrome, environments);
     },
 
     'numeric version, is passed through'() {
       const environments = <EnvironmentOptions[]>[
-        { browserName: 'chrome', version: 39, platformVersion: '10' }
+        { browserName: 'chrome', version: 39, platformVersion: '10' },
       ];
       assertResolveEnvironments(environments, availableChrome, environments);
     },
 
-    permutations: (function() {
+    permutations: (function () {
       const base = { platformName: 'windows', platformVersion: 8 };
 
       return {
@@ -157,8 +155,8 @@ registerSuite('lib/resolveEnvironments', {
               browserName: 'chrome',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
-            }
+              platformVersion: 8,
+            },
           ];
           assertResolve(
             base,
@@ -175,8 +173,8 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'chrome',
               platformName: 'linux',
-              platformVersion: 8
-            }
+              platformVersion: 8,
+            },
           ];
           assertResolve(
             base,
@@ -191,22 +189,22 @@ registerSuite('lib/resolveEnvironments', {
           const sources = [
             {
               browserName: 'chrome',
-              browserVersion: ['latest', 'latest-1']
-            }
+              browserVersion: ['latest', 'latest-1'],
+            },
           ];
           const expected = [
             {
               browserName: 'chrome',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'chrome',
               browserVersion: 'latest-1',
               platformName: 'windows',
-              platformVersion: 8
-            }
+              platformVersion: 8,
+            },
           ];
           assertResolve(
             base,
@@ -221,34 +219,34 @@ registerSuite('lib/resolveEnvironments', {
           const sources = [
             {
               browserName: ['chrome', 'ie'],
-              browserVersion: ['latest', 'latest-1']
-            }
+              browserVersion: ['latest', 'latest-1'],
+            },
           ];
           const expected = [
             {
               browserName: 'chrome',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'ie',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'chrome',
               browserVersion: 'latest-1',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'ie',
               browserVersion: 'latest-1',
               platformName: 'windows',
-              platformVersion: 8
-            }
+              platformVersion: 8,
+            },
           ];
           assertResolve(
             base,
@@ -263,38 +261,38 @@ registerSuite('lib/resolveEnvironments', {
           const sources = [
             {
               browserName: 'chrome',
-              browserVersion: ['latest', 'latest-1']
+              browserVersion: ['latest', 'latest-1'],
             },
             {
               browserName: 'ie',
-              browserVersion: ['latest', 'latest-1']
-            }
+              browserVersion: ['latest', 'latest-1'],
+            },
           ];
           const expected = [
             {
               browserName: 'chrome',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'chrome',
               browserVersion: 'latest-1',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'ie',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'ie',
               browserVersion: 'latest-1',
               platformName: 'windows',
-              platformVersion: 8
-            }
+              platformVersion: 8,
+            },
           ];
           assertResolve(
             base,
@@ -310,50 +308,50 @@ registerSuite('lib/resolveEnvironments', {
             {
               browserName: 'chrome',
               browserVersion: ['latest', 'latest-1'],
-              platformName: ['windows', 'mac']
+              platformName: ['windows', 'mac'],
             },
             {
               browserName: 'ie',
-              browserVersion: ['latest', 'latest-1']
-            }
+              browserVersion: ['latest', 'latest-1'],
+            },
           ];
           const expected = [
             {
               browserName: 'chrome',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'chrome',
               browserVersion: 'latest-1',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'chrome',
               browserVersion: 'latest',
               platformName: 'mac',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'chrome',
               browserVersion: 'latest-1',
               platformName: 'mac',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'ie',
               browserVersion: 'latest',
               platformName: 'windows',
-              platformVersion: 8
+              platformVersion: 8,
             },
             {
               browserName: 'ie',
               browserVersion: 'latest-1',
               platformName: 'windows',
-              platformVersion: 8
-            }
+              platformVersion: 8,
+            },
           ];
           assertResolve(
             base,
@@ -371,8 +369,8 @@ registerSuite('lib/resolveEnvironments', {
               browserName: ['a', 'b'],
               version: ['1', '2'],
               platform: ['c', 'd'],
-              platformVersion: ['3', '4']
-            }
+              platformVersion: ['3', '4'],
+            },
           ];
           const expected = [
             {
@@ -380,14 +378,14 @@ registerSuite('lib/resolveEnvironments', {
               version: '1',
               platform: 'c',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '1',
               platform: 'c',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
 
             {
@@ -395,14 +393,14 @@ registerSuite('lib/resolveEnvironments', {
               version: '2',
               platform: 'c',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '2',
               platform: 'c',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
 
             {
@@ -410,14 +408,14 @@ registerSuite('lib/resolveEnvironments', {
               version: '1',
               platform: 'd',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '1',
               platform: 'd',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
 
             {
@@ -425,14 +423,14 @@ registerSuite('lib/resolveEnvironments', {
               version: '2',
               platform: 'd',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '2',
               platform: 'd',
               platformVersion: '3',
-              isCapabilities: true
+              isCapabilities: true,
             },
 
             {
@@ -440,14 +438,14 @@ registerSuite('lib/resolveEnvironments', {
               version: '1',
               platform: 'c',
               platformVersion: '4',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '1',
               platform: 'c',
               platformVersion: '4',
-              isCapabilities: true
+              isCapabilities: true,
             },
 
             {
@@ -455,14 +453,14 @@ registerSuite('lib/resolveEnvironments', {
               version: '2',
               platform: 'c',
               platformVersion: '4',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '2',
               platform: 'c',
               platformVersion: '4',
-              isCapabilities: true
+              isCapabilities: true,
             },
 
             {
@@ -470,14 +468,14 @@ registerSuite('lib/resolveEnvironments', {
               version: '1',
               platform: 'd',
               platformVersion: '4',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '1',
               platform: 'd',
               platformVersion: '4',
-              isCapabilities: true
+              isCapabilities: true,
             },
 
             {
@@ -485,15 +483,15 @@ registerSuite('lib/resolveEnvironments', {
               version: '2',
               platform: 'd',
               platformVersion: '4',
-              isCapabilities: true
+              isCapabilities: true,
             },
             {
               browserName: 'b',
               version: '2',
               platform: 'd',
               platformVersion: '4',
-              isCapabilities: true
-            }
+              isCapabilities: true,
+            },
           ];
           assertResolve(
             base,
@@ -502,7 +500,7 @@ registerSuite('lib/resolveEnvironments', {
             expected,
             'their contents should be equal'
           );
-        }
+        },
       };
     })(),
 
@@ -525,7 +523,7 @@ registerSuite('lib/resolveEnvironments', {
           availableChrome,
           expected
         );
-      }
+      },
     },
 
     'version ranges': {
@@ -533,7 +531,7 @@ registerSuite('lib/resolveEnvironments', {
         const environments = [{ browserName: 'chrome', version: '38..39' }];
         const expected = [
           { browserName: 'chrome', version: '38' },
-          { browserName: 'chrome', version: '39' }
+          { browserName: 'chrome', version: '39' },
         ];
         return assertResolveEnvironments(
           environments,
@@ -547,7 +545,7 @@ registerSuite('lib/resolveEnvironments', {
         const expected = [
           { browserName: 'chrome', version: '37' },
           { browserName: 'chrome', version: '38' },
-          { browserName: 'chrome', version: '39' }
+          { browserName: 'chrome', version: '39' },
         ];
         return assertResolveEnvironments(
           environments,
@@ -558,12 +556,12 @@ registerSuite('lib/resolveEnvironments', {
 
       'ranged math latest-2..latest'() {
         const environments = [
-          { browserName: 'chrome', version: 'latest-2..latest' }
+          { browserName: 'chrome', version: 'latest-2..latest' },
         ];
         const expected = [
           { browserName: 'chrome', version: '37' },
           { browserName: 'chrome', version: '38' },
-          { browserName: 'chrome', version: '39' }
+          { browserName: 'chrome', version: '39' },
         ];
         return assertResolveEnvironments(
           environments,
@@ -573,27 +571,26 @@ registerSuite('lib/resolveEnvironments', {
       },
 
       'ranged math latest-1..latest with multiple browsers'() {
-        const available: NormalizedEnvironment[] = availableChrome.concat(
-          availableIe
-        );
+        const available: NormalizedEnvironment[] =
+          availableChrome.concat(availableIe);
         const environments = [
-          { browserName: ['chrome', 'ie'], version: 'latest-1..latest' }
+          { browserName: ['chrome', 'ie'], version: 'latest-1..latest' },
         ];
         const expected = [
           { browserName: 'chrome', version: '38' },
           { browserName: 'chrome', version: '39' },
           { browserName: 'ie', version: '10' },
-          { browserName: 'ie', version: '11' }
+          { browserName: 'ie', version: '11' },
         ];
         return assertResolveEnvironments(environments, available, expected);
       },
 
       'ranged math out of bounds; throws'() {
         const environments = [{ browserName: 'ie', version: '3..latest' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableIe);
         });
-      }
+      },
     },
 
     'does not filter on properties not present in available environments'() {
@@ -604,16 +601,16 @@ registerSuite('lib/resolveEnvironments', {
           // not present in available environments
           platformName: 'os2/warp',
           // not present in available environments
-          platformVersion: 10
-        }
+          platformVersion: 10,
+        },
       ];
       const expected = [
         {
           browserName: 'chrome',
           version: '39',
           platformName: 'os2/warp',
-          platformVersion: 10
-        }
+          platformVersion: 10,
+        },
       ];
       return assertResolveEnvironments(environments, availableChrome, expected);
     },
@@ -621,49 +618,49 @@ registerSuite('lib/resolveEnvironments', {
     'invalid range syntax': {
       'multiple ranges'() {
         const environments = [
-          { browserName: 'ie', version: 'latest-2..latest-1..latest' }
+          { browserName: 'ie', version: 'latest-2..latest-1..latest' },
         ];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableIe);
         }, /Invalid version syntax/);
       },
 
       'non-numeric offset'() {
         const environments = [{ browserName: 'ie', version: '10..latest-a' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableIe);
         }, /Invalid alias syntax/);
       },
 
       'backwards ranges'() {
         const environments = [
-          { browserName: 'chrome', version: 'latest..latest-2' }
+          { browserName: 'chrome', version: 'latest..latest-2' },
         ];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /Invalid range/);
       },
 
       'offset too large'() {
         const environments = [{ browserName: 'chrome', version: 'latest-12' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /versions are available/);
       },
 
       'range unavailable'() {
         const environments = [{ browserName: 'chrome', version: '1..3' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /The version range .* is unavailable/);
       },
 
       'extra minuses'() {
         const environments = [{ browserName: 'chrome', version: 'latest-2-3' }];
-        assert.throws(function() {
+        assert.throws(function () {
           resolveEnvironments({}, environments, availableChrome);
         }, /Invalid alias syntax/);
-      }
+      },
     },
 
     'pwd expansion'() {
@@ -671,8 +668,8 @@ registerSuite('lib/resolveEnvironments', {
         browserName: 'chrome',
         chromeOptions: {
           binary: '{pwd}/node_modules/electron/dist/electron.exe',
-          args: ['app={pwd}/build/bootstrap.js']
-        }
+          args: ['app={pwd}/build/bootstrap.js'],
+        },
       };
       const expected = {
         browserName: 'chrome',
@@ -684,9 +681,9 @@ registerSuite('lib/resolveEnvironments', {
           args: [
             sep === '/'
               ? 'app=/foo/build/bootstrap.js'
-              : 'app=C:\\foo\\build\\bootstrap.js'
-          ]
-        }
+              : 'app=C:\\foo\\build\\bootstrap.js',
+          ],
+        },
       };
 
       const resolved = resolveEnvironments({}, [environments]);
@@ -694,6 +691,6 @@ registerSuite('lib/resolveEnvironments', {
         JSON.stringify(resolved[0], null, '  '),
         JSON.stringify(expected, null, '  ')
       );
-    }
-  }
+    },
+  },
 });

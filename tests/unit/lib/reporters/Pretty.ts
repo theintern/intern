@@ -1,5 +1,5 @@
 import { spy, SinonSpy } from 'sinon';
-import * as tty from 'tty';
+import tty from 'tty';
 
 import RemoteSuite from 'src/lib/RemoteSuite';
 import _Pretty, { Result } from 'src/lib/reporters/Pretty';
@@ -7,7 +7,7 @@ import _Pretty, { Result } from 'src/lib/reporters/Pretty';
 import {
   createMockCharm,
   createMockCoverageMap,
-  createMockNodeExecutor
+  createMockNodeExecutor,
 } from '../../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
@@ -18,7 +18,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
       return mockRequire(require, 'src/lib/reporters/Pretty', {
         charm: createMockCharm,
         'istanbul-lib-coverage': {
-          createCoverageMap: createMockCoverageMap
+          createCoverageMap: createMockCoverageMap,
         },
         '@theintern/common': {
           global: {
@@ -26,14 +26,14 @@ registerSuite('intern/lib/reporters/Pretty', () => {
               stdout: {
                 columns: stdout.columns,
                 rows: stdout.rows,
-                on() {}
-              }
+                on() {},
+              },
             },
             setTimeout,
-            clearTimeout
-          }
-        }
-      }).then(resource => {
+            clearTimeout,
+          },
+        },
+      }).then((resource) => {
         removeMocks = resource.remove;
         Pretty = resource.module.default;
       });
@@ -41,7 +41,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
     beforeEach() {
       pretty = new Pretty(createMockNodeExecutor());
-      pretty.createCoverageReport = spy(() => {});
+      pretty.createCoverageReport = spy(() => Promise.resolve());
     },
 
     afterEach() {
@@ -56,7 +56,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
       runStart() {
         pretty.dimensions = {
           width: 0,
-          height: 0
+          height: 0,
         };
 
         pretty.runStart();
@@ -92,7 +92,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
         const statusText = [
           ['Total: '],
           ['Pending'],
-          ['\nPassed: 0  Failed: 0  Skipped: 0\n']
+          ['\nPassed: 0  Failed: 0  Skipped: 0\n'],
         ];
 
         assert.deepEqual(mockCharm.write.args, statusText);
@@ -124,7 +124,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
             ['\n'],
             ['Total: '],
             ['Pending'],
-            ['\nPassed: 0  Failed: 0  Skipped: 0\n']
+            ['\nPassed: 0  Failed: 0  Skipped: 0\n'],
           ]);
         },
 
@@ -134,14 +134,14 @@ registerSuite('intern/lib/reporters/Pretty', () => {
 
           pretty.testEnd(<any>{
             id: 'foo - skipped',
-            skipped: 'yes'
+            skipped: 'yes',
           });
           pretty.testEnd(<any>{
             id: 'foo - failed',
-            error: new Error('failed')
+            error: new Error('failed'),
           });
           pretty.testEnd(<any>{
-            id: 'foo - passed'
+            id: 'foo - passed',
           });
           mockCharm.write.reset();
 
@@ -168,21 +168,21 @@ registerSuite('intern/lib/reporters/Pretty', () => {
             ['Total: '],
             ['Pending'],
             ['\nPassed: 1  Failed: 1  Skipped: 1\n'],
-            ['\n']
+            ['\n'],
           ]);
           assert.equal(
             (<SinonSpy>pretty.createCoverageReport).callCount,
             1,
             'coverage report should have been created'
           );
-        }
+        },
       },
 
       coverage() {
         const report = pretty['_getReport']({ sessionId: 'foo' });
         pretty.coverage({
           sessionId: 'foo',
-          coverage: { functions: 5 }
+          coverage: { functions: 5 },
         });
         assert.equal(
           report.coverageMap.merge.callCount,
@@ -200,7 +200,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
         const suite = <any>{
           hasParent: false,
           numTests: 3,
-          sessionId: 'foo'
+          sessionId: 'foo',
         };
 
         pretty.runStart();
@@ -242,9 +242,9 @@ registerSuite('intern/lib/reporters/Pretty', () => {
         const remoteSuite = new RemoteSuite({
           parent: <any>{
             name: 'parent-foo',
-            sessionId: 'bar'
+            sessionId: 'bar',
           },
-          name: 'foo'
+          name: 'foo',
         });
         remoteSuite.tests = [<any>{}, <any>{}];
         pretty.suiteStart(remoteSuite);
@@ -258,14 +258,14 @@ registerSuite('intern/lib/reporters/Pretty', () => {
           sessionId: 'foo',
           id: 'bar',
           error: new Error('fail'),
-          remote: getRemote()
+          remote: getRemote(),
         };
 
         // Get the report to initialize it
         const fooReport = pretty['_getReport'](suite);
         fooReport.suiteInfo[suite.id] = {
           parentId: undefined,
-          numToReport: suite.numTests - 1
+          numToReport: suite.numTests - 1,
         };
 
         pretty.runStart();
@@ -326,7 +326,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
           passed() {
             runTest({
               id: 'good test',
-              sessionId: 'foo'
+              sessionId: 'foo',
             });
           },
 
@@ -334,7 +334,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
             runTest({
               id: 'bad test',
               sessionId: 'foo',
-              error: new Error('fail')
+              error: new Error('fail'),
             });
           },
 
@@ -342,9 +342,9 @@ registerSuite('intern/lib/reporters/Pretty', () => {
             runTest({
               id: 'skipped test',
               sessionId: 'foo',
-              skipped: 'yes'
+              skipped: 'yes',
             });
-          }
+          },
         };
       })(),
 
@@ -352,8 +352,8 @@ registerSuite('intern/lib/reporters/Pretty', () => {
         pretty.tunnelDownloadProgress(<any>{
           progress: {
             received: 10,
-            total: 40
-          }
+            total: 40,
+          },
         });
         assert.match(pretty.tunnelState, /^Downloading 25.00%/);
       },
@@ -389,7 +389,7 @@ registerSuite('intern/lib/reporters/Pretty', () => {
         pretty.deprecated({
           original: 'foo',
           replacement: 'bar',
-          message: 'it was replaced'
+          message: 'it was replaced',
         });
         assert.match(
           pretty['_log'][0],
@@ -408,9 +408,9 @@ registerSuite('intern/lib/reporters/Pretty', () => {
             environmentType: {
               browserName: 'node',
               version: '8.5.0',
-              platform: 'MAC'
-            }
-          }
+              platform: 'MAC',
+            },
+          },
         });
 
         // Set a total value so the progress bar will draw
@@ -439,13 +439,13 @@ registerSuite('intern/lib/reporters/Pretty', () => {
               ['×'],
               ['~'],
               ['] 3/3'],
-              [', 1 fail, 1 skip\n']
+              [', 1 fail, 1 skip\n'],
             ]);
           }),
           400
         );
-      }
-    }
+      },
+    },
   };
 });
 
@@ -460,7 +460,7 @@ function getRemote() {
     environmentType: {
       browserName: 'node',
       version: '8.5.0',
-      platform: 'MAC'
-    }
+      platform: 'MAC',
+    },
   };
 }

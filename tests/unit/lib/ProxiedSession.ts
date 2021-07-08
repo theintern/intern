@@ -22,8 +22,8 @@ class MockSession {
 registerSuite('lib/ProxiedSession', {
   before() {
     return mockRequire(require, 'src/lib/ProxiedSession', {
-      '@theintern/leadfoot/Session': { default: MockSession }
-    }).then(result => {
+      '@theintern/leadfoot/Session': MockSession,
+    }).then((result) => {
       removeMocks = result.remove;
       ProxiedSession = result.module.default;
     });
@@ -38,7 +38,7 @@ registerSuite('lib/ProxiedSession', {
       const session = new ProxiedSession('foo', <any>{}, {});
       session.executor = <any>{
         config: { basePath: 'baz/', coverage: false },
-        log() {}
+        log() {},
       };
       session.baseUrl = 'bar/';
 
@@ -68,6 +68,6 @@ registerSuite('lib/ProxiedSession', {
         'bar/testing',
         'expected path to be appended to base URL'
       );
-    }
-  }
+    },
+  },
 });

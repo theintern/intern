@@ -2,16 +2,16 @@ import { Task, CancellablePromise } from '@theintern/common';
 
 // Explicitly require benchmark dependencies and attach Benchmark to them to
 // improve WebPack compatibility
-import * as _ from 'lodash';
-import * as platform from 'platform';
-import * as Benchmark from 'benchmark';
+import _ from 'lodash';
+import platform from 'platform';
+import Benchmark from 'benchmark';
 
 import Test, {
   isTest,
   SKIP,
   TestFunction,
   TestOptions,
-  TestProperties
+  TestProperties,
 } from './Test';
 import { InternError } from './types';
 import Deferred from './Deferred';
@@ -35,7 +35,7 @@ export default class BenchmarkTest extends Test {
     // Call the superclass constructor with the set of descriptor keys not
     // specific to BenchmarkTest
     let args: { [key: string]: any } = {};
-    Object.keys(descriptor).forEach(descriptorKey => {
+    Object.keys(descriptor).forEach((descriptorKey) => {
       const key = <keyof BenchmarkTestOptions>descriptorKey;
       if (key !== 'options') {
         args[key] = descriptor[key];
@@ -43,7 +43,7 @@ export default class BenchmarkTest extends Test {
     });
 
     const testArgs = args as TestOptions;
-    testArgs.test = testArgs.test || /* istanbul ignore next */ function() {};
+    testArgs.test = testArgs.test || /* istanbul ignore next */ function () {};
 
     super(testArgs);
 
@@ -53,14 +53,14 @@ export default class BenchmarkTest extends Test {
       {
         async: true,
         setup: createLifecycle(true),
-        teardown: createLifecycle(false)
+        teardown: createLifecycle(false),
       }
     );
 
     if (options.defer) {
-      this.test = (function(testFunction: BenchmarkTestFunction) {
+      this.test = (function (testFunction: BenchmarkTestFunction) {
         return <BenchmarkDeferredTestFunction>(
-          function(this: BenchmarkTest, deferred?: Deferred<any>) {
+          function (this: BenchmarkTest, deferred?: Deferred<any>) {
             // deferred is optional for compat with
             // BenchmarkTestFunction, but it will always be defined here
             const dfd = createDeferred(
@@ -86,9 +86,9 @@ export default class BenchmarkTest extends Test {
       get: () => {
         return this.name;
       },
-      set: name => {
+      set: (name) => {
         this.name = name;
-      }
+      },
     });
 
     this.benchmark.internTest = this;
@@ -155,7 +155,7 @@ export default class BenchmarkTest extends Test {
         () => {
           this._hasPassed = true;
         },
-        error => {
+        (error) => {
           this.error = error;
           throw error;
         }
@@ -170,7 +170,7 @@ export default class BenchmarkTest extends Test {
     json.benchmark = {
       hz: benchmark.hz,
       times: benchmark.times,
-      stats: benchmark.stats
+      stats: benchmark.stats,
     };
 
     return json;
@@ -182,7 +182,7 @@ export default class BenchmarkTest extends Test {
   ) {
     testFunction.options = Object.assign({}, testFunction.options || {}, {
       defer: true,
-      numCallsUntilResolution: numCallsUntilResolution
+      numCallsUntilResolution: numCallsUntilResolution,
     });
 
     return <BenchmarkTestFunction>testFunction;
@@ -245,7 +245,7 @@ const createLifecycle = (before: boolean) => {
     '	while((suite = queue[--i])) {',
     `		suite.${methodName}EachLoop();`,
     '	}',
-    '})(this.benchmark || this);\n'
+    '})(this.benchmark || this);\n',
   ].join('\n');
 };
 
@@ -274,7 +274,7 @@ function createDeferred(
 
     rejectOnError(this: any, callback: Function) {
       const self = this;
-      return function(this: any) {
+      return function (this: any) {
         try {
           return callback.apply(this, arguments);
         } catch (error) {
@@ -283,13 +283,13 @@ function createDeferred(
       };
     },
 
-    callback: function(this: any, callback: Function) {
+    callback: function (this: any, callback: Function) {
       const self = this;
-      return this.rejectOnError(function(this: any) {
+      return this.rejectOnError(function (this: any) {
         const returnValue = callback.apply(this, arguments);
         self.resolve();
         return returnValue;
       });
-    }
+    },
   } as Deferred<void>;
 }

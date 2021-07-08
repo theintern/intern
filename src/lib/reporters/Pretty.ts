@@ -1,4 +1,4 @@
-import * as charm from 'charm';
+import charm from 'charm';
 import { createCoverageMap, CoverageMap } from 'istanbul-lib-coverage';
 import { format } from 'util';
 import { global } from '@theintern/common';
@@ -48,7 +48,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
         '!': 'red',
         '×': 'red',
         '~': 'magenta',
-        '⚠': 'yelow'
+        '⚠': 'yelow',
       },
       options.colorReplacement || {}
     );
@@ -99,7 +99,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
       '⚠': 1,
       '~': 2,
       '×': 3,
-      '!': 4
+      '!': 4,
     };
     this._log
       .sort((a: any, b: any) => {
@@ -107,7 +107,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
         b = ERROR_LOG_WEIGHT[b.charAt(0)] || 0;
         return a - b;
       })
-      .forEach(line => {
+      .forEach((line) => {
         const color = this._getColor(line);
         if (color == null) {
           charm.display('reset');
@@ -147,7 +147,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
         report.numTotal += numTests;
         report.suiteInfo[suite.id] = {
           parentId: suite.parentId,
-          numToReport: suite.numTests
+          numToReport: suite.numTests,
         };
       }
     }
@@ -286,7 +286,7 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
     const results = report.getCompressedResults(barSize);
 
     charm.write('[');
-    results.forEach(value => {
+    results.forEach((value) => {
       const color = this._getColor(value);
       if (color == null) {
         charm.display('reset');
@@ -391,11 +391,11 @@ export default class Pretty extends TextCoverage implements PrettyProperties {
       charm.write('\n');
 
       this._log
-        .filter(line => {
+        .filter((line) => {
           return (<{ [key: string]: any }>allowed)[line.charAt(0)];
         })
         .slice(-logLength)
-        .forEach(line => {
+        .forEach((line) => {
           // truncate long lines
           const color = this._getColor(line);
           if (color) {
@@ -507,7 +507,7 @@ export class Report {
 export enum Result {
   PASS = 0,
   SKIP = 1,
-  FAIL = 2
+  FAIL = 2,
 }
 
 export interface SuiteInfo {
@@ -524,7 +524,7 @@ const BROWSERS = {
   opera: 'O',
   safari: 'Saf',
   'internet explorer': 'IE',
-  phantomjs: 'Phan'
+  phantomjs: 'Phan',
 };
 
 function pad(width: number): string {

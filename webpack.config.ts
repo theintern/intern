@@ -13,11 +13,11 @@ const common: Configuration = {
     rules: [
       {
         test: /@theintern\/common/,
-        use: 'umd-compat-loader'
+        use: 'umd-compat-loader',
       },
       {
         test: /\.styl$/,
-        use: ['style-loader', 'css-loader', 'stylus-loader']
+        use: ['style-loader', 'css-loader', 'stylus-loader'],
       },
       {
         test: /\.ts/,
@@ -25,19 +25,19 @@ const common: Configuration = {
           loader: 'ts-loader',
           options: {
             silent: true,
-            configFile: 'src/browser/tsconfig.json'
-          }
-        }
-      }
+            configFile: 'src/browser/tsconfig.json',
+          },
+        },
+      },
     ],
-    noParse: /benchmark[\\\/]benchmark.js/
+    noParse: /benchmark[\\\/]benchmark.js/,
   },
   performance: {
     // Hides a warning about large bundles.
-    hints: false
+    hints: false,
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
   },
   stats: {
     assets: false,
@@ -46,8 +46,8 @@ const common: Configuration = {
     hash: false,
     modules: false,
     version: false,
-    warnings: true
-  }
+    warnings: true,
+  },
 };
 
 module.exports = [
@@ -56,23 +56,37 @@ module.exports = [
     entry: getEntries(),
     output: {
       filename: '[name].js',
-      path: join(__dirname, '_build/src/browser')
-    }
+      path: join(__dirname, '_build/src/browser'),
+    },
+    resolve: {
+      ...common.resolve,
+      fallback: {
+        path: false,
+      },
+    },
+    target: ['web', 'es5'],
   },
   {
     ...common,
     entry: getEntries(),
     output: {
       filename: '[name].js',
-      path: join(__dirname, '_tests/src/browser')
-    }
-  }
+      path: join(__dirname, '_tests/src/browser'),
+    },
+    resolve: {
+      ...common.resolve,
+      fallback: {
+        path: false,
+      },
+    },
+    target: ['web', 'es5'],
+  },
 ];
 
 function getEntries() {
   return {
     intern: './src/browser/intern.ts',
     remote: './src/browser/remote.ts',
-    config: './src/browser/config.ts'
+    config: './src/browser/config.ts',
   };
 }

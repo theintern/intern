@@ -5,7 +5,7 @@
  *
  * Note that loader scripts must be simple scripts, not modules.
  */
-intern.registerLoader(options => {
+intern.registerLoader((options) => {
   const globalObj: any = typeof window !== 'undefined' ? window : global;
   const {
     internLoaderPath = 'node_modules/@dojo/loader/loader.js',
@@ -23,7 +23,7 @@ intern.registerLoader(options => {
     return (modules: string[]) => {
       let handle: { remove(): void };
 
-      return new Promise((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         handle = require.on('error', (error: Error) => {
           intern.emit('error', error);
           reject(error);
@@ -37,7 +37,7 @@ intern.registerLoader(options => {
         () => {
           handle.remove();
         },
-        error => {
+        (error) => {
           handle && handle.remove();
           throw error;
         }

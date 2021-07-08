@@ -22,3 +22,13 @@ if (typeof global.Promise === 'undefined') {
 if (typeof global.Map === 'undefined') {
   global.Map = require('core-js-pure/features/map');
 }
+
+// Polyfill Symbol if no global Symbol is defined.
+if (typeof global.Symbol === 'undefined') {
+  global.Symbol = require('core-js-pure/features/symbol');
+}
+
+// Polyfill Set if no global Set is defined.
+if (typeof global.Set === 'undefined') {
+  global.Set = require('core-js-pure/features/set');
+}

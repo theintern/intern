@@ -6,7 +6,7 @@ import * as _util from 'src/lib/node/util';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 
-registerSuite('lib/node/util', function() {
+registerSuite('lib/node/util', function () {
   let util: typeof _util;
 
   const mockFs = {
@@ -30,7 +30,7 @@ registerSuite('lib/node/util', function() {
       const error = new Error('Not found');
       (<any>error).code = 'ENOENT';
       throw error;
-    }
+    },
   };
 
   const mockUtil = {
@@ -45,7 +45,7 @@ registerSuite('lib/node/util', function() {
       childConfig?: string
     ) {
       logCall('loadConfig', [filename, loadText, args, childConfig]);
-      return loadText(filename).then(text => {
+      return loadText(filename).then((text) => {
         return JSON.parse(text);
       });
     },
@@ -68,7 +68,7 @@ registerSuite('lib/node/util', function() {
       logCall('splitConfigPath', [path]);
       const parts = path.split('@');
       return { configFile: parts[0], childConfig: parts[1] };
-    }
+    },
   };
 
   const mockGlob = {
@@ -83,7 +83,7 @@ registerSuite('lib/node/util', function() {
     hasMagic(pattern: string) {
       logCall('hasMagic', [pattern]);
       return hasMagic || false;
-    }
+    },
   };
 
   const mockPath = {
@@ -104,7 +104,7 @@ registerSuite('lib/node/util', function() {
     },
     extname(path: string) {
       return `.${path.split('.').pop()}`;
-    }
+    },
   };
 
   const logCall = (name: string, args: any[]) => {
@@ -116,7 +116,7 @@ registerSuite('lib/node/util', function() {
 
   const mockProcess = {
     argv: ['node', 'intern.js'],
-    env: {}
+    env: {},
   };
 
   let hasMagic: boolean;
@@ -133,8 +133,8 @@ registerSuite('lib/node/util', function() {
         glob: mockGlob,
         path: mockPath,
         'src/lib/common/util': mockUtil,
-        'src/lib/node/process': { default: mockProcess }
-      }).then(handle => {
+        'src/lib/node/process': mockProcess,
+      }).then((handle) => {
         removeMocks = handle.remove;
         util = handle.module;
       });
@@ -197,7 +197,7 @@ registerSuite('lib/node/util', function() {
           const files = util.expandFiles(['foo', 'bar']);
           assert.deepEqual(calls.sync, [
             ['foo', { ignore: [] }],
-            ['bar', { ignore: [] }]
+            ['bar', { ignore: [] }],
           ]);
           assert.deepEqual(calls.hasMagic, [['foo'], ['bar']]);
           assert.deepEqual(files, ['globby']);
@@ -208,11 +208,11 @@ registerSuite('lib/node/util', function() {
           const files = util.expandFiles(['foo', '!bar', 'baz', '!blah']);
           assert.deepEqual(calls.sync, [
             ['foo', { ignore: ['bar', 'blah'] }],
-            ['baz', { ignore: ['bar', 'blah'] }]
+            ['baz', { ignore: ['bar', 'blah'] }],
           ]);
           assert.deepEqual(calls.hasMagic, [['foo'], ['baz']]);
           assert.deepEqual(files, ['globby']);
-        }
+        },
       },
 
       getConfig: {
@@ -282,10 +282,10 @@ registerSuite('lib/node/util', function() {
             fsData['intern.json'] = 'foo';
 
             return util.getConfig().then(
-              _config => {
+              (_config) => {
                 throw new Error('getConfig should not have passed');
               },
-              error => {
+              (error) => {
                 assert.match(error.message, /Unexpected token/);
               }
             );
@@ -312,8 +312,8 @@ registerSuite('lib/node/util', function() {
                     'parseArgs should have been called'
                   );
                 });
-            }
-          }
+            },
+          },
         },
 
         'custom config'() {
@@ -343,7 +343,7 @@ registerSuite('lib/node/util', function() {
             const data = { stuff: 'happened', basePath: '' };
             assert.deepEqual(config, data);
           });
-        }
+        },
       },
 
       normalizePath() {
@@ -374,7 +374,7 @@ registerSuite('lib/node/util', function() {
             'foo.js',
             `function () { console.log("hi"); }\n//# sourceMappingURL=${mapUrl}`
           );
-        }
+        },
       },
 
       mkdirp() {
@@ -383,7 +383,7 @@ registerSuite('lib/node/util', function() {
         rmdirSync('_test_tmp/dir1/dir2');
         rmdirSync('_test_tmp/dir1');
         rmdirSync('_test_tmp');
-      }
-    }
+      },
+    },
   };
 });

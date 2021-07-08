@@ -1,6 +1,6 @@
 import { STATUS_CODES } from 'http';
-import * as createError from 'http-errors';
-import * as sinon from 'sinon';
+import createError from 'http-errors';
+import sinon from 'sinon';
 
 import _Server from 'src/lib/Server';
 import {
@@ -8,7 +8,7 @@ import {
   MockExecutor,
   MockRequest,
   MockResponse,
-  EventHandler
+  EventHandler,
 } from '../../support/unit/mocks';
 import { mockFs, mockPath } from '../../support/unit/nodeMocks';
 
@@ -47,7 +47,7 @@ class MockServer extends EventHandler {
       callback();
     }
     if (this.handlers.close) {
-      this.handlers.close.forEach(handler => handler());
+      this.handlers.close.forEach((handler) => handler());
     }
   }
 }
@@ -64,7 +64,7 @@ function assertPropertyLength(
 
 let removeMocks: () => void;
 
-registerSuite('lib/Server', function() {
+registerSuite('lib/Server', function () {
   // These classes below access closured data, so they're defined in here
 
   class MockWebSocketServer extends MockServer {
@@ -99,11 +99,11 @@ registerSuite('lib/Server', function() {
 
     createServer(handler: () => void) {
       return new MockHttpServer(handler);
-    }
+    },
   };
 
   const mockWebSocket = {
-    Server: MockWebSocketServer
+    Server: MockWebSocketServer,
   };
 
   const sandbox = sinon.createSandbox();
@@ -116,7 +116,7 @@ registerSuite('lib/Server', function() {
   const urlEncodedHandler = sandbox.spy(passthroughMiddleware);
   const mockBodyParser = {
     json: sandbox.spy((..._args: any[]) => jsonHandler),
-    urlencoded: sandbox.spy((..._args: any[]) => urlEncodedHandler)
+    urlencoded: sandbox.spy((..._args: any[]) => urlEncodedHandler),
   };
 
   let fs = mockFs();
@@ -139,7 +139,7 @@ registerSuite('lib/Server', function() {
   function mockMiddleware(error = false) {
     const handler = sandbox.stub();
     const wrapper = error
-      ? function(this: any, req: any, res: any, next: any, err: any) {
+      ? function (this: any, req: any, res: any, next: any, err: any) {
           return handler.call(this, req, res, next, err);
           // tslint:disable-next-line:indent
         }
@@ -149,15 +149,12 @@ registerSuite('lib/Server', function() {
     return { middleware, handler };
   }
 
-  const {
-    middleware: instrument,
-    handler: instrumentHandler
-  } = mockMiddleware();
+  const { middleware: instrument, handler: instrumentHandler } =
+    mockMiddleware();
   const { middleware: unhandled, handler: unhandledHandler } = mockMiddleware();
   const { middleware: post, handler: postHandler } = mockMiddleware();
-  const { middleware: finalError, handler: finalErrorHandler } = mockMiddleware(
-    true
-  );
+  const { middleware: finalError, handler: finalErrorHandler } =
+    mockMiddleware(true);
 
   return {
     before() {
@@ -166,18 +163,18 @@ registerSuite('lib/Server', function() {
         path,
         http: mockHttp,
         ws: mockWebSocket,
-        'src/lib/middleware/instrument': { default: instrument },
-        'src/lib/middleware/post': { default: post },
-        'src/lib/middleware/unhandled': { default: unhandled },
-        'src/lib/middleware/finalError': { default: finalError },
+        'src/lib/middleware/instrument': instrument,
+        'src/lib/middleware/post': post,
+        'src/lib/middleware/unhandled': unhandled,
+        'src/lib/middleware/finalError': finalError,
         'serve-static/index': mockServeStatic,
         express: null,
         'express/lib/express': null,
         'express/lib/application': null,
         'express/lib/request': Object.create(MockRequest.prototype),
         'express/lib/response': Object.create(MockResponse.prototype),
-        'body-parser': mockBodyParser
-      }).then(resource => {
+        'body-parser': mockBodyParser,
+      }).then((resource) => {
         removeMocks = resource.remove;
         Server = resource.module.default;
       });
@@ -247,15 +244,15 @@ registerSuite('lib/Server', function() {
             assert.isTrue(mockBodyParser.json.calledOnce);
             assert.isTrue(mockBodyParser.urlencoded.calledOnce);
             assert.deepEqual(mockBodyParser.urlencoded.firstCall.args[0], {
-              extended: true
+              extended: true,
             });
             assert.isTrue(mockServeStatic.calledTwice);
             assert.deepEqual(mockServeStatic.firstCall.args, [
               server.executor.config.internPath,
-              { fallthrough: false }
+              { fallthrough: false },
             ]);
             assert.deepEqual(mockServeStatic.secondCall.args, [
-              server.basePath
+              server.basePath,
             ]);
             assert.isTrue(instrument.calledOnce);
             assert.isTrue(post.calledOnce);
@@ -310,7 +307,7 @@ registerSuite('lib/Server', function() {
                 'socket should not have been destroyed'
               );
             });
-          }
+          },
         },
 
         'websocket connection': {
@@ -377,7 +374,7 @@ registerSuite('lib/Server', function() {
                 'unexpected event'
               );
             });
-          }
+          },
         },
 
         'http request handling': {
@@ -517,7 +514,7 @@ registerSuite('lib/Server', function() {
                 501
               );
             });
-          }
+          },
         },
 
         'message handling': {
@@ -543,7 +540,7 @@ registerSuite('lib/Server', function() {
                     sessionId: 'foo',
                     id: 1,
                     name: 'foo',
-                    data: 'bar'
+                    data: 'bar',
                   })
                   .then(() => {
                     assert.isTrue(listener.calledOnce);
@@ -567,16 +564,16 @@ registerSuite('lib/Server', function() {
                     sessionId: 'foo',
                     id: 1,
                     name: 'foo',
-                    data: 'bar'
+                    data: 'bar',
                   })
                   .then(() => assert(false, 'should not have resolved'))
                   .catch(() => {
                     assert.isTrue(listener.calledOnce);
                   });
               });
-            }
-          }
-        }
+            },
+          },
+        },
       },
 
       '#stop': {
@@ -598,7 +595,7 @@ registerSuite('lib/Server', function() {
         'already stopped'() {
           // Check that stop doesn't reject
           return server.stop();
-        }
+        },
       },
 
       '#subscribe': {
@@ -628,7 +625,7 @@ registerSuite('lib/Server', function() {
               JSON.stringify({
                 sessionId: 'foo',
                 id: 1,
-                name: 'foo'
+                name: 'foo',
               })
             );
 
@@ -643,8 +640,8 @@ registerSuite('lib/Server', function() {
             // Calling destroy multiple times should be fine
             handle.destroy();
           });
-        }
-      }
-    }
+        },
+      },
+    },
   };
 });

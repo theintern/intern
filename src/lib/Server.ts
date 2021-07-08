@@ -1,8 +1,8 @@
 import { json, urlencoded } from 'body-parser';
-import * as express from 'express';
+import express from 'express';
 import { Server as HttpServer } from 'http';
 import { Socket } from 'net';
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import { Handle } from '@theintern/common';
 
 import { pullFromArray } from './common/util';
@@ -60,7 +60,7 @@ export default class Server implements ServerProperties {
       this,
       {
         basePath: '.',
-        runInSync: false
+        runInSync: false,
       },
       options
     );
@@ -83,17 +83,15 @@ export default class Server implements ServerProperties {
 
       let clientCount = 0;
       wsServer = new WebSocket.Server({ port: this.socketPort });
-      wsServer.on('connection', client => {
+      wsServer.on('connection', (client) => {
         clientCount++;
         this.executor.log(`WebSocket client ${clientCount} connected`);
         this._handleWebSocket(client, clientCount);
       });
-      wsServer.on('error', error => {
+      wsServer.on('error', (error) => {
         if (isErrnoException(error) && error.code === 'EADDRINUSE') {
           const err: NodeJS.ErrnoException = new Error(
-            `Something is already listening on the websocket server port (${
-              this.socketPort
-            })`
+            `Something is already listening on the websocket server port (${this.socketPort})`
           );
           err.code = error.code;
           err.errno = error.errno;
@@ -113,32 +111,32 @@ export default class Server implements ServerProperties {
       const context = Object.create(null, {
         stopped: {
           enumerable: true,
-          get: () => this.stopped
+          get: () => this.stopped,
         },
         basePath: {
           enumerable: true,
-          get: () => this.basePath
+          get: () => this.basePath,
         },
         executor: {
           enumerable: true,
-          get: () => this.executor
+          get: () => this.executor,
         },
         handleMessage: {
           enumerable: false,
           writable: false,
           configurable: false,
-          value: (message: Message) => this._handleMessage(message)
-        }
+          value: (message: Message) => this._handleMessage(message),
+        },
       });
 
       // Add "intern" object to both request and response objects
       Object.defineProperty(app.request, 'intern', {
         enumerable: true,
-        get: () => context
+        get: () => context,
       });
       Object.defineProperty(app.response, 'intern', {
         enumerable: true,
-        get: () => context
+        get: () => context,
       });
 
       app.use(filterUrl());
@@ -175,7 +173,7 @@ export default class Server implements ServerProperties {
       );
 
       httpServer = app.listen(this.port, resolve);
-      httpServer.on('error', error => {
+      httpServer.on('error', (error) => {
         if (isErrnoException(error) && error.code === 'EADDRINUSE') {
           const err: NodeJS.ErrnoException = new Error(
             `Something is already listening on the server port (${this.port})`
@@ -201,7 +199,7 @@ export default class Server implements ServerProperties {
         }
       });
 
-      httpServer.on('connection', socket => {
+      httpServer.on('connection', (socket) => {
         sockets.push(socket);
         this.executor.log(
           'HTTP connection opened,',
@@ -224,7 +222,7 @@ export default class Server implements ServerProperties {
         this._wsServer = wsServer;
         this._httpServer = httpServer;
       })
-      .catch(error => {
+      .catch((error) => {
         startupError = error;
         try {
           wsServer.close();
@@ -246,7 +244,7 @@ export default class Server implements ServerProperties {
 
     if (this._app && this._httpServer) {
       promises.push(
-        new Promise(resolve => {
+        new Promise((resolve) => {
           this._httpServer!.close(resolve);
         }).then(() => {
           this.executor.log('Stopped http server');
@@ -257,7 +255,7 @@ export default class Server implements ServerProperties {
 
     if (this._wsServer) {
       promises.push(
-        new Promise(resolve => {
+        new Promise((resolve) => {
           this._wsServer!.close(resolve);
         }).then(() => {
           this.executor.log('Stopped ws server');
@@ -276,10 +274,10 @@ export default class Server implements ServerProperties {
     const listeners = this._getSession(sessionId).listeners;
     listeners.push(listener);
     return {
-      destroy: function(this: any) {
-        this.destroy = function() {};
+      destroy: function (this: any) {
+        this.destroy = function () {};
         pullFromArray(listeners, listener);
-      }
+      },
     };
   }
 
@@ -308,7 +306,7 @@ export default class Server implements ServerProperties {
 
     // If we're not returning the promise, catch any errors to avoid
     // unhandled rejections
-    promise.catch(error => {
+    promise.catch((error) => {
       this.executor.emit('error', error);
     });
 
@@ -340,21 +338,19 @@ export default class Server implements ServerProperties {
       isAlive = true;
     });
 
-    client.on('message', data => {
+    client.on('message', (data) => {
       this.executor.log('Received WebSocket message from', id);
       const message: Message = JSON.parse(data.toString());
       this._handleMessage(message)
-        .catch(error => this.executor.emit('error', error))
+        .catch((error) => this.executor.emit('error', error))
         .then(() => {
           this.executor.log('Sending ack for [', message.id, '] to', id);
-          client.send(JSON.stringify({ id: message.id }), error => {
+          client.send(JSON.stringify({ id: message.id }), (error) => {
             if (error) {
               this.executor.emit(
                 'error',
                 new Error(
-                  `Error sending ack for [ ${message.id} ] to ${id}: ${
-                    error.message
-                  }`
+                  `Error sending ack for [ ${message.id} ] to ${id}: ${error.message}`
                 )
               );
             }
@@ -362,7 +358,7 @@ export default class Server implements ServerProperties {
         });
     });
 
-    client.on('error', error => {
+    client.on('error', (error) => {
       this.executor.log(`WebSocket client error for ${id}:`, error);
       this.executor.emit('error', error);
       clearInterval(timer);
@@ -372,7 +368,7 @@ export default class Server implements ServerProperties {
   private _publish(message: Message) {
     const listeners = this._getSession(message.sessionId).listeners;
     return Promise.all(
-      listeners.map(listener => listener(message.name, message.data))
+      listeners.map((listener) => listener(message.name, message.data))
     );
   }
 }

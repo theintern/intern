@@ -9,12 +9,12 @@
     "rootDir": "."
   },
   "include": [
-    "src/bin/*.ts",
-    "src/loaders/*.ts",
-    "src/tasks/*.ts",
+    "src/bin/**/*.ts",
+    "src/loaders/**/*.ts",
+    "src/tasks/**/*.ts",
 
     // Build everything in lib (vs just relying on the bin entry point) so
     // it'll be available for testing
-    "src/lib/*.ts"
+    "src/lib/**/*.ts"
   ]
 }

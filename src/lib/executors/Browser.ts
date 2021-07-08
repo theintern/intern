@@ -19,7 +19,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
   constructor(options?: { [key in keyof Config]?: any }) {
     super(<Config>{
       basePath: '',
-      internPath: ''
+      internPath: '',
     });
 
     // Report uncaught errors
@@ -55,11 +55,11 @@ export default class Browser extends Executor<Events, Config, Plugins> {
       }
     });
 
-    this.registerReporter('html', options => new Html(this, options));
-    this.registerReporter('dom', options => new Dom(this, options));
+    this.registerReporter('html', (options) => new Html(this, options));
+    this.registerReporter('dom', (options) => new Dom(this, options));
     this.registerReporter(
       'console',
-      options => new ConsoleReporter(this, options)
+      (options) => new ConsoleReporter(this, options)
     );
 
     if (options) {
@@ -120,7 +120,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
       }
 
       (['basePath', 'internPath'] as ('basePath' | 'internPath')[]).forEach(
-        property => {
+        (property) => {
           config[property] = normalizePathEnding(config[property]);
         }
       );
@@ -128,20 +128,21 @@ export default class Browser extends Executor<Events, Config, Plugins> {
       // Combine suites and browser.suites into browser.suites
       const suites = (config.browser.suites = [
         ...config.suites,
-        ...config.browser.suites
+        ...config.browser.suites,
       ]);
 
       // Clear out the suites list after combining the suites
+      // @ts-ignore
       delete config.suites;
 
-      const hasGlobs = suites.some(pattern => {
+      const hasGlobs = suites.some((pattern) => {
         const matcher = new Minimatch(pattern);
-        return matcher.set[0].some(entry => typeof entry !== 'string');
+        return matcher.set[0].some((entry) => typeof entry !== 'string');
       });
 
       if (hasGlobs) {
         return request('__resolveSuites__', { query: { suites } })
-          .then(response => response.json<string[]>())
+          .then((response) => response.json<string[]>())
           .catch(() => {
             throw new Error(
               'The server does not support suite glob resolution'
@@ -164,7 +165,7 @@ function injectScript(path: string, isEsm: boolean): CancellablePromise<void> {
     scriptTag.addEventListener('load', () => {
       resolve();
     });
-    scriptTag.addEventListener('error', event => {
+    scriptTag.addEventListener('error', (event) => {
       console.error(`Error loading ${path}:`, event);
       reject(new Error(`Unable to load ${path}`));
     });

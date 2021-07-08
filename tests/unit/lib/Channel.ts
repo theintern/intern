@@ -12,9 +12,9 @@ let removeMocks: () => void;
 registerSuite('lib/Channel', {
   before() {
     return mockRequire(require, 'src/lib/Channel', {
-      'src/lib/channels/WebSocket': { default: MockWebSocket },
-      'src/lib/channels/Http': { default: MockHttp }
-    }).then(handle => {
+      'src/lib/channels/WebSocket': MockWebSocket,
+      'src/lib/channels/Http': MockHttp,
+    }).then((handle) => {
       removeMocks = handle.remove;
       Channel = handle.module.default;
     });
@@ -36,7 +36,7 @@ registerSuite('lib/Channel', {
         return channel.sendMessage('suiteStart', null).then(() => {
           assert.deepEqual(messages, [
             'constructing http',
-            'sending http suiteStart'
+            'sending http suiteStart',
           ]);
         });
       },
@@ -47,7 +47,7 @@ registerSuite('lib/Channel', {
           assert.deepEqual(messages, [
             'constructing websocket',
             'sending websocket remoteStatus',
-            'sending websocket suiteStart'
+            'sending websocket suiteStart',
           ]);
         });
       },
@@ -61,7 +61,7 @@ registerSuite('lib/Channel', {
               'constructing websocket',
               'sending websocket remoteStatus',
               'constructing http',
-              'sending http suiteStart'
+              'sending http suiteStart',
             ]);
           });
         },
@@ -73,13 +73,13 @@ registerSuite('lib/Channel', {
             assert.deepEqual(messages, [
               'constructing websocket',
               'constructing http',
-              'sending http suiteStart'
+              'sending http suiteStart',
             ]);
           });
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 });
 
 class MockWebSocket {

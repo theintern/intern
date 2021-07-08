@@ -10,7 +10,7 @@ intern.registerPlugin('mockRequire', () => {
     registeredMocks.push({ id: mod, original: require.cache[mod] });
     delete require.cache[mod];
 
-    Object.keys(mocks).forEach(name => {
+    Object.keys(mocks).forEach((name) => {
       const id = require.resolve(name);
       registeredMocks.push({ id, original: require.cache[id] });
       delete require.cache[id];
@@ -23,8 +23,8 @@ intern.registerPlugin('mockRequire', () => {
           id,
           filename: id,
           loaded: true,
-          exports: mocks[name]
-        };
+          exports: mocks[name],
+        } as NodeModule;
       }
     });
 
@@ -38,7 +38,7 @@ intern.registerPlugin('mockRequire', () => {
             require.cache[id] = original;
           }
         }
-      }
+      },
     });
   }
 

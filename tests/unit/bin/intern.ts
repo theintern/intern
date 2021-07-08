@@ -5,18 +5,18 @@ import {
   createMockBrowserExecutor,
   createMockConsole,
   createMockNodeExecutor,
-  MockConsole
+  MockConsole,
 } from '../../support/unit/mocks';
 
 const mockRequire = intern.getPlugin<mocking.MockRequire>('mockRequire');
 const originalIntern = global.intern;
 
-registerSuite('bin/intern', function() {
+registerSuite('bin/intern', function () {
   const sandbox = createSandbox();
   const mockNodeUtil: { [name: string]: SinonSpy } = {
     getConfig: sandbox.spy((..._args: any[]) => {
       return Task.resolve({ config: configData, file: 'intern.json' });
-    })
+    }),
   };
 
   const originalExitCode = process.exitCode;
@@ -30,7 +30,7 @@ registerSuite('bin/intern', function() {
     beforeEach() {
       mockConsole = createMockConsole();
       mockCommonUtil = {
-        getConfigDescription: sandbox.stub().returns('test config')
+        getConfigDescription: sandbox.stub().returns('test config'),
       };
 
       sandbox.resetHistory();
@@ -54,9 +54,9 @@ registerSuite('bin/intern', function() {
           'src/lib/node/util': mockNodeUtil,
           'src/lib/common/console': mockConsole,
           'src/lib/common/util': mockCommonUtil,
-          'src/index': { default: mockExecutor },
-          '@theintern/common': { global: { process: {} } }
-        }).then(handle => {
+          'src/index': mockExecutor,
+          '@theintern/common': { global: { process: {} } },
+        }).then((handle) => {
           removeMocks = handle.remove;
           assert.equal(mockNodeUtil.getConfig.callCount, 1);
           assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
@@ -67,18 +67,18 @@ registerSuite('bin/intern', function() {
       'ts in node'() {
         configData = {
           suites: ['foo.ts'],
-          plugins: ['bar.ts']
+          plugins: ['bar.ts'],
         };
         const mockExecutor = createMockNodeExecutor({
-          environment: 'node'
+          environment: 'node',
         } as any);
         return mockRequire(require, 'src/bin/intern', {
           'src/lib/node/util': mockNodeUtil,
           'src/lib/common/console': mockConsole,
           'src/lib/common/util': mockCommonUtil,
-          'src/index': { default: mockExecutor },
-          '@theintern/common': { global: { process: {} } }
-        }).then(handle => {
+          'src/index': mockExecutor,
+          '@theintern/common': { global: { process: {} } },
+        }).then((handle) => {
           removeMocks = handle.remove;
           assert.equal(mockNodeUtil.getConfig.callCount, 1);
           assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
@@ -93,9 +93,9 @@ registerSuite('bin/intern', function() {
           'src/lib/node/util': mockNodeUtil,
           'src/lib/common/console': mockConsole,
           'src/lib/common/util': mockCommonUtil,
-          'src/index': { default: createMockNodeExecutor() },
-          '@theintern/common': { global: { process: {} } }
-        }).then(handle => {
+          'src/index': createMockNodeExecutor(),
+          '@theintern/common': { global: { process: {} } },
+        }).then((handle) => {
           removeMocks = handle.remove;
           assert.equal(mockNodeUtil.getConfig.callCount, 1);
           assert.equal(mockCommonUtil.getConfigDescription.callCount, 1);
@@ -109,9 +109,9 @@ registerSuite('bin/intern', function() {
             'src/lib/node/util': mockNodeUtil,
             'src/lib/common/console': mockConsole,
             'src/lib/common/util': mockCommonUtil,
-            'src/index': { default: createMockNodeExecutor() },
-            '@theintern/common': { global: { process: {} } }
-          }).then(handle => {
+            'src/index': createMockNodeExecutor(),
+            '@theintern/common': { global: { process: {} } },
+          }).then((handle) => {
             removeMocks = handle.remove;
             assert.equal(
               mockConsole.error.callCount,
@@ -129,14 +129,14 @@ registerSuite('bin/intern', function() {
             'src/lib/node/util': mockNodeUtil,
             'src/lib/common/console': mockConsole,
             'src/lib/common/util': mockCommonUtil,
-            'src/index': { default: createMockNodeExecutor() },
+            'src/index': createMockNodeExecutor(),
             '@theintern/common': {
-              global: { process: { stdout: process.stdout } }
-            }
+              global: { process: { stdout: process.stdout } },
+            },
           })
-            .then(handle => {
+            .then((handle) => {
               removeMocks = handle.remove;
-              return new Promise(resolve => setTimeout(resolve, 10));
+              return new Promise((resolve) => setTimeout(resolve, 10));
             })
             .then(() => {
               assert.equal(
@@ -149,18 +149,18 @@ registerSuite('bin/intern', function() {
 
         'ts in suites in the browser'() {
           configData = {
-            suites: ['foo.ts']
+            suites: ['foo.ts'],
           };
           const mockExecutor = createMockBrowserExecutor({
-            environment: 'browser'
+            environment: 'browser',
           } as any);
           return mockRequire(require, 'src/bin/intern', {
             'src/lib/node/util': mockNodeUtil,
             'src/lib/common/console': mockConsole,
             'src/lib/common/util': mockCommonUtil,
-            'src/index': { default: mockExecutor },
-            '@theintern/common': { global: { process: {} } }
-          }).then(handle => {
+            'src/index': mockExecutor,
+            '@theintern/common': { global: { process: {} } },
+          }).then((handle) => {
             removeMocks = handle.remove;
             assert.equal(mockNodeUtil.getConfig.callCount, 1);
             assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
@@ -173,18 +173,18 @@ registerSuite('bin/intern', function() {
 
         'ts in plugins in the browser'() {
           configData = {
-            plugins: ['foo.ts']
+            plugins: ['foo.ts'],
           };
           const mockExecutor = createMockBrowserExecutor({
-            environment: 'browser'
+            environment: 'browser',
           } as any);
           return mockRequire(require, 'src/bin/intern', {
             'src/lib/node/util': mockNodeUtil,
             'src/lib/common/console': mockConsole,
             'src/lib/common/util': mockCommonUtil,
-            'src/index': { default: mockExecutor },
-            '@theintern/common': { global: { process: {} } }
-          }).then(handle => {
+            'src/index': mockExecutor,
+            '@theintern/common': { global: { process: {} } },
+          }).then((handle) => {
             removeMocks = handle.remove;
             assert.equal(mockNodeUtil.getConfig.callCount, 1);
             assert.equal(mockCommonUtil.getConfigDescription.callCount, 0);
@@ -193,7 +193,7 @@ registerSuite('bin/intern', function() {
               'expected executor not to have run'
             );
           });
-        }
+        },
       },
 
       help() {
@@ -201,8 +201,8 @@ registerSuite('bin/intern', function() {
           _config: {
             foo: 'one',
             bar: [2, 3],
-            baz: { value: false }
-          }
+            baz: { value: false },
+          },
         });
         configData = { help: true };
 
@@ -210,16 +210,16 @@ registerSuite('bin/intern', function() {
           'src/lib/node/util': mockNodeUtil,
           'src/lib/common/console': mockConsole,
           'src/lib/common/util': mockCommonUtil,
-          'src/index': { default: mockExecutor },
-          '@theintern/common': { global: { process: {} } }
-        }).then(handle => {
+          'src/index': mockExecutor,
+          '@theintern/common': { global: { process: {} } },
+        }).then((handle) => {
           removeMocks = handle.remove;
           assert.match(mockConsole.log.args[0][0], /intern version \d/);
           assert.match(mockConsole.log.args[1][0], /npm version \d/);
           assert.match(mockConsole.log.args[2][0], /node version v\d/);
           assert.deepEqual(mockConsole.log.args.slice(4), [
             [
-              'Usage: intern [config=<file>] [showConfig|showConfigs] [options]'
+              'Usage: intern [config=<file>] [showConfig|showConfigs] [options]',
             ],
             [],
             ['  config      - path to a config file'],
@@ -232,10 +232,10 @@ registerSuite('bin/intern', function() {
             ['  foo - "one"'],
             [],
             ["Using config file 'intern.json':\n"],
-            ['test config']
+            ['test config'],
           ]);
         });
-      }
-    }
+      },
+    },
   };
 });

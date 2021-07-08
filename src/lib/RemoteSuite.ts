@@ -19,6 +19,7 @@ declare const intern: Browser;
  * suites being run in a remote browser.
  */
 export default class RemoteSuite extends Suite {
+  // @ts-ignore
   executor!: Node;
 
   constructor(options?: Partial<SuiteOptions>) {
@@ -187,22 +188,22 @@ export default class RemoteSuite extends Suite {
         // These are options that will be passed as query params to the
         // test harness page
         const queryOptions: Partial<RemoteConfig> = {
-          basePath: serverUrl.pathname,
+          basePath: serverUrl.pathname ?? undefined,
           runInSync: config.runInSync || false,
           serverUrl: serverUrl.href,
           sessionId: sessionId,
           socketPort: server.socketPort,
-          socketTimeout: config.socketTimeout
+          socketTimeout: config.socketTimeout,
         };
 
         // Do some pre-serialization of the options
         const queryParams: { [key: string]: any } = {};
         Object.keys(queryOptions)
-          .filter(option => {
+          .filter((option) => {
             const key = <keyof RemoteConfig>option;
             return queryOptions[key] != null;
           })
-          .forEach(option => {
+          .forEach((option) => {
             const key = <keyof RemoteConfig>option;
             let value = queryOptions[key];
             if (typeof value === 'object') {
@@ -229,7 +230,7 @@ export default class RemoteSuite extends Suite {
           debug: config.debug,
           internPath: `${serverUrl.pathname}${internPath}`,
           name: this.id,
-          reporters: remoteReporters
+          reporters: remoteReporters,
         };
 
         // Don't overwrite any config data we've already set
@@ -241,13 +242,13 @@ export default class RemoteSuite extends Suite {
           serverUrl: true,
           sessionId: true,
           socketPort: true,
-          socketTimeout: true
+          socketTimeout: true,
         };
 
         // Pass all non-excluded keys to the remote config
         Object.keys(config)
-          .filter(key => !excludeKeys[key])
-          .forEach(property => {
+          .filter((key) => !excludeKeys[key])
+          .forEach((property) => {
             const key = <keyof RemoteConfig>property;
             (remoteConfig as any)[key] = config[key];
           });
@@ -265,23 +266,23 @@ export default class RemoteSuite extends Suite {
           // Send the config data in an execute block to avoid sending
           // very large query strings
           .execute(
-            /* istanbul ignore next */ function(configString: string) {
+            /* istanbul ignore next */ function (configString: string) {
               const options = JSON.parse(configString);
               intern.configure(options);
-              intern.run().catch(_error => {});
+              intern.run().catch((_error) => {});
             },
             [stringify(remoteConfig)]
           )
           // If there's an error loading the page, kill the heartbeat
           // and fail
-          .catch(error =>
+          .catch((error) =>
             remote.setHeartbeatInterval(0).finally(() => handleError(error))
           );
       },
       // Canceller
       () => remote.setHeartbeatInterval(0)
     )
-      .catch(error => {
+      .catch((error) => {
         if (!this.error) {
           this.error = error;
         }
