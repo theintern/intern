@@ -218,7 +218,7 @@ export default class RemoteSuite extends Suite {
         // Determine the relative path from basePath to internPath. This
         // will be used to derive the internPath sent to the remote. The
         // remote will figure out its own basePath.
-        const internPath = relative(config.basePath, config.internPath);
+        const internPath = "__intern";
 
         // These are options that will be POSTed to the remote page and
         // used to configure intern. Stringify and parse them to ensure
