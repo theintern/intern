@@ -24,8 +24,18 @@ export default class HttpChannel extends BaseChannel {
     const message: Message = { id, sessionId, name, data };
     const task = new Task(
       (resolve, reject) => {
+        const replacer = (_key: string, value: any) => {
+          if (value instanceof Error) {
+            value = {
+              name: value.name,
+              message: value.message,
+              stack: value.stack
+            };
+          }
+          return value;
+        };
         this._messageBuffer.push({
-          message: JSON.stringify(message),
+          message: JSON.stringify(message, replacer),
           resolve,
           reject
         });
