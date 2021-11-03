@@ -59,17 +59,7 @@ export default class WebSocketChannel extends BaseChannel {
           const sessionId = this.sessionId;
           const message: Message = { id, sessionId, name, data };
 
-          const replacer = (_key: string, value: any) => {
-            if (value instanceof Error) {
-              value = {
-                name: value.name,
-                message: value.message,
-                stack: value.stack
-              };
-            }
-            return value;
-          };
-          this._socket.send(JSON.stringify(message, replacer));
+          this._socket.send(JSON.stringify(message));
 
           const timer = setTimeout(() => {
             reject(new Error('Send timed out'));
