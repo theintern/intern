@@ -2,6 +2,7 @@ import { request, Task, CancellablePromise } from '@theintern/common';
 
 import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
+import { stringify } from '../common/util';
 
 export default class HttpChannel extends BaseChannel {
   protected _lastRequest: CancellablePromise<void>;
@@ -25,9 +26,9 @@ export default class HttpChannel extends BaseChannel {
     const task = new Task(
       (resolve, reject) => {
         this._messageBuffer.push({
-          message: JSON.stringify(message),
+          message: stringify(message),
           resolve,
-          reject
+          reject,
         });
 
         if (this._activeRequest) {
@@ -72,9 +73,9 @@ export default class HttpChannel extends BaseChannel {
     this._activeRequest = request(this.url, {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      data: block.map(entry => entry.message)
+      data: block.map((entry) => entry.message),
     })
-      .then(response => {
+      .then((response) => {
         if (response.status === 200) {
           return response.json<any[]>();
         } else if (response.status === 204) {
@@ -88,8 +89,8 @@ export default class HttpChannel extends BaseChannel {
           entry.resolve(results[index]);
         });
       })
-      .catch(error => {
-        block.forEach(entry => {
+      .catch((error) => {
+        block.forEach((entry) => {
           entry.reject(error);
         });
       })

@@ -32,3 +32,8 @@ if (typeof global.Symbol === 'undefined') {
 if (typeof global.Set === 'undefined') {
   global.Set = require('core-js-pure/features/set');
 }
+
+// Polyfill WeakSet if no global WeakSet is defined.
+if (typeof global.WeakSet === 'undefined') {
+  global.WeakSet = require('core-js-pure/features/weak-set');
+}
