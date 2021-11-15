@@ -2,6 +2,7 @@ import { request, Task, CancellablePromise } from '../../../common';
 
 import { RemoteEvents } from '../RemoteSuite';
 import BaseChannel, { ChannelOptions, Message } from './Base';
+import { stringify } from '../common/util';
 
 export default class HttpChannel extends BaseChannel {
   protected _lastRequest: CancellablePromise<void>;
@@ -25,7 +26,7 @@ export default class HttpChannel extends BaseChannel {
     const task = new Task(
       (resolve, reject) => {
         this._messageBuffer.push({
-          message: JSON.stringify(message),
+          message: stringify(message),
           resolve,
           reject
         });

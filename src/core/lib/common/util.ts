@@ -841,7 +841,7 @@ export function splitConfigPath(
  * @returns A JSON string
  */
 export function stringify(object: any, indent?: string) {
-  return JSON.stringify(object, serializeReplacer, indent);
+  return JSON.stringify(object, getSerializeReplacer(), indent);
 }
 
 // ============================================================================
@@ -992,20 +992,30 @@ const configPathSeparator = '@';
 /**
  * Replacer function used in stringify
  */
-function serializeReplacer(_key: string, value: any) {
-  if (!value) {
+function getSerializeReplacer() {
+  const seen = new WeakSet();
+  return function(_key: string, value: any) {
+    if (!value) {
+      return value;
+    }
+
+    if (value instanceof RegExp) {
+      return value.source;
+    }
+
+    if (typeof value === 'function') {
+      return value.toString();
+    }
+
+    if (typeof value === 'object') {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+
     return value;
-  }
-
-  if (value instanceof RegExp) {
-    return value.source;
-  }
-
-  if (typeof value === 'function') {
-    return value.toString();
-  }
-
-  return value;
+  };
 }
 
 export function errorToJSON(error?: InternError): InternError | undefined {

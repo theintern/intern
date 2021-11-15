@@ -22,3 +22,8 @@ if (typeof global.Promise === 'undefined') {
 if (typeof global.Map === 'undefined') {
   global.Map = require('core-js-pure/features/map');
 }
+
+// Polyfill weakset if no global WeakSet is defined.
+if (typeof global.WeakSet === 'undefined') {
+  global.WeakSet = require('core-js-pure/features/weak-set');
+}
