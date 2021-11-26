@@ -48,7 +48,7 @@
     "intern": "./bin/intern.js"
   },
   "scripts": {
-    "build": "intern-dev-clean && concurrently intern-dev-build 'intern-dev-api ./src/index.ts ./src/lib/executors/Node.ts ./src/lib/executors/Browser.ts'",
+    "build": "intern-dev-clean && concurrently intern-dev-build \"intern-dev-api ./src/index.ts ./src/lib/executors/Node.ts ./src/lib/executors/Browser.ts\"",
     "devpack": "intern-dev-build && npm pack ./_build/src",
     "clean": "intern-dev-clean",
     "lint": "intern-dev-lint",
