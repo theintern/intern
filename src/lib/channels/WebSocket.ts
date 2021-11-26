@@ -2,6 +2,7 @@ import { Task, CancellablePromise, global } from '@theintern/common';
 
 import BaseChannel, { ChannelOptions, Message } from './Base';
 import { parseUrl } from '../browser/util';
+import { stringify } from '../common/util';
 
 export default class WebSocketChannel extends BaseChannel {
   /** Time to wait for response before rejecting a send */
@@ -39,11 +40,11 @@ export default class WebSocketChannel extends BaseChannel {
       this._socket.addEventListener('error', reject);
     });
 
-    this._socket.addEventListener('message', event => {
+    this._socket.addEventListener('message', (event) => {
       this._handleMessage(JSON.parse(event.data));
     });
 
-    this._socket.addEventListener('error', _event => {
+    this._socket.addEventListener('error', (_event) => {
       this._handleError(new Error('WebSocket error'));
     });
 
@@ -59,7 +60,7 @@ export default class WebSocketChannel extends BaseChannel {
           const sessionId = this.sessionId;
           const message: Message = { id, sessionId, name, data };
 
-          this._socket.send(JSON.stringify(message));
+          this._socket.send(stringify(message));
 
           const timer = setTimeout(() => {
             reject(new Error('Send timed out'));
@@ -72,7 +73,7 @@ export default class WebSocketChannel extends BaseChannel {
             },
             reject(error: Error) {
               reject(error);
-            }
+            },
           };
         })
     );
@@ -90,8 +91,8 @@ export default class WebSocketChannel extends BaseChannel {
 
     // Reject any open sends
     Object.keys(this._sendQueue)
-      .filter(id => this._sendQueue[id] != null)
-      .forEach(id => {
+      .filter((id) => this._sendQueue[id] != null)
+      .forEach((id) => {
         this._sendQueue[id]!.reject(error);
         this._sendQueue[id] = undefined;
       });

@@ -15,14 +15,6 @@ export default abstract class BaseChannel {
    * when the message has been sent.
    */
   sendMessage(name: keyof RemoteEvents, data: any) {
-    if (data instanceof Error) {
-      data = {
-        name: data.name,
-        message: data.message,
-        stack: data.stack
-      };
-    }
-
     return this._sendData(name, data);
   }
 
