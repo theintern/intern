@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - node-version: 16
+            full-ci: true
+          - node-version: 14
+            full-ci: false
+          - node-version: 12
+            full-ci: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run build
+      - if: ${{ matrix.full-ci }}
+        run: npm test config=@ci
+        env:
+          # Please get your own free key if you want to test yourself
+          BROWSERSTACK_USERNAME: sitepenlabs1
+          BROWSERSTACK_ACCESS_KEY: xm1uYrJuV3gZMJqCyZJX
+      - if: ${{ ! matrix.full-ci }}
+        run: npm test
+      - if: ${{ matrix.full-ci }}
+        uses: codecov/codecov-action@v2
