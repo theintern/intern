@@ -8,17 +8,16 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
     strategy:
       matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        node: [12, 14, 16]
         include:
           - node-version: 16
+            os: ubuntu-latest
             full-ci: true
-          - node-version: 14
-            full-ci: false
-          - node-version: 12
-            full-ci: false
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
