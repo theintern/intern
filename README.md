@@ -106,7 +106,7 @@ of Node.
 
 Intern can run functional tests using WebDriver-compatible applications and
 services, including Selenium, Appium, Selendroid. It has built-in support for
-cloud testing services from [BrowserStack](https://browserstack.com),
+cloud testing services from [LambdaTest](https://www.lambdatest.com/),[BrowserStack](https://browserstack.com),
 [CrossBrowserTesting](https://crossbrowsertesting.com),
 [SauceLabs](https://saucelabs.com), and [TestingBot](https://testingbot.com).
 
