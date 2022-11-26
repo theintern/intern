@@ -30,7 +30,7 @@ query args, or an environment variable. All of these methods use the same basic
 syntax and provide the same capabilities. Assuming Intern is being run with the
 default [Node runner](running.md#node) or [browser runner](running.md#browser)
 and without a `config` argument, Intern will attempt to load configuration
-informatioon from an `intern.json` file in the project root.
+information from an `intern.json` file in the project root.
 
 Wherever config property values come from, the executor will validate and
 normalize them into a canonical format ("resolve" them) when the testing process
@@ -459,7 +459,7 @@ are passed through to the registered loader script.
 }
 ```
 
-It's useful to think of Intern's loader scriptss as glue code that Intern uses
+It's useful to think of Intern's loader scripts as glue code that Intern uses
 to load configured suites within the environment. When Intern needs to load a
 module (i.e. a test suite) it hands off a list of these modules to the loader
 script and waits for the loading process to be handled by the loader. For more

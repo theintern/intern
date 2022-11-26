@@ -282,7 +282,7 @@ support. Internally, modules are loaded using script tags, like:
 <script src="myscript.js" type="module"></script>
 ```
 
-> ⚠️ Note that the `esm` loader requires that _all_ modules in a dependecy tree
+> ⚠️ Note that the `esm` loader requires that _all_ modules in a dependency tree
 > be ESMs, so its utility is currently somewhat limited.
 
 ## Use Intern with a remote service like BrowserStack
@@ -352,7 +352,7 @@ order specified.
 When writing unit tests with Intern, occasionally you will need to interact with
 a web service. However, because the Intern serves code at
 `http://localhost:9000` by default, any cross-origin requests will fail. In
-order to test Ajax requests wihtout using CORS of JSONP, setup a reverse proxy
+order to test Ajax requests without using CORS of JSONP, setup a reverse proxy
 to Intern and tell the in-browser test runner to load from that URL by setting
 the `serverUrl` configuration option.
 
