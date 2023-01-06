@@ -226,7 +226,7 @@ registerSuite('Suite name', {
   },
 
   test2() {
-    // do somthing
+    // do something
   }
 });
 ```
@@ -246,7 +246,7 @@ registerSuite('Suite name', {
     },
 
     test2() {
-      // do somthing
+      // do something
     }
   }
 });
@@ -261,7 +261,7 @@ registerSuite('Suite name', {
     },
 
     test2() {
-        // do somthing
+        // do something
     },
 
     'sub-suite': {
@@ -395,7 +395,7 @@ registerSuite('Suite name', {
     },
 
     test2: async(dfd => {
-      // do somthing
+      // do something
     })
   }
 });
