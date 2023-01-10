@@ -1,10 +1,11 @@
 import { request, CancellablePromise, global } from '@theintern/common';
 
 import {
+  createDefaultConfig,
   getBasePath,
   loadConfig,
   parseArgs,
-  splitConfigPath
+  splitConfigPath,
 } from '../common/util';
 
 /**
@@ -30,31 +31,32 @@ export function getConfig(file?: string) {
     // If no config parameter was provided, try 'intern.json'. If that file
     // doesn't exist, just return the args
     file = resolvePath('intern.json', configBase);
-    load = loadConfig(file, loadText, args).catch(error => {
+    load = loadConfig(file, loadText, args).catch((error) => {
       if (error.message.indexOf('Request failed') === 0) {
         // The file wasn't found, clear the file name
         file = undefined;
-        return args;
+        return getSuitesExtension(configBase).then((extension) =>
+          createDefaultConfig(args, extension)
+        );
       }
-      throw error;
     });
   }
 
   return load
-    .then(config => {
+    .then((config) => {
       // If a basePath wasn't set in the config or via a query arg, and we
       // have a config file path, use that.
       if (file) {
         config.basePath = getBasePath(
           file,
           config.basePath,
-          path => path[0] === '/',
+          (path) => path[0] === '/',
           '/'
         );
       }
       return config;
     })
-    .then(config => ({ config, file }));
+    .then((config) => ({ config, file }));
 }
 
 /**
@@ -138,9 +140,10 @@ export type Url = {
 };
 export function parseUrl(url: string): Url | undefined {
   if (url) {
-    const match = /^(([^:\/?#]+):)?(\/\/(([^:\/?#]*)(:(\d+))?))?([^?#]*)(\?([^#]*))?(#(.*))?/.exec(
-      url
-    );
+    const match =
+      /^(([^:\/?#]+):)?(\/\/(([^:\/?#]*)(:(\d+))?))?([^?#]*)(\?([^#]*))?(#(.*))?/.exec(
+        url
+      );
     if (match) {
       return {
         protocol: match[2],
@@ -148,7 +151,7 @@ export function parseUrl(url: string): Url | undefined {
         port: match[7],
         path: match[8],
         query: match[10],
-        hash: match[12]
+        hash: match[12],
       };
     }
   }
@@ -158,7 +161,7 @@ export function parseUrl(url: string): Url | undefined {
  * Load a text resource
  */
 function loadText(path: string): CancellablePromise<any> {
-  return request(path).then(response => {
+  return request(path).then((response) => {
     if (!response.ok) {
       throw new Error('Request failed: ' + response.status);
     }
@@ -190,4 +193,14 @@ function resolvePath(path: string, basePath: string) {
   }
 
   return basePathParts.join('/');
+}
+
+async function getSuitesExtension(basePath: string) {
+  return existsAsync(resolvePath('tsconfig.json', basePath)).then(
+    (tsconfigExists) => (tsconfigExists ? 'ts' : 'js')
+  );
+}
+
+async function existsAsync(filePath: string) {
+  return request(filePath, { method: 'HEAD' }).then((response) => response.ok);
 }

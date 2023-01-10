@@ -6,7 +6,7 @@ import {
   join,
   normalize,
   resolve,
-  sep
+  sep,
 } from 'path';
 import { parse } from 'shell-quote';
 import { RawSourceMap } from 'source-map';
@@ -16,10 +16,11 @@ import { Task, CancellablePromise } from '@theintern/common';
 
 import process from './process';
 import {
+  createDefaultConfig,
   getBasePath,
   loadConfig,
   parseArgs,
-  splitConfigPath
+  splitConfigPath,
 } from '../common/util';
 /**
  * Expand a list of glob patterns into a flat file list. Patterns may be simple
@@ -50,10 +51,10 @@ export function expandFiles(patterns?: string[] | string) {
   }
 
   const allPaths = includes
-    .map(pattern => glob(pattern, { ignore: excludes }))
+    .map((pattern) => glob(pattern, { ignore: excludes }))
     .reduce((allFiles, files) => allFiles.concat(files), paths);
   const uniquePaths: { [name: string]: boolean } = {};
-  allPaths.forEach(path => (uniquePaths[path] = true));
+  allPaths.forEach((path) => (uniquePaths[path] = true));
 
   return Object.keys(uniquePaths);
 }
@@ -116,15 +117,14 @@ export function getConfig(
       (error: NodeJS.ErrnoException) => {
         if (error.code === 'ENOENT') {
           file = undefined;
-          return args;
+          return createDefaultConfig(args, getSuitesExtension());
         }
-        throw error;
       }
     );
   }
 
   return load
-    .then(config => {
+    .then((config) => {
       // If a basePath wasn't set in the config or via a query arg, and we
       // have a config file path, use that.
       if (file) {
@@ -132,7 +132,7 @@ export function getConfig(
       }
       return config;
     })
-    .then(config => ({ config, file }));
+    .then((config) => ({ config, file }));
 }
 
 /**
@@ -213,7 +213,7 @@ export function transpileSource(filename: string, code: string) {
     {
       _compile(source: string) {
         code = source;
-      }
+      },
     } as any,
     filename
   );
@@ -222,4 +222,9 @@ export function transpileSource(filename: string, code: string) {
 }
 
 // Regex for matching sourceMappingUrl comments
-const sourceMapRegEx = /^(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;
+const sourceMapRegEx =
+  /^(?:\/{2}[#@]{1,2}|\/\*)\s+sourceMappingURL\s*=\s*(data:(?:[^;]+;)+base64,)?(\S+)/;
+
+function getSuitesExtension() {
+  return existsSync(resolve('tsconfig.json')) ? 'ts' : 'js';
+}

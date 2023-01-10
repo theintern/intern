@@ -20,7 +20,7 @@ getConfig()
       console.log(getConfigDescription(config));
     } else {
       if (!file) {
-        console.warn('No config file was loaded');
+        console.warn('No config file was loaded, using default one...');
       }
 
       intern.configure({ reporters: 'runner' });
@@ -29,9 +29,9 @@ getConfig()
       if (
         intern.environment === 'browser' &&
         ((intern.config.suites &&
-          intern.config.suites.some(pattern => pattern.endsWith('.ts'))) ||
+          intern.config.suites.some((pattern) => pattern.endsWith('.ts'))) ||
           (intern.config.plugins &&
-            intern.config.plugins.some(plugin =>
+            intern.config.plugins.some((plugin) =>
               plugin.script.endsWith('.ts')
             )))
       ) {
@@ -42,7 +42,7 @@ getConfig()
       return intern.run();
     }
   })
-  .catch(error => {
+  .catch((error) => {
     // If intern wasn't initialized, then this error won't have been
     // reported
     if (!error.reported) {
@@ -76,7 +76,7 @@ function printHelp(config: any, file?: string) {
 
   const internConfig = (<any>intern)._config;
   const opts = Object.keys(internConfig)
-    .map(key => {
+    .map((key) => {
       return { name: key, value: JSON.stringify(internConfig[key]) };
     })
     .sort((a, b) => {
