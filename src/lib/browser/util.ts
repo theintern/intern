@@ -1,4 +1,4 @@
-import { CancellablePromise, global, request } from '@theintern/common';
+import { request, CancellablePromise, global } from '@theintern/common';
 
 import {
   createDefaultConfig,
