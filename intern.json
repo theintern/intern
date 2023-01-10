@@ -150,18 +150,18 @@
       },
       "environments": [
         { "browser": "node" },
-        { "browser": "internet explorer", "version": ["10", "11"] },
+        { "browser": "internet explorer", "version": ["11"] },
         {
           "browser": "firefox",
-          "version": ["57", "latest"],
+          "version": ["62", "latest"],
           "platform": ["WINDOWS", "MAC"]
         },
         {
           "browser": "chrome",
-          "version": ["62", "latest"],
+          "version": ["68", "latest"],
           "platform": ["WINDOWS", "MAC"]
         },
-        { "browser": "safari", "version": ["10"] }
+        { "browser": "safari", "version": ["16"] }
       ]
     },
 
@@ -171,18 +171,18 @@
       "tunnel": "saucelabs",
       "environments": [
         { "browser": "node" },
-        { "browser": "internet explorer", "version": ["10", "11"] },
+        { "browser": "internet explorer", "version": ["11"] },
         {
           "browser": "firefox",
-          "version": ["57", "latest"],
-          "platform": ["Windows 10", "OS X 10.12"]
+          "version": ["62", "latest"],
+          "platform": ["Windows 10", "OS X 10.14"]
         },
         {
           "browser": "chrome",
-          "version": ["62", "latest"],
+          "version": ["68", "latest"],
           "platform": ["Windows 10", "OS X 10.12"]
         },
-        { "browser": "safari", "version": ["10"] }
+        { "browser": "safari", "version": ["16"] }
       ]
     }
   }
