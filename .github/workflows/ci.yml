@@ -11,11 +11,12 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        node: [12, 14, 16]
+        node: [14, 16, 18]
         include:
-          - node-version: 16
+          - node-version: 18
             os: ubuntu-latest
             full-ci: true
+      max-parallel: 2
 
     runs-on: ${{ matrix.os }}
 
