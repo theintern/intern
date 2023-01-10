@@ -800,6 +800,18 @@ export function setOption(
 }
 
 /**
+ * Create a default config to make zero-config running possible
+ */
+export function createDefaultConfig(baseConfig: any, suitesExtension: string) {
+  let config = Object.assign({}, baseConfig);
+  config.suites = [
+    `tests/**/*.${suitesExtension}`,
+    `src/**/*.spec.${suitesExtension}`,
+  ];
+  return config;
+}
+
+/**
  * Split a config path into a file name and a child config name.
  *
  * This allows for the case where a file name itself may include the config
