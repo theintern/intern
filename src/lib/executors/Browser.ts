@@ -59,7 +59,7 @@ export default class Browser extends Executor<Events, Config, Plugins> {
     this.registerReporter('dom', (options) => new Dom(this, options));
     this.registerReporter(
       'console',
-      (options) => new ConsoleReporter(this, options)
+      (options) => new ConsoleReporter(this, options, this.config.debug)
     );
 
     if (options) {

@@ -8,11 +8,17 @@ import Reporter, { eventHandler, ReporterOptions } from './Reporter';
  */
 export default class ConsoleReporter extends Reporter {
   private _hasGrouping: boolean;
+  private _debugLogs: boolean;
   private _testId: keyof Test;
 
-  constructor(executor: Executor, options: ReporterOptions = {}) {
+  constructor(
+    executor: Executor,
+    options: ReporterOptions = {},
+    debugLogs: boolean = false
+  ) {
     super(executor, options);
     this._hasGrouping = 'group' in this.console && 'groupEnd' in this.console;
+    this._debugLogs = debugLogs;
     this._testId = this._hasGrouping ? 'name' : 'id';
   }
 
@@ -20,6 +26,13 @@ export default class ConsoleReporter extends Reporter {
   error(error: Error) {
     this.console.warn('FATAL ERROR');
     this.console.error(this.formatError(error));
+  }
+
+  @eventHandler()
+  log(data: any) {
+    if (this._debugLogs) {
+      this.console.log(data);
+    }
   }
 
   @eventHandler()
