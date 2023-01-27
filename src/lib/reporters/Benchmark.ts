@@ -30,8 +30,10 @@ import Suite from '../Suite';
  * * **hz:** Hertz (number of executions of a function per second). 1/Hz is the
  *   mean execution time of function.
  */
-export default class BenchmarkReporter extends Reporter
-  implements BenchmarkReporterProperties {
+export default class BenchmarkReporter
+  extends Reporter
+  implements BenchmarkReporterProperties
+{
   baseline!: BenchmarkBaseline;
 
   filename: string;
@@ -99,8 +101,8 @@ export default class BenchmarkReporter extends Reporter
           client,
           version,
           platform,
-          id: client + ':' + version + ':' + platform
-        }
+          id: client + ':' + version + ':' + platform,
+        },
       };
     }
 
@@ -122,7 +124,7 @@ export default class BenchmarkReporter extends Reporter
       // Merge the newly recorded baseline data into the existing baseline
       // data and write it back out to output file.
       const baseline = this.baseline;
-      Object.keys(baseline).forEach(function(environmentId) {
+      Object.keys(baseline).forEach(function (environmentId) {
         existingBaseline[environmentId] = baseline[environmentId];
       });
       writeFileSync(
@@ -188,7 +190,7 @@ export default class BenchmarkReporter extends Reporter
           client: environment.client,
           version: environment.version,
           platform: environment.platform,
-          tests: {}
+          tests: {},
         };
       } else if (!baselineEnvironments[environment.id]) {
         this.console.warn('No baseline data for ' + environmentName + '!');
@@ -196,7 +198,7 @@ export default class BenchmarkReporter extends Reporter
     } else {
       session.suites[suite.id] = {
         numBenchmarks: 0,
-        numFailedBenchmarks: 0
+        numFailedBenchmarks: 0,
       };
     }
   }
@@ -301,8 +303,8 @@ export default class BenchmarkReporter extends Reporter
           stats: {
             rme: benchmark.stats.rme,
             moe: benchmark.stats.moe,
-            mean: benchmark.stats.mean
-          }
+            mean: benchmark.stats.mean,
+          },
         };
         this.console.log('Baselined ' + benchmarkTest.name);
         this.executor.log(

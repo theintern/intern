@@ -60,7 +60,7 @@ export default class Reporter implements ReporterProperties {
           end(chunk: string, _encoding: string, callback: Function) {
             _console.log(chunk);
             callback();
-          }
+          },
         };
       }
     }
@@ -101,7 +101,7 @@ export function createEventHandler<
   E extends Events,
   N extends NoDataEvents = NoDataEvents
 >() {
-  return function() {
+  return function () {
     function decorate(
       target: any,
       propertyKey: N,
@@ -171,7 +171,7 @@ function getConsole() {
     time: noop,
     timeEnd: noop,
     trace: noop,
-    warn: noop
+    warn: noop,
   };
 }
 

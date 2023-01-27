@@ -17,7 +17,7 @@ const channel = new Channel({
   url: config.serverUrl,
   sessionId: config.sessionId,
   port: config.socketPort,
-  timeout: config.socketTimeout
+  timeout: config.socketTimeout,
 });
 
 function displayMessage(message: string) {
@@ -37,7 +37,7 @@ try {
       return;
     }
 
-    let promise = channel.sendMessage(name, data).catch(error => {
+    let promise = channel.sendMessage(name, data).catch((error) => {
       displayMessage(`Error sending ${name}: ${error.message}`);
       console.error(error);
     });

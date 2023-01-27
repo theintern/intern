@@ -2,7 +2,7 @@ import {
   Task,
   CancellablePromise,
   isPromiseLike,
-  isTask
+  isTask,
 } from '@theintern/common';
 
 import Deferred from './Deferred';
@@ -79,16 +79,16 @@ export default class Suite implements SuiteProperties {
    */
   constructor(options: SuiteOptions | RootSuiteOptions) {
     Object.keys(options)
-      .filter(key => {
+      .filter((key) => {
         return key !== 'tests';
       })
-      .forEach(option => {
+      .forEach((option) => {
         const key = <keyof (SuiteOptions | RootSuiteOptions)>option;
         (this as any)[key] = options[key]!;
       });
 
     if (options.tests) {
-      options.tests.forEach(suiteOrTest => this.add(suiteOrTest));
+      options.tests.forEach((suiteOrTest) => this.add(suiteOrTest));
     }
 
     if (!this.name && this.parent) {
@@ -306,7 +306,7 @@ export default class Suite implements SuiteProperties {
       throw new Error('This Suite or Test already belongs to another parent');
     }
 
-    this.tests.forEach(existingSuiteOrTest => {
+    this.tests.forEach((existingSuiteOrTest) => {
       if (existingSuiteOrTest.name === suiteOrTest.name) {
         throw new Error(
           `A suite or test named "${suiteOrTest.name}" has already been added`
@@ -343,7 +343,7 @@ export default class Suite implements SuiteProperties {
   }
 
   private _applyGrepToChildren() {
-    this.tests.forEach(suiteOrTest =>
+    this.tests.forEach((suiteOrTest) =>
       this._applyGrepToSuiteOrTest(suiteOrTest)
     );
   }
@@ -366,7 +366,7 @@ export default class Suite implements SuiteProperties {
 
     // Run when the suite starts
     const start = () => {
-      return this.executor.emit('suiteStart', this).then(function() {
+      return this.executor.emit('suiteStart', this).then(function () {
         startTime = now();
       });
     };
@@ -405,13 +405,13 @@ export default class Suite implements SuiteProperties {
           // Provide a new Suite#async method for each call of a
           // lifecycle method since there's no concept of a Suite-wide
           // async deferred as there is for Tests.
-          suite.async = function(_timeout?: number) {
+          suite.async = function (_timeout?: number) {
             timeout = _timeout;
 
             const _dfd = new Deferred<any>();
             dfd = _dfd;
 
-            suite.async = function() {
+            suite.async = function () {
               return _dfd;
             };
 
@@ -443,7 +443,7 @@ export default class Suite implements SuiteProperties {
             // use the dfd created by the call to manage the
             // timeout.
             if (timeout) {
-              let timer = setTimeout(function() {
+              let timer = setTimeout(function () {
                 const error = new Error(
                   `Timeout reached on ${suite.id}#${name}`
                 );
@@ -452,14 +452,17 @@ export default class Suite implements SuiteProperties {
               }, timeout);
 
               _dfd.promise
-                .catch(_error => {})
+                .catch((_error) => {})
                 .then(() => timer && clearTimeout(timer));
             }
 
             // If the return value looks like a promise, resolve the
             // dfd if the return value resolves
             if (isPromiseLike(result)) {
-              result.then(() => _dfd.resolve(), error => _dfd.reject(error));
+              result.then(
+                () => _dfd.resolve(),
+                (error) => _dfd.reject(error)
+              );
             }
 
             // Use the dfd.promise as the final result
@@ -625,11 +628,11 @@ export default class Suite implements SuiteProperties {
                 // be reported but should not cause this suite’s
                 // run to reject, since this suite itself has
                 // not failed.
-                const result = test.run().catch(error => {
+                const result = test.run().catch((error) => {
                   handleError(error);
                 });
                 testTask = new Task<void>(
-                  resolve => {
+                  (resolve) => {
                     result.then(resolve);
                   },
                   () => {
@@ -670,7 +673,7 @@ export default class Suite implements SuiteProperties {
                       testTask = undefined;
                       return runTestLifecycle('afterEach', test);
                     })
-                    .catch(error => {
+                    .catch((error) => {
                       firstError = firstError || error;
                       return handleError(error);
                     });
@@ -744,7 +747,7 @@ export default class Suite implements SuiteProperties {
   toJSON(): object {
     const json: { [key: string]: any } = {
       hasParent: Boolean(this.parent),
-      tests: this.tests.map(test => test.toJSON())
+      tests: this.tests.map((test) => test.toJSON()),
     };
     const properties: (keyof Suite)[] = [
       'name',
@@ -756,10 +759,10 @@ export default class Suite implements SuiteProperties {
       'numPassedTests',
       'numFailedTests',
       'numSkippedTests',
-      'skipped'
+      'skipped',
     ];
 
-    properties.forEach(key => {
+    properties.forEach((key) => {
       const value = this[key];
       if (typeof value !== 'undefined') {
         json[key] = value;

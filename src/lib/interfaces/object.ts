@@ -81,7 +81,7 @@ export function getInterface(executor: Executor) {
       descriptorOrFactory: ObjectSuiteDescriptor | ObjectSuiteFactory | Tests
     ) {
       return _registerSuite(executor, name, descriptorOrFactory);
-    }
+    },
   };
 }
 
@@ -121,7 +121,7 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
   // Initialize a new SuiteOptions object from the provided
   // ObjectSuiteDescriptor
   if (isObjectSuiteDescriptor(descriptor)) {
-    const keys = Object.keys(descriptor).filter(key => key !== 'tests');
+    const keys = Object.keys(descriptor).filter((key) => key !== 'tests');
     for (const key of keys) {
       let optionsKey = <keyof SuiteOptions>key;
 
@@ -129,13 +129,13 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
       if (key === 'setup') {
         parent.executor.emit('deprecated', {
           original: 'Suite#setup',
-          replacement: 'Suite#before'
+          replacement: 'Suite#before',
         });
         optionsKey = 'before';
       } else if (key === 'teardown') {
         parent.executor.emit('deprecated', {
           original: 'Suite#teardown',
-          replacement: 'Suite#after'
+          replacement: 'Suite#after',
         });
         optionsKey = 'after';
       }
@@ -152,7 +152,7 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
   const suite = new SuiteClass(options);
 
   Object.keys(tests)
-    .map(name => {
+    .map((name) => {
       if (
         name === 'before' ||
         name === 'after' ||
@@ -172,7 +172,7 @@ export function createSuite<S extends typeof Suite, T extends typeof Test>(
       }
       return createSuite(name, suite, { ...thing }, SuiteClass, TestClass);
     })
-    .forEach(suiteOrTest => {
+    .forEach((suiteOrTest) => {
       suite.add(suiteOrTest);
     });
 
@@ -188,7 +188,7 @@ function _registerSuite(
   name: string,
   descriptorOrFactory: ObjectSuiteDescriptor | ObjectSuiteFactory | Tests
 ) {
-  executor.addSuite(parent => {
+  executor.addSuite((parent) => {
     // Enable per-suite closure, to match feature parity with other
     // interfaces like tdd/bdd more closely; without this, it becomes
     // impossible to use the object interface for functional tests since

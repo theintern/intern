@@ -19,7 +19,7 @@ export default function resolveSuites(context: Context): RequestHandler {
     );
     response.writeHead(200, {
       'Content-Type': 'application/json',
-      'Content-Length': resolvedSuites.length
+      'Content-Length': resolvedSuites.length,
     });
     response.end(resolvedSuites);
   };

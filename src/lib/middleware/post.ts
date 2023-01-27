@@ -18,7 +18,7 @@ export default function post(context: Context): RequestHandler {
         rawMessages = [rawMessages];
       }
 
-      const messages: Message[] = rawMessages.map(function(
+      const messages: Message[] = rawMessages.map(function (
         messageString: string
       ) {
         return JSON.parse(messageString);
@@ -26,7 +26,7 @@ export default function post(context: Context): RequestHandler {
 
       executor.log('Received HTTP messages');
 
-      Promise.all(messages.map(message => handleMessage(message)))
+      Promise.all(messages.map((message) => handleMessage(message)))
         .then(() => {
           response.statusCode = 204;
           response.end();

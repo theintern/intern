@@ -7,7 +7,7 @@ import {
   CancellablePromise,
   isPromiseLike,
   isTask,
-  global
+  global,
 } from '@theintern/common';
 
 import Suite from '../Suite';
@@ -17,25 +17,25 @@ import {
   BenchmarkConfig,
   Config,
   PluginDescriptor,
-  ReporterDescriptor
+  ReporterDescriptor,
 } from '../common/config';
 import { normalizePathEnding } from '../common/path';
 import { processOption, pullFromArray } from '../common/util';
 import {
   getInterface as getObjectInterface,
-  ObjectInterface
+  ObjectInterface,
 } from '../interfaces/object';
 import {
   getInterface as getTddInterface,
-  TddInterface
+  TddInterface,
 } from '../interfaces/tdd';
 import {
   getInterface as getBddInterface,
-  BddInterface
+  BddInterface,
 } from '../interfaces/bdd';
 import {
   getInterface as getBenchmarkInterface,
-  BenchmarkInterface
+  BenchmarkInterface,
 } from '../interfaces/benchmark';
 import { InternError, RuntimeEnvironment } from '../types';
 import * as console from '../common/console';
@@ -78,7 +78,8 @@ export default abstract class BaseExecutor<
   E extends Events,
   C extends Config,
   P extends Plugins
-> implements Executor {
+> implements Executor
+{
   protected _config: C;
   protected _rootSuite: Suite;
   protected _events: InternEvent<E>[];
@@ -105,7 +106,7 @@ export default abstract class BaseExecutor<
       browser: {
         plugins: <PluginDescriptor[]>[],
         reporters: <ReporterDescriptor[]>[],
-        suites: <string[]>[]
+        suites: <string[]>[],
       },
       coverageVariable: '__coverage__',
       debug: false,
@@ -117,12 +118,12 @@ export default abstract class BaseExecutor<
       node: {
         plugins: <PluginDescriptor[]>[],
         reporters: <ReporterDescriptor[]>[],
-        suites: <string[]>[]
+        suites: <string[]>[],
       },
       plugins: <PluginDescriptor[]>[],
       reporters: <ReporterDescriptor[]>[],
       sessionId: '',
-      suites: <string[]>[]
+      suites: <string[]>[],
     };
 
     this._reportersInitialized = false;
@@ -148,7 +149,7 @@ export default abstract class BaseExecutor<
     // This is the first suiteEnd listener. When the root unit test suite
     // ends, it will emit a coverage message before any other suiteEnd
     // listeners are called.
-    this.on('suiteEnd', suite => {
+    this.on('suiteEnd', (suite) => {
       if (suite.error) {
         this._hasSuiteErrors = true;
       }
@@ -157,7 +158,7 @@ export default abstract class BaseExecutor<
       }
     });
 
-    this.on('testEnd', test => {
+    this.on('testEnd', (test) => {
       if (test.error) {
         this._hasTestErrors = true;
       }
@@ -238,7 +239,7 @@ export default abstract class BaseExecutor<
    * [[lib/executors/Executor.Config]] properties.
    */
   configure(options: { [key in keyof C]?: any }) {
-    Object.keys(options).forEach(option => {
+    Object.keys(options).forEach((option) => {
       const key = <keyof C>option;
       this._processOption(key, options[key]);
     });
@@ -323,9 +324,7 @@ export default abstract class BaseExecutor<
       } else if (eventName === 'deprecated') {
         const message: Events['deprecated'] = <any>data!;
         console.warn(
-          `WARNING: ${message.original} is deprecated, use ${
-            message.replacement
-          } instead.`
+          `WARNING: ${message.original} is deprecated, use ${message.replacement} instead.`
         );
       }
 
@@ -398,7 +397,7 @@ export default abstract class BaseExecutor<
   log(...args: any[]): CancellablePromise<void> {
     if (this.config.debug) {
       const message = args
-        .map(arg => {
+        .map((arg) => {
           const type = typeof arg;
           if (type === 'string') {
             return arg;
@@ -410,7 +409,7 @@ export default abstract class BaseExecutor<
             arg = {
               name: arg.name,
               message: arg.message,
-              stack: arg.stack
+              stack: arg.stack,
             };
           }
           try {
@@ -478,9 +477,9 @@ export default abstract class BaseExecutor<
 
     const handle: Handle = {
       destroy(this: any) {
-        this.destroy = function() {};
+        this.destroy = function () {};
         pullFromArray(listeners, listener);
-      }
+      },
     };
     return handle;
   }
@@ -583,11 +582,11 @@ export default abstract class BaseExecutor<
       this._loadingPlugins.push({
         name: pluginName,
         init: new Task<any>(
-          (resolve, reject) => result.then(value => resolve(value), reject),
+          (resolve, reject) => result.then((value) => resolve(value), reject),
           () => {
             isTask(result) && result.cancel();
           }
-        )
+        ),
       });
     } else {
       // If the result is not thenable, immediately add it to the plugins
@@ -639,7 +638,7 @@ export default abstract class BaseExecutor<
                   const newObj: { [key: string]: any } = {};
                   Object.keys(value)
                     .sort()
-                    .forEach(key => {
+                    .forEach((key) => {
                       newObj[key] = sort(value[key]);
                     });
                   value = newObj;
@@ -660,7 +659,7 @@ export default abstract class BaseExecutor<
                 )
               );
             })
-            .catch(error => {
+            .catch((error) => {
               // Display resolution errors because reporters
               // haven't been installed yet
               console.error(this.formatError(error));
@@ -692,7 +691,7 @@ export default abstract class BaseExecutor<
                     .then(() => {
                       return this.emit('runStart')
                         .then(() => (testingTask = this._runTests()))
-                        .catch(error => {
+                        .catch((error) => {
                           runError = error;
                           return this.emit('error', error);
                         })
@@ -723,7 +722,7 @@ export default abstract class BaseExecutor<
                 currentTask.cancel();
               }
             })
-            .catch(error => {
+            .catch((error) => {
               return this.emit('error', error).finally(() => {
                 // A runError has priority over any cleanup
                 // errors, so rethrow one if it exists.
@@ -821,9 +820,9 @@ export default abstract class BaseExecutor<
 
     // Take reporters from the base config that aren't also specified in an
     // environment config
-    const baseReporters = config.reporters.filter(reporter => {
+    const baseReporters = config.reporters.filter((reporter) => {
       return !envReporters.some(
-        envReporter => envReporter.name === reporter.name
+        (envReporter) => envReporter.name === reporter.name
       );
     });
 
@@ -868,7 +867,7 @@ export default abstract class BaseExecutor<
       return this.emit('coverage', {
         coverage,
         source,
-        sessionId: this.config.sessionId
+        sessionId: this.config.sessionId,
       });
     }
   }
@@ -880,7 +879,7 @@ export default abstract class BaseExecutor<
     // If registerLoader was already called, just wait for that loader to
     // initialize
     if (this._loaderInit) {
-      return this._loaderInit.then(loader => {
+      return this._loaderInit.then((loader) => {
         this._loader = loader;
       });
     } else {
@@ -910,7 +909,7 @@ export default abstract class BaseExecutor<
           }
           return this._loaderInit;
         })
-        .then(loader => {
+        .then((loader) => {
           this._loader = loader;
         });
     }
@@ -923,9 +922,9 @@ export default abstract class BaseExecutor<
   protected _loadPluginsWithLoader() {
     const scripts = [
       ...this.config.plugins,
-      ...this.config[this.environment].plugins
-    ].filter(plugin => plugin.useLoader);
-    return this._loadScripts(scripts, script => this._loader([script]));
+      ...this.config[this.environment].plugins,
+    ].filter((plugin) => plugin.useLoader);
+    return this._loadScripts(scripts, (script) => this._loader([script]));
   }
 
   /**
@@ -935,9 +934,9 @@ export default abstract class BaseExecutor<
   protected _loadPlugins() {
     const scripts = [
       ...this.config.plugins,
-      ...this.config[this.environment].plugins
-    ].filter(plugin => !plugin.useLoader);
-    return this._loadScripts(scripts, script => this.loadScript(script));
+      ...this.config[this.environment].plugins,
+    ].filter((plugin) => !plugin.useLoader);
+    return this._loadScripts(scripts, (script) => this.loadScript(script));
   }
 
   /**
@@ -966,8 +965,8 @@ export default abstract class BaseExecutor<
       .then(() => {
         // Wait for all plugin registrations, both configured ones and
         // any that were manually registered, to resolve
-        return Task.all(this._loadingPlugins.map(entry => entry.init)).then(
-          plugins => {
+        return Task.all(this._loadingPlugins.map((entry) => entry.init)).then(
+          (plugins) => {
             plugins.forEach((plugin, index) => {
               this._assignPlugin(this._loadingPlugins[index].name, plugin);
             });
@@ -1015,9 +1014,9 @@ export default abstract class BaseExecutor<
           filename: 'baseline.json',
           thresholds: {
             warn: { rme: 3, mean: 5 },
-            fail: { rme: 6, mean: 10 }
+            fail: { rme: 6, mean: 10 },
           },
-          verbosity: 0
+          verbosity: 0,
         },
         config.benchmarkConfig || {}
       );

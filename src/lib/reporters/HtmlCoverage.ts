@@ -1,8 +1,10 @@
 import Coverage, { ReportType, CoverageProperties } from './Coverage';
 import Node from '../executors/Node';
 
-export default class HtmlCoverage extends Coverage
-  implements HtmlCoverageProperties {
+export default class HtmlCoverage
+  extends Coverage
+  implements HtmlCoverageProperties
+{
   readonly reportType: ReportType = 'html';
   verbose: boolean | undefined;
 

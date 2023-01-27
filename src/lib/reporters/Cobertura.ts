@@ -1,8 +1,10 @@
 import Coverage, { ReportType, CoverageProperties } from './Coverage';
 import Node from '../executors/Node';
 
-export default class Cobertura extends Coverage
-  implements CoberturaCoverageProperties {
+export default class Cobertura
+  extends Coverage
+  implements CoberturaCoverageProperties
+{
   readonly reportType: ReportType = 'cobertura';
   projectRoot: string | undefined;
 

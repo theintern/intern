@@ -9,7 +9,7 @@ import {
   before,
   after,
   beforeEach,
-  afterEach
+  afterEach,
 } from './tdd';
 
 export interface BddInterface extends TddLifecycleInterface {
@@ -22,9 +22,8 @@ export { test as it };
 export { before, after, beforeEach, afterEach };
 
 export function getInterface(executor: Executor): BddInterface {
-  const { suite, test, before, after, beforeEach, afterEach } = getTddInterface(
-    executor
-  );
+  const { suite, test, before, after, beforeEach, afterEach } =
+    getTddInterface(executor);
 
   return {
     describe: suite,
@@ -32,6 +31,6 @@ export function getInterface(executor: Executor): BddInterface {
     before,
     after,
     beforeEach,
-    afterEach
+    afterEach,
   };
 }

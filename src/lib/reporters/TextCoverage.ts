@@ -1,8 +1,10 @@
 import Coverage, { ReportType, CoverageProperties } from './Coverage';
 import Node from '../executors/Node';
 
-export default class TextCoverage extends Coverage
-  implements TextCoverageProperties {
+export default class TextCoverage
+  extends Coverage
+  implements TextCoverageProperties
+{
   readonly reportType: ReportType = 'text';
   maxColumns: number | undefined;
 

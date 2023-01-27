@@ -27,7 +27,7 @@ import { global } from '@theintern/common';
 import Suite, {
   SuiteProperties,
   SuiteLifecycleFunction,
-  TestLifecycleFunction
+  TestLifecycleFunction,
 } from '../Suite';
 import Test, { TestProperties } from '../Test';
 import { Executor } from '../executors/Executor';
@@ -95,7 +95,7 @@ export function getInterface(executor: Executor): TddInterface {
     before,
     after,
     beforeEach,
-    afterEach
+    afterEach,
   };
 }
 
@@ -114,7 +114,7 @@ function registerSuite(name: string, factory: TddSuiteFactory) {
 
 function _suite(executor: Executor, name: string, factory: TddSuiteFactory) {
   if (!currentSuite) {
-    executor.addSuite(parent => {
+    executor.addSuite((parent) => {
       currentSuite = parent;
       registerSuite(name, factory);
       currentSuite = null;
@@ -133,7 +133,7 @@ function aspect(
     this: Suite,
     firstArg: Suite | Test
   ) => void;
-  suite[method] = function(...args: [Suite | Test]) {
+  suite[method] = function (...args: [Suite | Test]) {
     const originalReturn = originalMethod
       ? originalMethod.apply(suite, args)
       : undefined;

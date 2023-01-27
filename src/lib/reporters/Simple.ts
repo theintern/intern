@@ -14,7 +14,7 @@ export default class Simple extends TextCoverage {
 
   @eventHandler()
   log(message: string) {
-    message.split('\n').forEach(line => {
+    message.split('\n').forEach((line) => {
       this.console.log(`DEBUG: ${line}`);
     });
   }

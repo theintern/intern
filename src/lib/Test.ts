@@ -2,7 +2,7 @@ import {
   Task,
   CancellablePromise,
   isPromiseLike,
-  isTask
+  isTask,
 } from '@theintern/common';
 
 import { Executor } from './executors/Executor';
@@ -58,7 +58,7 @@ export default class Test implements TestProperties {
       throw new Error('A Test requires a name and a test function');
     }
 
-    ['timeElapsed', 'hasPassed'].forEach(property => {
+    ['timeElapsed', 'hasPassed'].forEach((property) => {
       const name = <keyof TestOptions>property;
       if (options[name] != null) {
         (<any>this)[`_${name}`] = options[name];
@@ -190,7 +190,7 @@ export default class Test implements TestProperties {
      * many times as specified by the `numCallsUntilResolution` parameter of
      * the original `async` call.
      */
-    dfd.resolve = function<T>(this: any, value?: T) {
+    dfd.resolve = function <T>(this: any, value?: T) {
       --remainingCalls;
       if (remainingCalls === 0) {
         oldResolve.call(this, value);
@@ -201,7 +201,7 @@ export default class Test implements TestProperties {
 
     // A test may call this function multiple times and should always get
     // the same Deferred
-    this.async = function() {
+    this.async = function () {
       return dfd;
     };
 
@@ -300,7 +300,7 @@ export default class Test implements TestProperties {
                       settled = true;
                       resolve();
                     },
-                    error => {
+                    (error) => {
                       settled = true;
                       reject(error);
                     }
@@ -324,7 +324,7 @@ export default class Test implements TestProperties {
                     })
                     // If the result rejected, consume the
                     // error; it's handled above
-                    .catch(_error => {});
+                    .catch((_error) => {});
                 }
               },
               () => {
@@ -375,7 +375,7 @@ export default class Test implements TestProperties {
         }
         this._hasPassed = true;
       })
-      .catch(error => {
+      .catch((error) => {
         // There was an error running the test; could be a skip, could
         // be an assertion failure
         if (error === SKIP) {
@@ -420,10 +420,10 @@ export default class Test implements TestProperties {
       'timeElapsed',
       'timeout',
       'hasPassed',
-      'skipped'
+      'skipped',
     ];
 
-    properties.forEach(key => {
+    properties.forEach((key) => {
       const value = this[key];
       if (typeof value !== 'undefined') {
         json[key] = value;

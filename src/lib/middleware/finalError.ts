@@ -9,7 +9,7 @@ export default function finalError(): ErrorRequestHandler {
       : STATUS_CODES[error.statusCode];
 
     response.writeHead(error.statusCode, {
-      'Content-Type': 'text/html;charset=utf-8'
+      'Content-Type': 'text/html;charset=utf-8',
     });
 
     response.end(`<!DOCTYPE html><title>${

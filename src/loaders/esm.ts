@@ -3,7 +3,7 @@
 /**
  * A loader script for loading ES-module JavaScript suites in the browser.
  */
-intern.registerLoader(_config => {
+intern.registerLoader((_config) => {
   if (intern.environment !== 'browser') {
     throw new Error('The ESM loader only works in the browser');
   }

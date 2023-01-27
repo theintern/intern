@@ -30,5 +30,5 @@ export {
   proxyClearTimeout as clearTimeout,
   proxySetInterval as setInterval,
   proxyClearInterval as clearInterval,
-  proxyNow as now
+  proxyNow as now,
 };

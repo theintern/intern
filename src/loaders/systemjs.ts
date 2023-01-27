@@ -6,7 +6,7 @@
  * Note that loader scripts must be simple scripts, not modules.
  */
 
-intern.registerLoader(options => {
+intern.registerLoader((options) => {
   const globalObj: any = typeof window !== 'undefined' ? window : global;
   const {
     internLoaderPath = 'node_modules/systemjs/dist/system.src.js',
@@ -33,15 +33,12 @@ intern.registerLoader(options => {
 
     return (modules: string[]) => {
       intern.log('Loading modules with SystemJS:', modules);
-      return modules.reduce(
-        (previous, suite) => {
-          if (previous) {
-            return previous.then(() => loader.import(suite));
-          }
-          return loader.import(suite);
-        },
-        <any>null
-      );
+      return modules.reduce((previous, suite) => {
+        if (previous) {
+          return previous.then(() => loader.import(suite));
+        }
+        return loader.import(suite);
+      }, <any>null);
     };
   }
 });

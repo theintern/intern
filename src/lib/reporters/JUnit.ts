@@ -29,7 +29,7 @@ export default class JUnit extends Reporter {
   @eventHandler()
   runEnd() {
     const rootNode = new XmlNode('testsuites');
-    this.executor.suites.forEach(suite => {
+    this.executor.suites.forEach((suite) => {
       rootNode.childNodes.push(createSuiteNode(suite, this));
     });
     const report =
@@ -131,7 +131,7 @@ function createChildErrorNode(error: Error, reporter: JUnit) {
   return new XmlNode('error', {
     childNodes: [reporter.formatError(error)],
     message: error.message,
-    type: error.name
+    type: error.name,
   });
 }
 
@@ -141,7 +141,7 @@ function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
   if (error && error.lifecycleMethod === 'before') {
     childNodes = [createChildErrorNode(error, reporter)];
   } else {
-    childNodes = suite.tests.map(test => createTestNode(test, reporter));
+    childNodes = suite.tests.map((test) => createTestNode(test, reporter));
   }
 
   if (error && error.lifecycleMethod === 'after') {
@@ -154,7 +154,7 @@ function createSuiteNode(suite: Suite, reporter: JUnit): XmlNode {
     skipped: suite.numSkippedTests,
     tests: suite.numTests,
     time: suite.timeElapsed! / 1000,
-    childNodes
+    childNodes,
   });
 }
 
@@ -166,7 +166,7 @@ function createTestNode(test: Suite | Test, reporter: JUnit) {
   const node = new XmlNode('testcase', {
     name: test.name,
     time: test.timeElapsed! / 1000,
-    status: test.error ? 1 : 0
+    status: test.error ? 1 : 0,
   });
 
   if (test.error || test.suiteError) {
@@ -174,11 +174,11 @@ function createTestNode(test: Suite | Test, reporter: JUnit) {
     node.createNode(error.name === 'AssertionError' ? 'failure' : 'error', {
       childNodes: [reporter.formatError(error)],
       message: error.message,
-      type: error.name
+      type: error.name,
     });
   } else if (test.skipped != null) {
     node.createNode('skipped', {
-      childNodes: [test.skipped]
+      childNodes: [test.skipped],
     });
   }
 

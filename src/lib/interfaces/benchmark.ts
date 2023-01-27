@@ -7,7 +7,7 @@ import { Executor } from '../executors/Executor';
 import { createSuite, isSuiteDescriptorFactory } from './object';
 import BenchmarkTest, {
   BenchmarkDeferredTestFunction,
-  BenchmarkTestFunction
+  BenchmarkTestFunction,
 } from '../BenchmarkTest';
 import BenchmarkSuite, { BenchmarkSuiteProperties } from '../BenchmarkSuite';
 
@@ -39,7 +39,7 @@ export function getInterface(executor: Executor) {
       return _registerSuite(executor, name, descriptorOrFactory);
     },
 
-    async: BenchmarkTest.async
+    async: BenchmarkTest.async,
   };
 }
 
@@ -92,7 +92,7 @@ function _registerSuite(
     return;
   }
 
-  executor.addSuite(parent => {
+  executor.addSuite((parent) => {
     // Enable per-suite closure, to match feature parity with other
     // interfaces like tdd/bdd more closely; without this, it becomes
     // impossible to use the object interface for functional tests since

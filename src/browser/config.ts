@@ -5,5 +5,5 @@ import { getConfigDescription } from '../lib/common/util';
 
 global.internConfig = {
   getConfig,
-  getConfigDescription
+  getConfigDescription,
 };

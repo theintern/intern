@@ -5,7 +5,7 @@ import Node from './executors/Node';
 
 /* istanbul ignore next: client-side code */
 function getCoverageData(coverageVariable: string) {
-  let coverageData = (function(this: any) {
+  let coverageData = (function (this: any) {
     return this;
   })()[coverageVariable];
   return coverageData && JSON.stringify(coverageData);
@@ -101,10 +101,10 @@ export default class ProxiedSession extends Session {
         let startTime = Date.now();
 
         this._heartbeatIntervalHandle = {
-          remove: function() {
+          remove: function () {
             cancelled = true;
             clearTimeout(timeoutId);
-          }
+          },
         };
 
         this.getCurrentUrl()
@@ -116,7 +116,7 @@ export default class ProxiedSession extends Session {
               );
             }
           })
-          .catch(error => this.executor.emit('error', error));
+          .catch((error) => this.executor.emit('error', error));
       };
 
       sendHeartbeat();
@@ -132,24 +132,24 @@ export default class ProxiedSession extends Session {
     // URLs, so we can't get coverage data.
     if (this.capabilities.brokenExecuteForNonHttpUrl) {
       shouldGetPromise = Task.resolve(
-        this.getCurrentUrl().then(url => /^https?:/i.test(url))
+        this.getCurrentUrl().then((url) => /^https?:/i.test(url))
       );
     } else {
       shouldGetPromise = Task.resolve(true);
     }
 
-    return shouldGetPromise.then(shouldGetCoverage => {
+    return shouldGetPromise.then((shouldGetCoverage) => {
       if (shouldGetCoverage) {
         return this.execute<string>(getCoverageData, [
-          this.coverageVariable
-        ]).then(coverageData => {
+          this.coverageVariable,
+        ]).then((coverageData) => {
           // Emit coverage retrieved from a remote session
           this.executor.log('Got coverage data for', this.sessionId);
           if (coverageData) {
             return this.executor.emit('coverage', {
               sessionId: this.sessionId,
               source: 'remote session',
-              coverage: JSON.parse(coverageData)
+              coverage: JSON.parse(coverageData),
             });
           }
         });

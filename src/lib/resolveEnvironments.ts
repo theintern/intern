@@ -32,7 +32,7 @@ export default function resolveEnvironments(
   const flatEnvironments = createPermutations(capabilities, environments);
 
   // Expand any version ranges or aliases in the environments.
-  const expandedEnvironments = flatEnvironments.map(function(environment) {
+  const expandedEnvironments = flatEnvironments.map(function (environment) {
     const browserVersion = resolveVersions(environment, available);
     if (browserVersion == null) {
       return environment;
@@ -40,7 +40,7 @@ export default function resolveEnvironments(
     return {
       ...environment,
       browserVersion,
-      version: browserVersion
+      version: browserVersion,
     };
   });
 
@@ -81,7 +81,7 @@ function expandPwd<T>(value: T): T {
     return <any>Object.keys(value).reduce(
       (newObj, key) => ({
         ...newObj,
-        [key]: expandPwd((<any>value)[key])
+        [key]: expandPwd((<any>value)[key]),
       }),
       {}
     );
@@ -126,7 +126,7 @@ function expandVersionRange(
       'The version range ' + left + '..' + right + ' is unavailable'
     );
   }
-  return availableVersions.filter(function(version) {
+  return availableVersions.filter(function (version) {
     return version >= left && version <= right;
   });
 }
@@ -162,7 +162,7 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
     throw new Error('Invalid alias syntax "' + version + '"');
   }
 
-  pieces = pieces.map(function(piece) {
+  pieces = pieces.map(function (piece) {
     return piece.trim();
   });
 
@@ -177,7 +177,7 @@ function resolveVersionAlias(version: string, availableVersions: string[]) {
   if (pieces[0] === 'latest') {
     // Only consider numeric versions; we don't want 'beta' or 'dev'
     const numericVersions = availableVersions
-      .filter(version => !isNaN(Number(version)))
+      .filter((version) => !isNaN(Number(version)))
       .sort((a, b) => Number(a) - Number(b));
 
     let offset = pieces.length === 2 ? Number(pieces[1]) : 0;
@@ -207,7 +207,7 @@ function splitVersions(versionSpec: string) {
     throw new Error('Invalid version syntax');
   }
 
-  return versions.map(function(version) {
+  return versions.map(function (version) {
     return version.trim();
   });
 }
@@ -228,20 +228,20 @@ function getVersions(
   let versions: { [key: string]: boolean } = {};
 
   available
-    .filter(function(availableEnvironment) {
+    .filter(function (availableEnvironment) {
       // Return true if there are no mismatching keys
       return !Object.keys(environment)
         // Don't match on version since we want all the available versions where
         // all the other keys match. Don't match 'browser' since we'll always
         // have 'browserName'.
         .filter(
-          key =>
+          (key) =>
             key === 'browserName' ||
             key === 'platformName' ||
             key === 'platform' ||
             key === 'platformVersion'
         )
-        .some(envKey => {
+        .some((envKey) => {
           const key = <keyof NormalizedEnvironment>envKey;
           if (!(key in availableEnvironment)) {
             return false;
@@ -268,7 +268,7 @@ function getVersions(
           return availableValue !== value;
         });
     })
-    .forEach(function(availableEnvironment) {
+    .forEach(function (availableEnvironment) {
       versions[availableEnvironment.version] = true;
     });
 
@@ -308,13 +308,11 @@ function resolveVersions(
   if (versionSpec && isNaN(Number(versionSpec))) {
     let availableVersions = getVersions(environment, available);
 
-    versions = splitVersions(versionSpec).map(function(version) {
+    versions = splitVersions(versionSpec).map(function (version) {
       const resolved = resolveVersionAlias(version, availableVersions);
       if (resolved == null) {
         throw new Error(
-          `Unable to resolve version "${version}" for ${
-            environment.browserName
-          }. Are you using the proper browser and platform names for the tunnel?`
+          `Unable to resolve version "${version}" for ${environment.browserName}. Are you using the proper browser and platform names for the tunnel?`
         );
       }
       return resolved;
@@ -368,7 +366,7 @@ function createPermutations(
 
   // Expand the permutation set for each source
   return sources
-    .map(function(source) {
+    .map(function (source) {
       return Object.keys(source).reduce(
         (permutations: FlatEnvironment[], key: string) => {
           if (Array.isArray(source[key])) {
@@ -377,9 +375,9 @@ function createPermutations(
             // these copies as the new value of `permutations`
             permutations = source[key]
               .map((value: any) =>
-                permutations.map(permutation => ({
+                permutations.map((permutation) => ({
                   ...permutation,
-                  [key]: value
+                  [key]: value,
                 }))
               )
               .reduce(
@@ -390,7 +388,7 @@ function createPermutations(
           } else {
             // For simple values, add the value to all current
             // permutations
-            permutations.forEach(permutation => {
+            permutations.forEach((permutation) => {
               permutation[key] = source[key];
             });
           }
@@ -410,12 +408,12 @@ function normalizeBrowserNames(
   environments: EnvironmentOptions[],
   available: NormalizedEnvironment[]
 ) {
-  return environments.map(env => {
+  return environments.map((env) => {
     if (env.browserName === 'MicrosoftEdge') {
-      if (available.some(ae => ae.browserName === 'edge')) {
+      if (available.some((ae) => ae.browserName === 'edge')) {
         return {
           ...env,
-          browserName: 'edge'
+          browserName: 'edge',
         };
       }
     }

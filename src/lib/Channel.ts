@@ -23,7 +23,7 @@ export default class Channel {
 
   protected _initialize() {
     if (!this._initialized) {
-      this._initialized = new Promise<void>(resolve => {
+      this._initialized = new Promise<void>((resolve) => {
         if (this.options.port) {
           try {
             this._channel = new WebSocketChannel(this.options);
@@ -31,7 +31,7 @@ export default class Channel {
               () => {
                 resolve();
               },
-              _error => {
+              (_error) => {
                 this._channel = new HttpChannel(this.options);
                 resolve();
               }

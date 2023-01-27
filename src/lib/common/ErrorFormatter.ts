@@ -52,8 +52,8 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
       // Assertion errors may have showDiff, actual, and expected properties
       if (
         (anyError.showDiff &&
-          (typeof anyError.actual === 'object' &&
-            typeof anyError.expected === 'object')) ||
+          typeof anyError.actual === 'object' &&
+          typeof anyError.expected === 'object') ||
         (typeof anyError.actual === 'string' &&
           typeof anyError.expected === 'string')
       ) {
@@ -90,7 +90,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
       const lines = message.split('\n');
       message = [lines[0]]
         .concat(
-          lines.slice(1).map(line => {
+          lines.slice(1).map((line) => {
             return space + line;
           })
         )
@@ -124,7 +124,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
     // TODO: Remove the casts when the diffJson typings are updated (the
     // current typings are missing the options argument).
     let diff = <Change[]>(<any>diffJson)(actual, expected, {
-      undefinedReplacement: null
+      undefinedReplacement: null,
     });
     if (diff.length === 1 && !diff[0].added && !diff[0].removed) {
       return '';
@@ -172,7 +172,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
       : this._processSafariTrace(lines);
 
     if (this.executor.config.filterErrorStack) {
-      stackLines = stackLines.filter(line => {
+      stackLines = stackLines.filter((line) => {
         return !(
           /\binternal\/process\//.test(line) ||
           /\bnode_modules\/(?!digdug|leadfoot)/.test(line) ||
@@ -199,7 +199,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
    *   at Function.m.emit (dojo.js.uncompressed.js:8875)
    */
   protected _processChromeTrace(lines: string[]) {
-    return lines.map(line => {
+    return lines.map((line) => {
       let match: RegExpMatchArray | null;
       if ((match = /^\s*at (.+?) \(([^)]+)\)$/.exec(line))) {
         return this._formatLine({ func: match[1], source: match[2] });
@@ -221,7 +221,7 @@ export default class ErrorFormatter implements ErrorFormatterProperties {
    *   emit@http://ajax.googleapis.com/ajax/libs/dojo/1.12.2/dojo/dojo.js:118:282
    */
   protected _processSafariTrace(lines: string[]) {
-    return lines.map(line => {
+    return lines.map((line) => {
       let match: RegExpMatchArray | null;
       if ((match = /^([^@]+)@(.*)/.exec(line))) {
         return this._formatLine({ func: match[1], source: match[2] });

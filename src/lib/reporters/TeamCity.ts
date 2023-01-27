@@ -24,7 +24,7 @@ export default class TeamCity extends Reporter {
   testStart(test: Test) {
     this._sendMessage('testStarted', {
       name: test.name,
-      flowId: test.sessionId
+      flowId: test.sessionId,
     });
   }
 
@@ -34,7 +34,7 @@ export default class TeamCity extends Reporter {
       const message: any = {
         name: test.name,
         message: this.formatError(test.error),
-        flowId: test.sessionId
+        flowId: test.sessionId,
       };
 
       if (test.error.actual && test.error.expected) {
@@ -47,13 +47,13 @@ export default class TeamCity extends Reporter {
     } else if (test.skipped) {
       this._sendMessage('testIgnored', {
         name: test.name,
-        flowId: test.sessionId
+        flowId: test.sessionId,
       });
     } else {
       this._sendMessage('testFinished', {
         name: test.name,
         duration: test.timeElapsed,
-        flowId: test.sessionId
+        flowId: test.sessionId,
       });
     }
   }
@@ -63,7 +63,7 @@ export default class TeamCity extends Reporter {
     this._sendMessage('testSuiteStarted', {
       name: suite.name,
       startDate: new Date(),
-      flowId: suite.sessionId
+      flowId: suite.sessionId,
     });
   }
 
@@ -75,7 +75,7 @@ export default class TeamCity extends Reporter {
         flowId: suite.sessionId,
         text: 'SUITE ERROR',
         errorDetails: this.formatError(suite.error),
-        status: 'ERROR'
+        status: 'ERROR',
       });
 
       this._notifyUnrunTests(suite);
@@ -83,7 +83,7 @@ export default class TeamCity extends Reporter {
       this._sendMessage('testSuiteFinished', {
         name: suite.name,
         duration: suite.timeElapsed,
-        flowId: suite.sessionId
+        flowId: suite.sessionId,
       });
     }
   }
@@ -104,10 +104,10 @@ export default class TeamCity extends Reporter {
       '\n': '|n',
       '\r': '|r',
       '[': '|[',
-      ']': '|]'
+      ']': '|]',
     };
 
-    return str.replace(replacer, function(character: string): string {
+    return str.replace(replacer, function (character: string): string {
       if (character in map) {
         return (<{ [key: string]: any }>map)[character];
       }
@@ -129,13 +129,13 @@ export default class TeamCity extends Reporter {
       ignoredTests = ignoredTestIds![suite.sessionId] = {};
     }
 
-    suite.tests.forEach(test => {
+    suite.tests.forEach((test) => {
       if (isSuite(test)) {
         this._notifyUnrunTests(test);
       } else if (!ignoredTests[test.id]) {
         this._sendMessage('testIgnored', {
           name: test.name,
-          flowId: test.sessionId
+          flowId: test.sessionId,
         });
         ignoredTests[test.id] = true;
       }
@@ -153,7 +153,7 @@ export default class TeamCity extends Reporter {
   private _sendMessage(type: string, args: any): void {
     args.timestamp = new Date().toISOString().slice(0, -1);
     args = Object.keys(args)
-      .map(key => `${key}='${this._escapeString(String(args[key]))}'`)
+      .map((key) => `${key}='${this._escapeString(String(args[key]))}'`)
       .join(' ');
 
     this.output.write(`##teamcity[${type} ${args}]\n`);

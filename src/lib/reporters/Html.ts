@@ -8,7 +8,7 @@ import {
   failIcon,
   testsIcon,
   skipIcon,
-  timeIcon
+  timeIcon,
 } from './html/icons';
 
 // Needs a URLSearchParams polyfill
@@ -90,7 +90,7 @@ export default class Html extends Reporter implements HtmlProperties {
       formatDuration(duration),
       numSkippedTests,
       suite.numFailedTests,
-      percentPassed + '%'
+      percentPassed + '%',
     ];
 
     for (let i = 0; i < rowInfo.length; ++i) {
@@ -161,7 +161,7 @@ export default class Html extends Reporter implements HtmlProperties {
     const child: Element = node.children[1];
 
     // get the indentN class
-    const indent = child.className.split(' ').filter(function(name: string) {
+    const indent = child.className.split(' ').filter(function (name: string) {
       return name.indexOf('indent') >= 0;
     })[0];
 
@@ -244,14 +244,14 @@ export default class Html extends Reporter implements HtmlProperties {
       'Duration',
       'Skipped',
       'Failed',
-      'Success Rate'
+      'Success Rate',
     ];
     const summaryIcons: { [key: string]: string } = {
       suites: suitesIcon,
       tests: testsIcon,
       duration: timeIcon,
       skipped: skipIcon,
-      failed: failIcon
+      failed: failIcon,
     };
 
     const fragment = this._fragment;
@@ -399,7 +399,7 @@ export default class Html extends Reporter implements HtmlProperties {
     this._reportContainer.appendChild(reportTableNode);
 
     // Handle clicks on table rows, which will expand or collapse rows
-    this._reportNode.addEventListener('click', event => {
+    this._reportNode.addEventListener('click', (event) => {
       let target: Element | null = <Element>event.target;
       if (!target || target.tagName === 'A') {
         return;

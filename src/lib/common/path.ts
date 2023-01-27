@@ -15,7 +15,7 @@ export function dirname(path: string) {
  * Get the path separator used for a given set of paths.
  */
 export function getPathSep(...paths: string[]) {
-  return paths.some(path => /\\/.test(path)) ? '\\' : '/';
+  return paths.some((path) => /\\/.test(path)) ? '\\' : '/';
 }
 
 /**
